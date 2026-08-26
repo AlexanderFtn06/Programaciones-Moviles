@@ -128,16 +128,7 @@ fun main() {
     println("Eliminando el producto 'Teclado'...")
     carrito.removeIf { it.getName() == "Teclado" }
 
-    // 3. Volver a mostrar el detalle actualizado
-    println()
-    mostrarDetalle(carrito)
-    val nuevoSubtotal = calcularSubtotal(carrito)
-    val nuevoIgv = calcularIGV(nuevoSubtotal)
-    val nuevoTotal = calcularTotal(nuevoSubtotal, nuevoIgv)
 
-    println(String.format("%-20s S/ %8.2f", "Subtotal:", nuevoSubtotal))
-    println(String.format("%-20s S/ %8.2f", "IGV (18%):", nuevoIgv))
-    println(String.format("%-20s S/ %8.2f", "TOTAL A PAGAR:", nuevoTotal))
 }
 
 
