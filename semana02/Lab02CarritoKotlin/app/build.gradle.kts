@@ -55,8 +55,17 @@ dependencies {
 
 tasks.register<JavaExec>("ejecutarCarrito") {
     group = "application"
-    val compileTask = tasks.named("compileDebugKotlin")
-    dependsOn(compileTask)
+    description = "Ejecuta el main de Carrito.kt"
+
+    dependsOn("compileDebugKotlin", "compileDebugJavaWithJavac")
+
     mainClass.set("com.faustino.lab02carritokotlin.CarritoKt")
-    classpath = files(compileTask.map { it.outputs.files }) + configurations.getByName("debugRuntimeClasspath")
+
+    val kotlinClasses = tasks.named("compileDebugKotlin").get().outputs.files
+    val javacClasses = layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes")
+
+    classpath = files(kotlinClasses, javacClasses) + configurations.getByName("debugRuntimeClasspath")
+
+    standardInput = System.`in`
 }
+

@@ -42,6 +42,31 @@ fun buscarProducto(productos: List<Product>, nombre: String): Product? {
     return null
 }
 
+fun leerProducto(): Product {
+    println()
+    print("Nombre del producto: ")
+    val nombre = readLine() ?: ""
+
+    print("Precio: ")
+    val precio = readLine()?.toDoubleOrNull() ?: 0.0
+
+    print("Cantidad: ")
+    val cantidad = readLine()?.toIntOrNull() ?: 1
+
+    print("Tipo (1 = Electronico, 2 = Alimento): ")
+    val tipo = readLine()?.toIntOrNull() ?: 1
+
+    return if (tipo == 2) {
+        print("Es perecible? (s/n): ")
+        val esPerecible = readLine()?.trim()?.equals("s", ignoreCase = true) ?: false
+        FoodProduct(nombre, precio, cantidad, esPerecible)
+    } else {
+        print("Meses de garantia: ")
+        val garantia = readLine()?.toIntOrNull() ?: 0
+        ElectronicProduct(nombre, precio, cantidad, garantia)
+    }
+}
+
 fun main() {
     println("=========================================")
     println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
@@ -52,15 +77,18 @@ fun main() {
     println("Cliente: $nombreCliente")
     println()
 
-    carrito.add(ElectronicProduct("Laptop", 3500.0, 1,12))
-    carrito.add(ElectronicProduct("Mouse", 45.5, 2,6))
-    carrito.add(ElectronicProduct("Teclado", 120.0, 1,6))
-    carrito.add(ElectronicProduct("Monitor", 850.0, 1,12))
-    carrito.add(FoodProduct("Snacks variados", 25.0, 3, true))
-
-    for (producto in carrito) {
-        println("Producto agregado: ${producto.getName()}")
+    print("Cuantos productos desea ingresar? ")
+    var cantidadProductos = readLine()?.toIntOrNull() ?: 3
+    if (cantidadProductos < 3) {
+        println("Se requieren minimo 3 productos, se usara 3.")
+        cantidadProductos = 3
     }
+
+    for (n in 1..cantidadProductos) {
+        println("--- Producto $n ---")
+        carrito.add(leerProducto())
+    }
+
     println()
     mostrarDetalle(carrito)
     println("Cantidad de productos: ${carrito.size}")
