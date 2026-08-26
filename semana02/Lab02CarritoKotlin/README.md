@@ -23,7 +23,8 @@ Carrito de compras usando una data class Producto y funciones (calcularSubtotal,
 <img width="416" height="810" alt="image" src="https://github.com/user-attachments/assets/a1833df1-a8ab-480f-920d-7669497a1e09" />
 
 ## Rama-con-IA: Version orientada a objeto
-
+Promt:
+Ahora actúa como desarrollador/programador y ayúdame hacer este código orientado a objetos utilizando los 4 principios Abstracción , encapsulamiento, herencia y polimorfismo, pero que sea parte por parte para hacer commits y subirlo a GitHub
 Se aplicaron los 4 pilares de la POO:
 
 ### Resultado de ejecucion (Rama-con-IA)
