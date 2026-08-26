@@ -1,18 +1,13 @@
 package com.faustino.lab02carritokotlin
 
-data class Producto(
-    val nombre: String,
-    val precio: Double,
-    var cantidad: Int
-)
-
-fun calcularSubtotal(productos: List<Producto>): Double {
+fun calcularSubtotal(productos: List<Product>): Double {
     var subtotal = 0.0
     for (p in productos) {
-        subtotal += p.precio * p.cantidad
+        subtotal += p.calculateAmount()
     }
     return subtotal
 }
+
 fun calcularIGV(subtotal: Double): Double {
     return subtotal * 0.18
 }
@@ -20,13 +15,12 @@ fun calcularIGV(subtotal: Double): Double {
 fun calcularTotal(subtotal: Double, igv: Double): Double {
     return subtotal + igv
 }
-fun mostrarDetalle(productos: List<Producto>) {
+fun mostrarDetalle(productos: List<Product>) {
     println("--------- DETALLE DEL CARRITO ---------")
     var i = 1
     for (p in productos) {
-        val importe = p.precio * p.cantidad
         println(String.format("%d. %-20s x%d  S/ %8.2f",
-            i, p.nombre, p.cantidad, importe))
+            i, p.getName(), p.getQuantity(), p.calculateAmount()))
         i++
     }
     println("-----------------------------------------")
@@ -39,8 +33,13 @@ fun calcularDescuento(total: Double): Double {
         else -> 0.0
     }
 }
-fun buscarProducto(productos: List<Producto>, nombre: String): Producto? {
-    return productos.find { it.nombre == nombre }
+fun buscarProducto(productos: List<Product>, nombre: String): Product? {
+    for (p in productos) {
+        if (p.getName() == nombre) {
+            return p
+        }
+    }
+    return null
 }
 
 fun main() {
@@ -49,17 +48,18 @@ fun main() {
     println("=========================================")
 
     val nombreCliente = "Alexander  Faustino" // String (inferido)
-    val carrito = mutableListOf<Producto>() // lista vacía de productos
+    val carrito = mutableListOf<Product>() // lista vacía de productos
     println("Cliente: $nombreCliente")
     println()
 
-    carrito.add(Producto("Laptop", 3500.0, 1))
-    carrito.add(Producto("Mouse", 45.5, 2))
-    carrito.add(Producto("Teclado", 120.0, 1))
-    carrito.add(Producto("Monitor", 850.0, 1))
+    carrito.add(ElectronicProduct("Laptop", 3500.0, 1,12))
+    carrito.add(ElectronicProduct("Mouse", 45.5, 2,6))
+    carrito.add(ElectronicProduct("Teclado", 120.0, 1,6))
+    carrito.add(ElectronicProduct("Monitor", 850.0, 1,12))
+    carrito.add(FoodProduct("Snacks variados", 25.0, 3, true))
 
     for (producto in carrito) {
-        println("Producto agregado: ${producto.nombre}")
+        println("Producto agregado: ${producto.getName()}")
     }
     println()
     mostrarDetalle(carrito)
@@ -74,8 +74,8 @@ fun main() {
     println(String.format("%-20s S/ %8.2f", "IGV (18%):", igv))
     println(String.format("%-20s S/ %8.2f", "TOTAL A PAGAR:", total))
 
-    val masCaro = carrito.maxByOrNull { it.precio }
-    println("Producto mas caro: ${masCaro?.nombre} - S/ ${masCaro?.precio}")
+    val masCaro = carrito.maxByOrNull { it.getPrice() }
+    println("Producto mas caro: ${masCaro?.getName()} - S/ ${masCaro?.getPrice()}")
 
     val descuento = calcularDescuento(total)
     val totalConDescuento = total - descuento
@@ -92,13 +92,13 @@ fun main() {
     val productoBuscado = buscarProducto(carrito, "Mouse")
 
     if (productoBuscado != null) {
-        println("Producto encontrado: ${productoBuscado.nombre} - S/ ${productoBuscado.precio}")
+        println("Producto encontrado: ${productoBuscado.getName()} - S/ ${productoBuscado.getPrice()}")
     } else {
         println("Producto no encontrado")
     }
     println()
     println("Eliminando el producto 'Teclado'...")
-    carrito.removeIf { producto -> producto.nombre == "Teclado" }
+    carrito.removeIf { it.getName() == "Teclado" }
 
     // 3. Volver a mostrar el detalle actualizado
     println()
