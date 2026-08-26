@@ -68,4 +68,3 @@ tasks.register<JavaExec>("ejecutarCarrito") {
 
     standardInput = System.`in`
 }
-
