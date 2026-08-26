@@ -52,3 +52,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
+
+tasks.register<JavaExec>("ejecutarCarrito") {
+    group = "application"
+    val compileTask = tasks.named("compileDebugKotlin")
+    dependsOn(compileTask)
+    mainClass.set("com.faustino.lab02carritokotlin.CarritoKt")
+    classpath = files(compileTask.map { it.outputs.files }) + configurations.getByName("debugRuntimeClasspath")
+}
