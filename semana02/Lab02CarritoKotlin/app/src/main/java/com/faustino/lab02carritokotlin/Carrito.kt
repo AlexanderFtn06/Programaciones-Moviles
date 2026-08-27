@@ -72,16 +72,17 @@ fun main() {
     println(" CARRITO DE COMPRAS - TIENDA TECSUP ")
     println("=========================================")
 
-    val nombreCliente = "Alexander  Faustino" // String (inferido)
-    val carrito = mutableListOf<Product>() // lista vacía de productos
+    print("Nombre del cliente: ")
+    val nombreCliente = readLine() ?: "Cliente"
+    val carrito = mutableListOf<Product>()
     println("Cliente: $nombreCliente")
     println()
 
-    print("Cuantos productos desea ingresar? ")
-    var cantidadProductos = readLine()?.toIntOrNull() ?: 3
-    if (cantidadProductos < 3) {
-        println("Se requieren minimo 3 productos, se usara 3.")
-        cantidadProductos = 3
+    print("Cuantos productos desea ingresar (minimo 1)? ")
+    var cantidadProductos = readLine()?.toIntOrNull() ?: 1
+    if (cantidadProductos < 1) {
+        println("Se requiere minimo 1 producto, se usara 1.")
+        cantidadProductos = 1
     }
 
     for (n in 1..cantidadProductos) {
@@ -116,19 +117,25 @@ fun main() {
     println(String.format("%-20s S/ %8.2f", "TOTAL CON DESCUENTO:", totalConDescuento))
 
     println()
-    println("Buscando el producto 'Mouse'...")
-    val productoBuscado = buscarProducto(carrito, "Mouse")
+    print("Nombre del producto a buscar: ")
+    val nombreABuscar = readLine() ?: ""
+    val productoBuscado = buscarProducto(carrito, nombreABuscar)
 
     if (productoBuscado != null) {
         println("Producto encontrado: ${productoBuscado.getName()} - S/ ${productoBuscado.getPrice()}")
     } else {
         println("Producto no encontrado")
     }
+
     println()
-    println("Eliminando el producto 'Teclado'...")
-    carrito.removeIf { it.getName() == "Teclado" }
-
-
+    print("Nombre del producto a eliminar: ")
+    val nombreAEliminar = readLine() ?: ""
+    val eliminado = carrito.removeIf { it.getName() == nombreAEliminar }
+    if (eliminado) {
+        println("Producto eliminado correctamente.")
+    } else {
+        println("Producto no encontrado, no se elimino nada.")
+    }
 }
 
 
