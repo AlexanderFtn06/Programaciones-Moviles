@@ -11,14 +11,19 @@ data class Prestamo(
     val diasAtraso: Int
 )
 
-const val MULTA_POR_DIA = 1.50
+const val MULTA_ALUMNO = 1.50
+const val MULTA_DOCENTE = 2.00
 
 val FORMATO_FECHA: DateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
 
-fun calcularMultaTotal(diasAtraso: Int): Double {
+fun obtenerMultaPorDia(tipoUsuario: String): Double {
+    return if (tipoUsuario.equals("Docente", ignoreCase = true)) MULTA_DOCENTE else MULTA_ALUMNO
+}
+fun calcularMultaTotal(tipoUsuario: String, diasAtraso: Int): Double {
+    val multaPorDia = obtenerMultaPorDia(tipoUsuario)
     var acumulado = 0.0
     for (dia in 1..diasAtraso) {
-        acumulado += MULTA_POR_DIA
+        acumulado += multaPorDia
     }
     return acumulado
 }
@@ -27,14 +32,15 @@ fun estadoPrestamo(diasAtraso: Int): String {
     return if (diasAtraso > 0) "Devuelto con $diasAtraso dia(s) de atraso" else "Devuelto a tiempo"
 }
 
-fun mostrarTablaMultas(fechaDevolucionTexto: String, diasAtraso: Int) {
+fun mostrarTablaMultas(tipoUsuario: String, fechaDevolucionTexto: String, diasAtraso: Int) {
+    val multaPorDia = obtenerMultaPorDia(tipoUsuario)
     val fechaDevolucion = LocalDate.parse(fechaDevolucionTexto, FORMATO_FECHA)
     println("Dia\tFecha\t\tMulta/Dia\tAcumulado")
     var acumulado = 0.0
     for (dia in 1..diasAtraso) {
-        acumulado += MULTA_POR_DIA
+        acumulado += multaPorDia
         val fechaDia = fechaDevolucion.plusDays(dia.toLong())
-        println(String.format("%d\t%s\tS/ %.2f\tS/ %.2f", dia, fechaDia.format(FORMATO_FECHA), MULTA_POR_DIA, acumulado))
+        println(String.format("%d\t%s\tS/ %.2f\tS/ %.2f", dia, fechaDia.format(FORMATO_FECHA), multaPorDia, acumulado))
     }
 }
 fun main() {
@@ -65,8 +71,8 @@ fun main() {
     println("Fecha Entrega    : ${prestamo.fechaEntrega}")
     println("Estado           : ${estadoPrestamo(prestamo.diasAtraso)}")
     println()
-    mostrarTablaMultas(prestamo.fechaDevolucion, prestamo.diasAtraso)
-    val multaTotal = calcularMultaTotal(prestamo.diasAtraso)
+    mostrarTablaMultas(prestamo.tipoUsuario, prestamo.fechaDevolucion, prestamo.diasAtraso)
+    val multaTotal = calcularMultaTotal(prestamo.tipoUsuario, prestamo.diasAtraso)
     println()
     println(String.format("%-20s S/ %.2f", "MULTA TOTAL:", multaTotal))
 }
