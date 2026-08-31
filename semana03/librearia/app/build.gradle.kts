@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.faustino.librearia"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 37
         versionCode = 1
         versionName = "1.0"
@@ -51,4 +51,19 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+tasks.register<JavaExec>("ejecutarCarrito") {
+    group = "application"
+    description = "Ejecuta el main de Prestamo.kt"
+
+    dependsOn("compileDebugKotlin", "compileDebugJavaWithJavac")
+
+    mainClass.set("com.faustino.libreria.PrestamoKt")
+
+    val kotlinClasses = tasks.named("compileDebugKotlin").get().outputs.files
+    val javacClasses = layout.buildDirectory.dir("intermediates/javac/debug/compileDebugJavaWithJavac/classes")
+
+    classpath = files(kotlinClasses, javacClasses) + configurations.getByName("debugRuntimeClasspath")
+
+    standardInput = System.`in`
 }

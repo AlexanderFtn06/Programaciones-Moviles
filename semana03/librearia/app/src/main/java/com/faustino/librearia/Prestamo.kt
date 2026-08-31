@@ -37,3 +37,36 @@ fun mostrarTablaMultas(fechaDevolucionTexto: String, diasAtraso: Int) {
         println(String.format("%d\t%s\tS/ %.2f\tS/ %.2f", dia, fechaDia.format(FORMATO_FECHA), MULTA_POR_DIA, acumulado))
     }
 }
+fun main() {
+    println("=========================================")
+    println(" SISTEMA DE MULTAS")
+    println("=========================================")
+
+    print("Titulo del libro: ")
+    val titulo = readLine() ?: ""
+    print("Tipo de usuario (Docente/Alumno): ")
+    val tipoUsuario = readLine() ?: ""
+    print("Fecha de prestamo (dd/MM/yyyy): ")
+    val fechaPrestamo = readLine() ?: ""
+    print("Fecha de devolucion (dd/MM/yyyy): ")
+    val fechaDevolucion = readLine() ?: ""
+    print("Fecha de entrega (dd/MM/yyyy): ")
+    val fechaEntrega = readLine() ?: ""
+
+    print("Dias de atraso: ")
+    val diasAtraso = readLine()?.toIntOrNull() ?: 0
+    val prestamo = Prestamo(titulo, tipoUsuario, fechaPrestamo, fechaDevolucion, fechaEntrega, diasAtraso)
+
+    println()
+    println("Titulo Libro     : ${prestamo.titulo}")
+    println("Tipo de Usuario  : ${prestamo.tipoUsuario}")
+    println("Fecha Prestamo   : ${prestamo.fechaPrestamo}")
+    println("Fecha Devolucion : ${prestamo.fechaDevolucion}")
+    println("Fecha Entrega    : ${prestamo.fechaEntrega}")
+    println("Estado           : ${estadoPrestamo(prestamo.diasAtraso)}")
+    println()
+    mostrarTablaMultas(prestamo.fechaDevolucion, prestamo.diasAtraso)
+    val multaTotal = calcularMultaTotal(prestamo.diasAtraso)
+    println()
+    println(String.format("%-20s S/ %.2f", "MULTA TOTAL:", multaTotal))
+}
