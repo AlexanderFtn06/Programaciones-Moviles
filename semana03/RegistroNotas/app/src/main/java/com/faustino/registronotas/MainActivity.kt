@@ -5,7 +5,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +16,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Row
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -50,6 +57,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun PantallaNotas(modifier: Modifier = Modifier) {
 
+    var nota1 by remember { mutableFloatStateOf(0f) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -65,8 +73,30 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline
         )
+        Spacer(modifier = Modifier.height(16.dp))
+
+        FilaCurso(
+            nombre = "Fundamentos de Programación",
+            peso = 0.20,
+            valor = nota1,
+            onValorChange = { nota1 = it }
+        )
     }
 }
+
+@Composable
+fun FilaCurso(nombre: String, peso: Double, valor: Float, onValorChange: (Float) -> Unit) {
+    Column(modifier = Modifier.padding(bottom = 12.dp)) {
+        Row {
+            Text(text = nombre, fontWeight = FontWeight.Bold)
+            Text(
+                text = " (${(peso * 100).toInt()}%)",
+                color = MaterialTheme.colorScheme.outline
+            )
+        }
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PantallaNotasPreview() {
