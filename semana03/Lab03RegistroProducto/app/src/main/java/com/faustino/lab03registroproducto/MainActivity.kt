@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -54,6 +55,7 @@ fun PantallaRegistro(
     var cantidad by remember { mutableStateOf("") }
     var mostrarResumen by remember { mutableStateOf(false) }
     var importeTotal by remember { mutableStateOf(0.0) }
+    var mensajeError by remember { mutableStateOf("") }
 
 
     Column(
@@ -127,12 +129,17 @@ fun PantallaRegistro(
 
         Button(
             onClick = {
+                if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                    mostrarResumen = false
+                    mensajeError = "Completa todos los campos"
+                } else {
+                    mensajeError = ""
+                    val p = precio.toDoubleOrNull() ?: 0.0
+                    val c = cantidad.toIntOrNull() ?: 0
 
-                val p = precio.toDoubleOrNull() ?: 0.0
-                val c = cantidad.toIntOrNull() ?: 0
-
-                importeTotal = p * c
-                mostrarResumen = true
+                    importeTotal = p * c
+                    mostrarResumen = true
+                }
 
             },
             modifier = Modifier.fillMaxWidth()
@@ -140,6 +147,29 @@ fun PantallaRegistro(
 
             Text(
                 text = "AGREGAR PRODUCTO"
+            )
+        }
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedButton(
+            onClick = {
+                nombre = ""
+                precio = ""
+                cantidad = ""
+                mostrarResumen = false
+                mensajeError = ""
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "LIMPIAR")
+        }
+
+        if (mensajeError.isNotEmpty()) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = mensajeError,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
 
