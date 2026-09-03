@@ -30,6 +30,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
@@ -208,6 +209,22 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                 Text(text = "CALCULAR PROMEDIO")
             }
 
+            Spacer(modifier = Modifier.height(8.dp))
+
+            OutlinedButton(
+                onClick = {
+                    nota1 = 0f
+                    nota2 = 0f
+                    nota3 = 0f
+                    nota4 = 0f
+                    redondear = false
+                    confirmado = false
+                    mostrarResultado = false
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "LIMPIAR")
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -308,13 +325,15 @@ fun FilaCurso(nombre: String, peso: Double, valor: Float, onValorChange: (Float)
             Box(
                 modifier = Modifier
                     .clip(RoundedCornerShape(8.dp))
-                    .background(MaterialTheme.colorScheme.primaryContainer)
+                    .background(
+                        if (valor < 13f) Color(0xFFFFCDD2) else Color(0xFFC8E6C9)
+                    )
                     .padding(horizontal = 10.dp, vertical = 4.dp)
             ) {
                 Text(
                     text = "${valor.toInt()}",
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
+                    color = if (valor < 13f) Color(0xFFC62828) else Color(0xFF2E7D32)
                 )
             }
         }
