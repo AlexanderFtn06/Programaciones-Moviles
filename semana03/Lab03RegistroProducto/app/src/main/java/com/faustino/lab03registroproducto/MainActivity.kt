@@ -129,14 +129,13 @@ fun PantallaRegistro(
 
         Button(
             onClick = {
-                if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank()) {
+                val p = precio.toDoubleOrNull()
+                val c = cantidad.toIntOrNull()
+                if (nombre.isBlank() || precio.isBlank() || cantidad.isBlank() || p == null || c == null) {
                     mostrarResumen = false
-                    mensajeError = "Completa todos los campos"
-                } else {
+                    mensajeError = "Completa todos los campos con valores válidos"
+                }else {
                     mensajeError = ""
-                    val p = precio.toDoubleOrNull() ?: 0.0
-                    val c = cantidad.toIntOrNull() ?: 0
-
                     importeTotal = p * c
                     mostrarResumen = true
                 }
