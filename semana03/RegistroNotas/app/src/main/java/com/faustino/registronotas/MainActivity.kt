@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Slider
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
@@ -65,6 +66,9 @@ class MainActivity : ComponentActivity() {
 fun PantallaNotas(modifier: Modifier = Modifier) {
 
     var nota1 by remember { mutableFloatStateOf(0f) }
+    var nota2 by remember { mutableFloatStateOf(0f) }
+    var nota3 by remember { mutableFloatStateOf(0f) }
+    var nota4 by remember { mutableFloatStateOf(0f) }
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -87,6 +91,25 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             peso = 0.20,
             valor = nota1,
             onValorChange = { nota1 = it }
+        )
+        FilaCurso(
+            nombre = "Programación Orientada a Objetos",
+            peso = 0.25,
+            valor = nota2,
+            onValorChange = { nota2 = it }
+        )
+        FilaCurso(
+            nombre = "Programación en Móviles",
+            peso = 0.30,
+            valor = nota3,
+            onValorChange = { nota3 = it }
+        )
+
+        FilaCurso(
+            nombre = "Base de Datos",
+            peso = 0.25,
+            valor = nota4,
+            onValorChange = { nota4 = it }
         )
     }
 }
@@ -119,6 +142,12 @@ fun FilaCurso(nombre: String, peso: Double, valor: Float, onValorChange: (Float)
                 )
             }
         }
+        Slider(
+            value = valor,
+            onValueChange = onValorChange,
+            valueRange = 0f..20f,
+            steps = 19
+        )
     }
 }
 
