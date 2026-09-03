@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -92,7 +93,6 @@ fun PantallaRegistro(
         )
 
 
-        // Precio y cantidad en la misma fila
         Row(
             modifier = Modifier.fillMaxWidth()
         ) {
@@ -121,14 +121,10 @@ fun PantallaRegistro(
                 modifier = Modifier.weight(1f)
             )
         }
-
-
         Spacer(
             modifier = Modifier.height(24.dp)
         )
 
-
-        // Botón agregar
         Button(
             onClick = {
 
@@ -147,15 +143,8 @@ fun PantallaRegistro(
             )
         }
 
-
-        // Card aparece debajo del botón
         if (mostrarResumen) {
-
-            Spacer(
-                modifier = Modifier.height(16.dp)
-            )
-
-
+            Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
@@ -168,18 +157,10 @@ fun PantallaRegistro(
 
                     Text(
                         text = nombre,
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.titleLarge
                     )
-
-                    Text(
-                        text = "Precio: S/ %.2f".format(
-                            precio.toDoubleOrNull() ?: 0.0
-                        )
-                    )
-
-                    Text(
-                        text = "Cantidad: $cantidad"
-                    )
+                    Text(text = "Precio: S/ %.2f".format(precio.toDoubleOrNull() ?: 0.0))
+                    Text(text = "Cantidad: $cantidad")
 
                     Text(
                         text = "Importe total: S/ %.2f".format(importeTotal),
@@ -189,6 +170,14 @@ fun PantallaRegistro(
                     )
                 }
             }
+
+            Spacer(
+                modifier = Modifier.height(16.dp)
+            )
+            Text(
+                text = "✓ Producto registrado correctamente",
+                color = Color(0xFF2E7D32)
+            )
         }
     }
 }
