@@ -23,8 +23,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Switch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -69,6 +71,8 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     var nota2 by remember { mutableFloatStateOf(0f) }
     var nota3 by remember { mutableFloatStateOf(0f) }
     var nota4 by remember { mutableFloatStateOf(0f) }
+    var redondear by remember { mutableStateOf(false) }
+
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -111,6 +115,22 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
             valor = nota4,
             onValorChange = { nota4 = it }
         )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 8.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(text = "Redondear promedio final")
+            Switch(
+                checked = redondear,
+                onCheckedChange = { redondear = it }
+            )
+        }
     }
 }
 
