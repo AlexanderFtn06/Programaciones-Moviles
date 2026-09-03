@@ -21,12 +21,17 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -36,8 +41,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.faustino.registronotas.ui.theme.RegistroNotasTheme
@@ -87,156 +94,202 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primaryContainer,
+                        Color.White
+                    )
+                )
+            )
     ) {
-        Text(
-            text = "Notas del ciclo",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold
-        )
-        Text(
-            text = "Desliza para asignar cada nota (0 a 20)",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        FilaCurso(
-            nombre = "Fundamentos de Programación",
-            peso = 0.20,
-            valor = nota1,
-            onValorChange = { nota1 = it }
-        )
-        FilaCurso(
-            nombre = "Programación Orientada a Objetos",
-            peso = 0.25,
-            valor = nota2,
-            onValorChange = { nota2 = it }
-        )
-        FilaCurso(
-            nombre = "Programación en Móviles",
-            peso = 0.30,
-            valor = nota3,
-            onValorChange = { nota3 = it }
-        )
-
-        FilaCurso(
-            nombre = "Base de Datos",
-            peso = 0.25,
-            valor = nota4,
-            onValorChange = { nota4 = it }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Row(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 8.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+                .padding(16.dp)
         ) {
-            Text(text = "Redondear promedio final")
-            Switch(
-                checked = redondear,
-                onCheckedChange = { redondear = it }
-            )
-        }
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Checkbox(
-                checked = confirmado,
-                onCheckedChange = { confirmado = it }
-            )
-            Text(text = "Confirmo que las notas son correctas")
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-        Button(
-            onClick = {
-                val ponderado = nota1 * 0.20 + nota2 * 0.25 + nota3 * 0.30 + nota4 * 0.25
-                val final = if (redondear) ponderado.roundToInt().toDouble() else ponderado
 
-                promedioPonderado = ponderado
-                promedioFinal = final
-
-                when {
-                    final >= 17 -> { observacion = "EXCELENTE"; colorChip = Color(0xFF1B5E20) }
-                    final >= 13 -> { observacion = "APROBADO"; colorChip = Color(0xFF4CAF50) }
-                    final >= 10 -> { observacion = "EN RECUPERACIÓN"; colorChip = Color(0xFFFFA000) }
-                    else -> { observacion = "DESAPROBADO"; colorChip = Color(0xFFD32F2F) }
-                }
-
-                mostrarResultado = true
-            },
-            enabled = confirmado,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text(text = "CALCULAR PROMEDIO")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        if (!mostrarResultado) {
             Text(
-                text = "Asigna las notas y confirma para calcular",
+                text = "Notas del ciclo",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold
+            )
+            Text(
+                text = "Desliza para asignar cada nota (0 a 20)",
+                style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline
             )
-        }else {                                                              // NUEVO
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            FilaCurso(
+                nombre = "Fundamentos de Programación",
+                peso = 0.20,
+                valor = nota1,
+                onValorChange = { nota1 = it }
+            )
+            FilaCurso(
+                nombre = "Programación Orientada a Objetos",
+                peso = 0.25,
+                valor = nota2,
+                onValorChange = { nota2 = it }
+            )
+            FilaCurso(
+                nombre = "Programación en Móviles",
+                peso = 0.30,
+                valor = nota3,
+                onValorChange = { nota3 = it }
+            )
+
+            FilaCurso(
+                nombre = "Base de Datos",
+                peso = 0.25,
+                valor = nota4,
+                onValorChange = { nota4 = it }
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Text(text = "Redondear promedio final")
+                Switch(
+                    checked = redondear,
+                    onCheckedChange = { redondear = it }
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Checkbox(
+                    checked = confirmado,
+                    onCheckedChange = { confirmado = it }
+                )
+                Text(text = "Confirmo que las notas son correctas")
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+            Button(
+                onClick = {
+                    val ponderado = nota1 * 0.20 + nota2 * 0.25 + nota3 * 0.30 + nota4 * 0.25
+                    val final = if (redondear) ponderado.roundToInt().toDouble() else ponderado
 
-                    Text(text = "Promedio ponderado: %.2f".format(promedioPonderado))
+                    promedioPonderado = ponderado
+                    promedioFinal = final
 
-                    Spacer(modifier = Modifier.height(4.dp))
+                    when {
+                        final >= 17 -> {
+                            observacion = "EXCELENTE"; colorChip = Color(0xFF1B5E20)
+                        }
 
-                    Row(verticalAlignment = Alignment.Bottom) {
-                        Text(
-                            text = "Promedio final: ",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
-                        Text(
-                            text = if (redondear) "${promedioFinal.toInt()}" else "%.2f".format(promedioFinal),
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.primary
-                        )
+                        final >= 13 -> {
+                            observacion = "APROBADO"; colorChip = Color(0xFF4CAF50)
+                        }
+
+                        final >= 10 -> {
+                            observacion = "EN RECUPERACIÓN"; colorChip = Color(0xFFFFA000)
+                        }
+
+                        else -> {
+                            observacion = "DESAPROBADO"; colorChip = Color(0xFFD32F2F)
+                        }
                     }
 
-                    if (redondear) {
-                        Text(
-                            text = "(redondeado)",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.outline
-                        )
-                    }
+                    mostrarResultado = true
+                },
+                enabled = confirmado,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(text = "CALCULAR PROMEDIO")
+            }
 
-                    Spacer(modifier = Modifier.height(8.dp))
 
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(colorChip.copy(alpha = 0.2f))
-                            .padding(horizontal = 12.dp, vertical = 6.dp)
-                    ) {
-                        Text(
-                            text = observacion,
-                            color = colorChip,
-                            fontWeight = FontWeight.Bold
-                        )
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (!mostrarResultado) {
+                Text(
+                    text = "Asigna las notas y confirma para calcular",
+                    color = MaterialTheme.colorScheme.outline
+                )
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(containerColor = Color.White),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+
+                        Text(text = "Promedio ponderado: %.2f".format(promedioPonderado))
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        Row(verticalAlignment = Alignment.Bottom) {
+                            Text(
+                                text = "Promedio final: ",
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                            Text(
+                                text = if (redondear) "${promedioFinal.toInt()}" else "%.2f".format(
+                                    promedioFinal
+                                ),
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.primary
+                            )
+                        }
+
+                        if (redondear) {
+                            Text(
+                                text = "(redondeado)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .background(colorChip.copy(alpha = 0.2f))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                text = observacion,
+                                color = colorChip,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    text = "✓ Promedio calculado correctamente",
+                    color = Color(0xFF2E7D32)
+                )
             }
         }
+
+        Text(
+            text = "Desarrollado por: Alexander Faustino Quispe",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.outline,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp),
+            textAlign = TextAlign.Center
+        )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilaCurso(nombre: String, peso: Double, valor: Float, onValorChange: (Float) -> Unit) {
     Column(modifier = Modifier.padding(bottom = 12.dp)) {
@@ -269,7 +322,21 @@ fun FilaCurso(nombre: String, peso: Double, valor: Float, onValorChange: (Float)
             value = valor,
             onValueChange = onValorChange,
             valueRange = 0f..20f,
-            steps = 19
+            steps = 19,
+            colors = SliderDefaults.colors(
+                activeTrackColor = MaterialTheme.colorScheme.primary,
+                inactiveTrackColor = MaterialTheme.colorScheme.primaryContainer,
+                activeTickColor = Color.Transparent,
+                inactiveTickColor = Color.Transparent
+            ),
+            thumb = {
+                Box(
+                    modifier = Modifier
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary)
+                )
+            }
         )
     }
 }
