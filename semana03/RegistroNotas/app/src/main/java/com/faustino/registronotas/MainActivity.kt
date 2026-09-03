@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
@@ -38,6 +39,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.faustino.registronotas.ui.theme.RegistroNotasTheme
+import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 class MainActivity : ComponentActivity() {
@@ -74,6 +76,11 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     var nota4 by remember { mutableFloatStateOf(0f) }
     var redondear by remember { mutableStateOf(false) }
     var confirmado by remember { mutableStateOf(false) }
+    var mostrarResultado by remember { mutableStateOf(false) }
+    var promedioPonderado by remember { mutableStateOf(0.0) }
+    var promedioFinal by remember { mutableStateOf(0.0) }
+    var observacion by remember { mutableStateOf("") }
+    var colorChip by remember { mutableStateOf(Color.Gray) }
 
     Column(
         modifier = modifier
@@ -142,6 +149,38 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                 onCheckedChange = { confirmado = it }
             )
             Text(text = "Confirmo que las notas son correctas")
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+        Button(
+            onClick = {
+                val ponderado = nota1 * 0.20 + nota2 * 0.25 + nota3 * 0.30 + nota4 * 0.25
+                val final = if (redondear) ponderado.roundToInt().toDouble() else ponderado
+
+                promedioPonderado = ponderado
+                promedioFinal = final
+
+                when {
+                    final >= 17 -> { observacion = "EXCELENTE"; colorChip = Color(0xFF1B5E20) }
+                    final >= 13 -> { observacion = "APROBADO"; colorChip = Color(0xFF4CAF50) }
+                    final >= 10 -> { observacion = "EN RECUPERACIÓN"; colorChip = Color(0xFFFFA000) }
+                    else -> { observacion = "DESAPROBADO"; colorChip = Color(0xFFD32F2F) }
+                }
+
+                mostrarResultado = true
+            },
+            enabled = confirmado,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(text = "CALCULAR PROMEDIO")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (!mostrarResultado) {
+            Text(
+                text = "Asigna las notas y confirma para calcular",
+                color = MaterialTheme.colorScheme.outline
+            )
         }
     }
 }
