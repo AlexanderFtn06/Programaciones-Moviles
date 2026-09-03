@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.getValue
@@ -72,6 +73,7 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
     var nota3 by remember { mutableFloatStateOf(0f) }
     var nota4 by remember { mutableFloatStateOf(0f) }
     var redondear by remember { mutableStateOf(false) }
+    var confirmado by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -130,6 +132,16 @@ fun PantallaNotas(modifier: Modifier = Modifier) {
                 checked = redondear,
                 onCheckedChange = { redondear = it }
             )
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Checkbox(
+                checked = confirmado,
+                onCheckedChange = { confirmado = it }
+            )
+            Text(text = "Confirmo que las notas son correctas")
         }
     }
 }
