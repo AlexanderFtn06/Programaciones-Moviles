@@ -32,7 +32,7 @@ fun TarjetaProducto(
                     style = MaterialTheme.typography.titleMedium
                 )
                 Text(
-                    text = "Cantidad: ${producto.cantidad}",
+                    text = "S/${producto.precio} x ${producto.cantidad}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
