@@ -4,13 +4,13 @@ plugins {
 }
 
 android {
-    namespace = "com.faustino.registronotas"
+    namespace = "com.faustino.navlab"
     compileSdk {
         version = release(37)
     }
 
     defaultConfig {
-        applicationId = "com.faustino.registronotas"
+        applicationId = "com.faustino.navlab"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
@@ -44,7 +44,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.material3)
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
