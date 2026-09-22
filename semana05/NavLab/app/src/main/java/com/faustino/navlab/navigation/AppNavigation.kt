@@ -6,6 +6,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.faustino.navlab.screens.DetailScreen
+import com.faustino.navlab.screens.HomeScreen
+import com.faustino.navlab.screens.ListScreen
+import com.faustino.navlab.screens.ProfileScreen
 
 @Composable
 fun AppNavigation() {
