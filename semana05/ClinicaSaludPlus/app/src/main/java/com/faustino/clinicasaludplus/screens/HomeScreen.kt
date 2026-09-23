@@ -31,7 +31,7 @@ fun HomeScreen(navController: NavController) {
     val filteredDoctors = if (selectedSpecialty == "Todas") {
         doctorsList
     } else {
-        doctorsList.filter { it.specialty.startsWith(selectedSpecialty.dropLast(1)) }
+        doctorsList.filter { it.category == selectedSpecialty }
     }
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {

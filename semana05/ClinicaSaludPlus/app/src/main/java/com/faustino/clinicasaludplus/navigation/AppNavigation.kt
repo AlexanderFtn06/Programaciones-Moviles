@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.faustino.clinicasaludplus.data.doctorsList
 import com.faustino.clinicasaludplus.screens.ConfirmationScreen
 import com.faustino.clinicasaludplus.screens.DoctorProfileScreen
+import com.faustino.clinicasaludplus.screens.ProfileScreen
 import com.faustino.clinicasaludplus.screens.HomeScreen
 import com.faustino.clinicasaludplus.screens.MedicalHistoryScreen
 import com.faustino.clinicasaludplus.screens.MyAppointmentsScreen
@@ -58,6 +59,9 @@ fun AppNavigation(navController: NavHostController) {
         }
         composable(Screen.MedicalHistory.route) {
             MedicalHistoryScreen()
+        }
+        composable(Screen.Profile.route) {
+            ProfileScreen()
         }
     }
 }

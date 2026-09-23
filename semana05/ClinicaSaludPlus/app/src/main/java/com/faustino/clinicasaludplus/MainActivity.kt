@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.EventNote
 import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -43,7 +44,8 @@ private fun MainScreen() {
     val drawerItems = listOf(
         DrawerItem("Inicio", Screen.Home.route, Icons.Default.Home),
         DrawerItem("Mis citas", Screen.MyAppointments.route, Icons.Default.EventNote),
-        DrawerItem("Historial médico", Screen.MedicalHistory.route, Icons.Default.History)
+        DrawerItem("Historial médico", Screen.MedicalHistory.route, Icons.Default.History),
+        DrawerItem("Perfil", Screen.Profile.route, Icons.Default.Person)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()

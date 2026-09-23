@@ -40,7 +40,7 @@ fun DoctorProfileScreen(navController: NavController, doctor: Doctor) {
         Spacer(modifier = Modifier.height(16.dp))
         Text(doctor.name, style = MaterialTheme.typography.headlineSmall)
         Text(
-            doctor.specialty,
+            "${doctor.specialty} · ${doctor.experience}",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -51,6 +51,14 @@ fun DoctorProfileScreen(navController: NavController, doctor: Doctor) {
         }
 
         Spacer(modifier = Modifier.weight(1f))
+        Text(
+            doctor.description,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
         Button(
             onClick = { navController.navigate(Screen.ScheduleAppointment.createRoute(doctor.id)) },
             modifier = Modifier.fillMaxWidth()
