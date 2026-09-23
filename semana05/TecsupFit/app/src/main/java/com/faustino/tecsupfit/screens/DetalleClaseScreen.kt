@@ -1,16 +1,19 @@
 package com.faustino.tecsupfit.screens
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.faustino.tecsupfit.navigation.Screen
 import com.faustino.tecsupfit.repository.ReservasRepository
-
+import com.faustino.tecsupfit.ui.theme.VerdeTecsup
 @Composable
 fun DetalleClaseScreen(navController: NavController, claseId: Int) {
 
@@ -22,51 +25,49 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
         return
     }
 
-    // Turno seleccionado (se comporta como RadioButton: una sola opción posible)
-    var turnoSeleccionado by remember { mutableStateOf(clase.horariosDisponibles.first()) }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
+        // Icono destacado de la clase
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .background(VerdeTecsup.copy(alpha = 0.15f), RoundedCornerShape(12.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.FitnessCenter,
+                contentDescription = null,
+                tint = VerdeTecsup,
+                modifier = Modifier.size(40.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(text = clase.nombre, style = MaterialTheme.typography.headlineSmall)
-        Text(text = "Instructor: ${clase.instructor}", style = MaterialTheme.typography.bodyMedium)
-        Text(text = "Cupos disponibles: ${clase.cuposDisponibles}", style = MaterialTheme.typography.bodyMedium)
+        Text(
+            text = "${clase.horario} · ${clase.sala} · ${clase.duracionMin} min",
+            style = MaterialTheme.typography.bodyMedium
+        )
 
         Spacer(modifier = Modifier.height(12.dp))
         Text(text = clase.descripcion, style = MaterialTheme.typography.bodyMedium)
 
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(text = "Elige un turno", style = MaterialTheme.typography.titleMedium)
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = "${clase.cuposDisponibles} de ${clase.cuposTotales} cupos disponibles",
+            style = MaterialTheme.typography.bodyMedium
+        )
 
-        // Selección de opción única (horario/cupo): chips que funcionan como RadioButton
-        Column(modifier = Modifier.padding(top = 8.dp)) {
-            clase.horariosDisponibles.forEach { turno ->
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .selectable(
-                            selected = turno == turnoSeleccionado,
-                            onClick = { turnoSeleccionado = turno }
-                        )
-                        .padding(vertical = 4.dp)
-                ) {
-                    RadioButton(
-                        selected = turno == turnoSeleccionado,
-                        onClick = { turnoSeleccionado = turno }
-                    )
-                    Text(text = turno)
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.weight(1f))
 
         Button(
             onClick = {
-                ReservasRepository.agregarReserva(clase, turnoSeleccionado)
+                ReservasRepository.agregarReserva(clase)
                 navController.navigate(Screen.Confirmacion.createRoute(clase.id)) {
                     popUpTo(Screen.Home.route)
                 }

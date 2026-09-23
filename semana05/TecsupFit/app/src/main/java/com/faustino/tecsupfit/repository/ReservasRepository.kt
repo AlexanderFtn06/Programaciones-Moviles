@@ -91,14 +91,22 @@ object ReservasRepository {
         return clases.find { it.id == id }
     }
 
-    fun agregarReserva(clase: ClaseModel, turno: String) {
+    fun agregarReserva(clase: ClaseModel) {
         val nuevaReserva = ReservaModel(
             id = reservas.size + 1,
             claseNombre = clase.nombre,
-            horario = "${clase.dia}, $turno",
+            horario = "${clase.dia}, ${clase.horario}",
             estado = "Confirmada"
         )
         reservas.add(nuevaReserva)
+
+        // Descuenta un cupo de la clase reservada
+        val index = clases.indexOfFirst { it.id == clase.id }
+        if (index != -1 && clases[index].cuposDisponibles > 0) {
+            clases[index] = clases[index].copy(
+                cuposDisponibles = clases[index].cuposDisponibles - 1
+            )
+        }
     }
     fun completarReserva(id: Int) {
         val index = reservas.indexOfFirst { it.id == id }
