@@ -9,6 +9,7 @@ import androidx.navigation.navArgument
 import com.faustino.navlab.screens.DetailScreen
 import com.faustino.navlab.screens.HomeScreen
 import com.faustino.navlab.screens.ListScreen
+import com.faustino.navlab.screens.LoginScreen
 import com.faustino.navlab.screens.ProfileScreen
 
 @Composable
@@ -17,10 +18,22 @@ fun AppNavigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route
-    ){
-        composable(Screen.Home.route) {
-            HomeScreen(navController)
+        startDestination = Screen.Login.route
+    ) {
+        composable(Screen.Login.route) {
+            LoginScreen(navController)
+        }
+        composable(
+            route = Screen.Home.route,
+            arguments = listOf(
+                navArgument(name = "userName") {
+                    type = NavType.StringType
+                    defaultValue = ""
+                }
+            )
+        ) { backStackEntry ->
+            val userName = backStackEntry.arguments?.getString("userName") ?: ""
+            HomeScreen(navController, userName)
         }
         composable(Screen.List.route) {
             ListScreen(navController)
