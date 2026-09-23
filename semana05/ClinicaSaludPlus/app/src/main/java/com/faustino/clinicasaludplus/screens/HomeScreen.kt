@@ -36,7 +36,7 @@ fun HomeScreen(navController: NavController) {
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
-            text = "Hola, Juan",
+            text = "Hola, Alexander",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
