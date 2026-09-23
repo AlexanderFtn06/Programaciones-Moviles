@@ -22,7 +22,7 @@ private val EsquemaClaro = lightColorScheme(
     onSecondaryContainer = VerdeTecsup,
     background = Color.White,
     surface = Color.White,
-    surfaceVariant = GrisTarjeta,
+    surfaceContainerHighest  = GrisTarjeta,
     onSurfaceVariant = GrisTexto
 )
 

@@ -95,9 +95,15 @@ object ReservasRepository {
         val nuevaReserva = ReservaModel(
             id = reservas.size + 1,
             claseNombre = clase.nombre,
-            horario = "${clase.horario} · $turno",
+            horario = "${clase.dia}, $turno",
             estado = "Confirmada"
         )
         reservas.add(nuevaReserva)
+    }
+    fun completarReserva(id: Int) {
+        val index = reservas.indexOfFirst { it.id == id }
+        if (index != -1) {
+            reservas[index] = reservas[index].copy(estado = "Completada")
+        }
     }
 }

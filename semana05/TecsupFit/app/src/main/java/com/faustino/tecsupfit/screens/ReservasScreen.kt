@@ -12,66 +12,81 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.faustino.tecsupfit.repository.ReservasRepository
 import androidx.compose.foundation.background
+import com.faustino.tecsupfit.ui.theme.VerdeTecsup
 
 @Composable
 fun ReservasScreen() {
     val reservas = ReservasRepository.reservas
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Mis reservas",
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.padding(16.dp)
-        )
+    if (reservas.isEmpty()) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Text("Aún no tienes reservas. Ve a Inicio y reserva una clase.")
+        }
+    } else {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            items(reservas) { reserva ->
+                val confirmada = reserva.estado == "Confirmada"
 
-        if (reservas.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Aún no tienes reservas. Ve a Inicio y reserva una clase.")
-            }
-        } else {
-            LazyColumn(
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(reservas) { reserva ->
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Column {
-                                Text(text = reserva.claseNombre, style = MaterialTheme.typography.titleMedium)
-                                Text(text = reserva.horario, style = MaterialTheme.typography.bodyMedium)
-                            }
+                Card(modifier = Modifier.fillMaxWidth()) {
+                    Row(modifier = Modifier.height(IntrinsicSize.Min)) {
 
-                            // Estado diferenciado visualmente (color + fondo)
-                            val colorFondo = if (reserva.estado == "Confirmada") {
-                                Color(0xFFDCEEDC)
-                            } else {
-                                Color(0xFFE0E0E0)
-                            }
-                            val colorTexto = if (reserva.estado == "Confirmada") {
-                                Color(0xFF2E7D32)
-                            } else {
-                                Color(0xFF616161)
-                            }
-
+                        // Franja verde solo en reservas confirmadas
+                        if (confirmada) {
                             Box(
                                 modifier = Modifier
-                                    .background(colorFondo, shape = RoundedCornerShape(8.dp))
-                                    .padding(horizontal = 10.dp, vertical = 4.dp)
+                                    .width(4.dp)
+                                    .fillMaxHeight()
+                                    .background(VerdeTecsup)
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(16.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = reserva.estado,
-                                    color = colorTexto,
-                                    style = MaterialTheme.typography.labelMedium
-                                )
+                                Column {
+                                    Text(text = reserva.claseNombre, style = MaterialTheme.typography.titleMedium)
+                                    Text(text = reserva.horario, style = MaterialTheme.typography.bodyMedium)
+                                }
+
+                                // Estado diferenciado visualmente (color + fondo)
+                                Box(
+                                    modifier = Modifier
+                                        .background(
+                                            if (confirmada) Color(0xFFDCEEDC) else Color(0xFFE0E0E0),
+                                            shape = RoundedCornerShape(8.dp)
+                                        )
+                                        .padding(horizontal = 10.dp, vertical = 4.dp)
+                                ) {
+                                    Text(
+                                        text = reserva.estado,
+                                        color = if (confirmada) Color(0xFF2E7D32) else Color(0xFF616161),
+                                        style = MaterialTheme.typography.labelMedium
+                                    )
+                                }
+                            }
+
+                            // Botón visible solo si la reserva está confirmada
+                            if (confirmada) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                OutlinedButton(
+                                    onClick = { ReservasRepository.completarReserva(reserva.id) }
+                                ) {
+                                    Text("Marcar como completada")
+                                }
                             }
                         }
                     }
