@@ -14,6 +14,7 @@ import com.faustino.tecsupfit.repository.ReservasRepository
 fun ConfirmacionScreen(navController: NavController, claseId: Int) {
 
     val clase = ReservasRepository.obtenerClasePorId(claseId)
+    val reserva = ReservasRepository.reservas.lastOrNull()
 
     Column(
         modifier = Modifier
@@ -33,7 +34,7 @@ fun ConfirmacionScreen(navController: NavController, claseId: Int) {
             Card(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(text = "Clase: ${clase.nombre}", style = MaterialTheme.typography.titleMedium)
-                    Text(text = "Horario: ${clase.horario}", style = MaterialTheme.typography.bodyMedium)
+                    Text(text = "Horario: ${reserva?.horario ?: clase.horario}", style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }

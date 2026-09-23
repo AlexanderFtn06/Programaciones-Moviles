@@ -66,8 +66,10 @@ fun DetalleClaseScreen(navController: NavController, claseId: Int) {
 
         Button(
             onClick = {
-                ReservasRepository.agregarReserva(clase)
-                navController.navigate(Screen.Confirmacion.createRoute(clase.id))
+                ReservasRepository.agregarReserva(clase, turnoSeleccionado)
+                navController.navigate(Screen.Confirmacion.createRoute(clase.id)) {
+                    popUpTo(Screen.Home.route)
+                }
             },
             modifier = Modifier.fillMaxWidth()
         ) {
