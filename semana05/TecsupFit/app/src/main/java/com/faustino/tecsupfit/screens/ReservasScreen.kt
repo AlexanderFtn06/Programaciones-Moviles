@@ -85,27 +85,32 @@ fun ReservasScreen() {
                             // Botón visible solo si la reserva está confirmada
                             if (confirmada) {
                                 Spacer(modifier = Modifier.height(8.dp))
+
                                 Row(
+                                    modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                                 ) {
                                     OutlinedButton(
-                                        onClick = { ReservasRepository.completarReserva(reserva.id) }
+                                        onClick = { ReservasRepository.completarReserva(reserva.id) },
+                                        modifier = Modifier.weight(1f)
                                     ) {
-                                        Text("Marcar como completada")
+                                        Text(
+                                            text = "Marcar como completada"
+                                        )
                                     }
+
                                     OutlinedButton(
                                         onClick = { reservaACancelar = reserva },
+                                        modifier = Modifier.width(140.dp),
                                         colors = ButtonDefaults.outlinedButtonColors(
                                             contentColor = Color(0xFFB3261E)
                                         )
                                     ) {
-                                        Icon(
-                                            Icons.Default.Close,
-                                            contentDescription = null,
-                                            modifier = Modifier.size(16.dp)
+                                        Text(
+                                            text = "Cancelar",
+                                            maxLines = 1,
+                                            softWrap = false
                                         )
-                                        Spacer(modifier = Modifier.width(4.dp))
-                                        Text("Cancelar")
                                     }
                                 }
                             }
