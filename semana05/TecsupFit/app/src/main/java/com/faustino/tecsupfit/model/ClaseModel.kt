@@ -7,5 +7,7 @@ data class ClaseModel(
     val instructor: String,
     val categoria: String,
     val cuposDisponibles: Int,
-    val descripcion: String
+    val descripcion: String,
+    val horariosDisponibles: List<String> = listOf("Turno mañana", "Turno tarde", "Turno noche")
+
 )
