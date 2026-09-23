@@ -47,7 +47,10 @@ object ReservasRepository {
     )
 
     // Reservas confirmadas por el usuario
-    val reservas = mutableStateListOf<ReservaModel>()
+    val reservas = mutableStateListOf(
+        ReservaModel(1, "Pilates", "Lunes 6:00 PM", "Completada"),
+        ReservaModel(2, "Zumba", "Martes 7:00 PM", "Completada")
+    )
 
     fun obtenerClasePorId(id: Int): ClaseModel? {
         return clases.find { it.id == id }
