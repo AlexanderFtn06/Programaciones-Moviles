@@ -1,4 +1,4 @@
-package com.tecsup.tecsupfit.model
+package com.faustino.tecsupfit.model
 
 data class ReservaModel(
     val id: Int,
