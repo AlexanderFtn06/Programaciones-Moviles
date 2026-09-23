@@ -9,8 +9,6 @@ data class Appointment(
     val hora: String,
     val estado: String
 )
-
-
 object AppointmentsStore {
     val appointments = mutableStateListOf<Appointment>()
 
