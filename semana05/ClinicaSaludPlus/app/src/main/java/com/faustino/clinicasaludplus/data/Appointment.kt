@@ -15,4 +15,10 @@ object AppointmentsStore {
     fun addAppointment(appointment: Appointment) {
         appointments.add(0, appointment)
     }
+    fun markAsCompleted(appointment: Appointment) {
+        val index = appointments.indexOf(appointment)
+        if (index != -1) {
+            appointments[index] = appointment.copy(estado = "Completada")
+        }
+    }
 }

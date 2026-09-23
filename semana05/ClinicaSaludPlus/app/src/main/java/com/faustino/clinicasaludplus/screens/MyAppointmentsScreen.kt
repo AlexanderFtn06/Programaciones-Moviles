@@ -26,7 +26,10 @@ fun MyAppointmentsScreen() {
         } else {
             LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 items(AppointmentsStore.appointments) { appointment ->
-                    AppointmentCard(appointment)
+                    AppointmentCard(
+                        appointment = appointment,
+                        onMarkCompletedClick = { AppointmentsStore.markAsCompleted(appointment)}
+                    )
                 }
             }
         }
@@ -34,7 +37,7 @@ fun MyAppointmentsScreen() {
 }
 
 @Composable
-private fun AppointmentCard(appointment: Appointment) {
+private fun AppointmentCard(appointment: Appointment, onMarkCompletedClick: () -> Unit) {
     val isConfirmada = appointment.estado == "Confirmada"
     Card(shape = RoundedCornerShape(12.dp), modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(14.dp)) {
@@ -55,6 +58,11 @@ private fun AppointmentCard(appointment: Appointment) {
                         Color(0xFF2E7D32) else MaterialTheme.colorScheme.onSurfaceVariant
                 )
             )
+            if (isConfirmada) {
+                TextButton(onClick = onMarkCompletedClick) {
+                    Text("Marcar como completada")
+                }
+            }
         }
     }
 }
