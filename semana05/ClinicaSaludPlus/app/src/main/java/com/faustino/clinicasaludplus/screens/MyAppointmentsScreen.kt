@@ -9,33 +9,46 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.faustino.clinicasaludplus.data.Appointment
 import com.faustino.clinicasaludplus.data.AppointmentsStore
+import kotlinx.coroutines.launch
 
 @Composable
 fun MyAppointmentsScreen() {
 
     var appointmentToCancel by remember { mutableStateOf<Appointment?>(null) }
-    Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
-        Text("Mis citas", style = MaterialTheme.typography.titleLarge)
-        Spacer(modifier = Modifier.height(16.dp))
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-        if (AppointmentsStore.appointments.isEmpty()) {
-            Text(
-                "Aún no tienes citas agendadas.",
-                style = MaterialTheme.typography.bodyMedium
-            )
-        } else {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                items(AppointmentsStore.appointments) { appointment ->
-                    AppointmentCard(
-                        appointment = appointment,
-                        onCancelClick = { appointmentToCancel = appointment }
-                    )
+    Scaffold(
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) { innerPadding ->
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(16.dp)
+        ) {
+            Text("Mis citas", style = MaterialTheme.typography.titleLarge)
+            Spacer(modifier = Modifier.height(16.dp))
+
+            if (AppointmentsStore.appointments.isEmpty()) {
+                Text(
+                    "Aún no tienes citas agendadas.",
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            } else {
+                LazyColumn(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    items(AppointmentsStore.appointments) { appointment ->
+                        AppointmentCard(
+                            appointment = appointment,
+                            onCancelClick = { appointmentToCancel = appointment }
+                        )
+                    }
                 }
             }
         }
@@ -55,6 +68,9 @@ fun MyAppointmentsScreen() {
                     onClick = {
                         AppointmentsStore.cancelAppointment(appointment.id)
                         appointmentToCancel = null
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Cita cancelada correctamente")
+                        }
                     }
                 ) {
                     Text("Sí, cancelar", color = Color(0xFFD32F2F))
