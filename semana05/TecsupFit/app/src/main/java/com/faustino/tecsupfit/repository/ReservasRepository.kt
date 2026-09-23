@@ -83,10 +83,9 @@ object ReservasRepository {
 
     // Reservas confirmadas por el usuario
     val reservas = mutableStateListOf(
-        ReservaModel(1, "Yoga funcional", "Ayer, 7:00 am", "Completada"),
-        ReservaModel(2, "Spinning", "Lunes, 7:30 pm", "Completada")
+        ReservaModel(1, claseId = 1, claseNombre = "Yoga funcional", horario = "Ayer, 7:00 am", estado = "Completada"),
+        ReservaModel(2, claseId = 3, claseNombre = "Spinning", horario = "Lunes, 7:30 pm", estado = "Completada")
     )
-
     fun obtenerClasePorId(id: Int): ClaseModel? {
         return clases.find { it.id == id }
     }
@@ -94,13 +93,13 @@ object ReservasRepository {
     fun agregarReserva(clase: ClaseModel) {
         val nuevaReserva = ReservaModel(
             id = reservas.size + 1,
+            claseId = clase.id,
             claseNombre = clase.nombre,
             horario = "${clase.dia}, ${clase.horario}",
             estado = "Confirmada"
         )
         reservas.add(nuevaReserva)
 
-        // Descuenta un cupo de la clase reservada
         val index = clases.indexOfFirst { it.id == clase.id }
         if (index != -1 && clases[index].cuposDisponibles > 0) {
             clases[index] = clases[index].copy(
@@ -112,6 +111,18 @@ object ReservasRepository {
         val index = reservas.indexOfFirst { it.id == id }
         if (index != -1) {
             reservas[index] = reservas[index].copy(estado = "Completada")
+        }
+    }
+    fun cancelarReserva(id: Int) {
+        val reserva = reservas.find { it.id == id } ?: return
+        reservas.removeAll { it.id == id }
+
+        val index = clases.indexOfFirst { it.id == reserva.claseId }
+        if (index != -1) {
+            val clase = clases[index]
+            if (clase.cuposDisponibles < clase.cuposTotales) {
+                clases[index] = clase.copy(cuposDisponibles = clase.cuposDisponibles + 1)
+            }
         }
     }
 }
