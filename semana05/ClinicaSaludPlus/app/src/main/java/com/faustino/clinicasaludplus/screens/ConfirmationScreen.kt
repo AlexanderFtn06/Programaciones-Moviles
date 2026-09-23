@@ -21,12 +21,10 @@ fun ConfirmationScreen(navController: NavController, doctor: Doctor, fecha: Stri
 
     LaunchedEffect(Unit) {
         AppointmentsStore.addAppointment(
-            Appointment(
                 doctorName = doctor.name,
                 fecha = fecha,
                 hora = hora,
                 estado = "Confirmada"
-            )
         )
     }
 
