@@ -26,16 +26,6 @@ fun MyOrdersScreen() {
     val productos = remember { mutableStateListOf<Producto>() }
 
     Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Mi Carrito TECSUP",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onPrimary,
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.primary)
-                .statusBarsPadding()
-                .padding(16.dp)
-        )
         Column(
             modifier = Modifier
                 .weight(1f)

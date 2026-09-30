@@ -13,7 +13,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.faustini.lab04carritotecsup.screens.HomeScreen
+import com.faustini.lab04carritotecsup.screens.MyOrdersScreen
+import com.faustini.lab04carritotecsup.screens.PantallaSimple
 import kotlinx.coroutines.launch
 
 private data class DrawerItem(
@@ -25,6 +30,7 @@ private data class DrawerItem(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavegacion() {
+    val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -53,7 +59,13 @@ fun AppNavegacion() {
                         label = { Text(item.label) },
                         icon = { Icon(item.icon, contentDescription = item.label) },
                         selected = false,
-                        onClick = { scope.launch { drawerState.close() } },
+                        onClick = {
+                            scope.launch { drawerState.close() }
+                            navController.navigate(item.route) {
+                                popUpTo("inicio")
+                                launchSingleTop = true
+                            }
+                        },
                         modifier = Modifier.padding(horizontal = 12.dp)
                     )
                 }
@@ -77,7 +89,15 @@ fun AppNavegacion() {
                     .padding(paddingValues)
                     .fillMaxSize()
             ) {
-                HomeScreen()
+                NavHost(
+                    navController = navController,
+                    startDestination = "inicio"
+                ) {
+                    composable("inicio") { HomeScreen() }
+                    composable("pedidos") { MyOrdersScreen() }
+                    composable("favoritos") { PantallaSimple("Favoritos") }
+                    composable("perfil") { PantallaSimple("Perfil") }
+                }
             }
         }
     }
