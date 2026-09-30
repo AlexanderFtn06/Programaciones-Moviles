@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.faustini.lab04carritotecsup.screens.MyOrdersScreen
+import com.faustini.lab04carritotecsup.screens.HomeScreen
 import com.faustini.lab04carritotecsup.ui.theme.Lab04CarritoTecsupTheme
 
 class MainActivity : ComponentActivity() {
@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             Lab04CarritoTecsupTheme {
-                MyOrdersScreen()
+                HomeScreen()
             }
         }
     }
