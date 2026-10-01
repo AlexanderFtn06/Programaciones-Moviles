@@ -12,6 +12,7 @@ object Rutas {
     const val PEDIDOS = "pedidos"
     const val PERFIL = "perfil"
     const val LOGIN = "login"
+    const val TERMINOS = "terminos"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
