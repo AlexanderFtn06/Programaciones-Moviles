@@ -55,7 +55,7 @@ fun DatosEntregaScreen(
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp)
     ) {
-        EncabezadoEntrega()
+        EncabezadoEntrega(onVolver = onVolver)
 
         Spacer(Modifier.height(16.dp))
 
@@ -102,7 +102,9 @@ fun DatosEntregaScreen(
 
         metodosPago.forEach { metodo ->
             FilaMetodoPago(
-
+                texto = metodo,
+                seleccionado = metodo == metodoPago,
+                onClick = { metodoPago = metodo }
             )
         }
 
@@ -115,6 +117,65 @@ fun DatosEntregaScreen(
         )
 
         Spacer(Modifier.height(24.dp))
+    }
+}
+
+// Sub-composables PRIVADOS: solo los usa esta pantalla.
+
+@Composable
+private fun EncabezadoEntrega(onVolver: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onVolver) {
+            Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
+        }
+        Text(
+            text = "Datos de entrega",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Composable
+private fun FilaMetodoPago(
+    texto: String,
+    seleccionado: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(selected = seleccionado, onClick = onClick, role = Role.RadioButton)
+            .padding(vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        RadioButton(
+            selected = seleccionado,
+            onClick = null,
+            colors = RadioButtonDefaults.colors(selectedColor = VerdeBodega)
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(text = texto, style = MaterialTheme.typography.bodyLarge)
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun DatosEntregaPreview() {
+    BodegaTheme {
+        DatosEntregaScreen(
+            onVolver = {},
+            onConfirmarPedido = { _, _, _, _, _ -> },
+            nombreInicial = "Juan Pérez",
+            telefonoInicial = "987 654 321",
+            direccionInicial = "Av. Los Olivos 123",
+            referenciaInicial = "Frente al parque"
+        )
     }
 }
 
