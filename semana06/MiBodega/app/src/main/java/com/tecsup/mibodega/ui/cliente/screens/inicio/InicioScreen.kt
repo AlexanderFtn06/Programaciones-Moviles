@@ -16,6 +16,8 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import com.tecsup.mibodega.ui.cliente.Rutas
+import com.tecsup.mibodega.ui.componentes.BarraInferior
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
@@ -68,9 +70,11 @@ fun InicioScreen(
     cantidadCarrito: Int,
     onVerCarrito: () -> Unit,
     onProductoClick: (Producto) -> Unit,
-    onAgregarProducto: (Producto) -> Unit
+    onAgregarProducto: (Producto) -> Unit,
+    onNavegar: (String) -> Unit,
+    categoriaInicial: String = "Todos"
 ) {
-    var categoriaSeleccionada by remember { mutableStateOf(listaCategorias.first()) }
+    var categoriaSeleccionada by remember(categoriaInicial) { mutableStateOf(categoriaInicial) }
     var textoBusqueda by remember { mutableStateOf("") }
 
     val productosFiltrados = productos.filter { producto ->
@@ -98,8 +102,7 @@ fun InicioScreen(
                 }
             )
         },
-        bottomBar = { BarraInferior() }
-    ) { paddingInterno ->
+        bottomBar = { BarraInferior(rutaActual = Rutas.INICIO, onNavegar = onNavegar) }    ) { paddingInterno ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -183,30 +186,7 @@ private fun ChipCategoria(
     }
 }
 
-@Composable
-private fun BarraInferior() {
-    var seleccionado by remember { mutableStateOf(0) }
-    val items = listOf(
-        Triple("Inicio", Icons.Default.Home, 0),
-        Triple("Categorías", Icons.Default.List, 1),
-        Triple("Pedidos", Icons.Default.Receipt, 2),
-        Triple("Perfil", Icons.Default.Person, 3)
-    )
-    NavigationBar {
-        items.forEach { (etiqueta, icono, indice) ->
-            NavigationBarItem(
-                selected = seleccionado == indice,
-                onClick = { seleccionado = indice },
-                icon = { Icon(icono, contentDescription = etiqueta) },
-                label = { Text(etiqueta) },
-                colors = androidx.compose.material3.NavigationBarItemDefaults.colors(
-                    selectedIconColor = VerdeBodega,
-                    selectedTextColor = VerdeBodega
-                )
-            )
-        }
-    }
-}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
@@ -216,7 +196,8 @@ private fun InicioPreview() {
             cantidadCarrito = 3,
             onVerCarrito = {},
             onProductoClick = {},
-            onAgregarProducto = {}
+            onAgregarProducto = {},
+            onNavegar = {}
         )
     }
 }

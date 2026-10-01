@@ -20,10 +20,13 @@ import com.tecsup.mibodega.ui.cliente.screens.carrito.COSTO_DELIVERY
 import androidx.compose.ui.platform.LocalContext
 import com.tecsup.mibodega.ui.cliente.modelo.Cliente
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
+import com.tecsup.mibodega.ui.cliente.screens.categorias.CategoriasScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
+import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
+import com.tecsup.mibodega.ui.cliente.screens.perfil.PerfilScreen
 import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
 
 /**
@@ -48,8 +51,19 @@ fun ClienteApp() {
     var cliente by remember { mutableStateOf(Cliente()) }
 
     // Ultimo pedido confirmado y contador para numerar los pedidos
-    var pedido by remember { mutableStateOf<PedidoConfirmado?>(null) }
+    var historial by remember { mutableStateOf<List<PedidoConfirmado>>(emptyList()) }
     var contadorPedidos by remember { mutableStateOf(1024) }
+
+    var categoriaInicial by remember { mutableStateOf("Todos") }
+
+    val navegarBarra: (String) -> Unit = { ruta ->
+        if (ruta == Rutas.INICIO) categoriaInicial = "Todos"
+        navController.navigate(ruta) {
+            popUpTo(Rutas.INICIO)
+            launchSingleTop = true
+        }
+    }
+
 
     NavHost(
         navController = navController,
@@ -84,7 +98,38 @@ fun ClienteApp() {
                 },
                 onAgregarProducto = { producto ->
                     carrito = agregarOSumarProducto(carrito, producto, 1)
-                }
+                },
+                onNavegar = navegarBarra,
+                categoriaInicial = categoriaInicial
+            )
+        }
+        // Destino Categorías
+        composable(Rutas.CATEGORIAS) {
+            CategoriasScreen(
+                onCategoriaClick = { categoria ->
+                    categoriaInicial = categoria
+                    navController.navigate(Rutas.INICIO) {
+                        popUpTo(Rutas.INICIO)
+                        launchSingleTop = true
+                    }
+                },
+                onNavegar = navegarBarra
+            )
+        }
+
+        // Destino Pedidos
+        composable(Rutas.PEDIDOS) {
+            PedidosScreen(
+                pedidos = historial,
+                onNavegar = navegarBarra
+            )
+        }
+
+        // NUEVO: Destino "Perfil
+        composable(Rutas.PERFIL) {
+            PerfilScreen(
+                cliente = cliente,
+                onNavegar = navegarBarra
             )
         }
 
@@ -141,12 +186,13 @@ fun ClienteApp() {
                 referenciaInicial = cliente.referencia,
                 onConfirmarPedido = { _, _, direccion, referencia, _ ->
                     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
-                    pedido = PedidoConfirmado(
+                    val nuevoPedido = PedidoConfirmado(
                         numero = contadorPedidos,
                         total = subtotal + COSTO_DELIVERY,
                         direccion = direccion,
                         referencia = referencia
                     )
+                    historial = listOf(nuevoPedido) + historial
                     contadorPedidos++
                     carrito = emptyList()
 
@@ -161,7 +207,7 @@ fun ClienteApp() {
 
         // Pantalla 7, Pedido confirmado
         composable(Rutas.CONFIRMACION) {
-            pedido?.let { p ->
+            historial.firstOrNull()?.let { p ->
                 ConfirmacionScreen(
                     numeroPedido = p.numero,
                     total = p.total,
