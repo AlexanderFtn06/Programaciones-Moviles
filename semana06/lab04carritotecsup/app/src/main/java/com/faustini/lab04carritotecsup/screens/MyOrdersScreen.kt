@@ -17,6 +17,8 @@ import com.faustini.lab04carritotecsup.data.calcularTotal
 @Composable
 fun MyOrdersScreen(
     productos: List<Producto>,
+    favoritos: List<String>,
+    onToggleFavorito: (String) -> Unit,
     onAgregar: (Producto) -> Unit,
     onEliminar: (Producto) -> Unit
 ) {
@@ -92,6 +94,8 @@ fun MyOrdersScreen(
                     items(productos) { producto ->
                         TarjetaProducto(
                             producto = producto,
+                            esFavorito = producto.nombre.lowercase() in favoritos,
+                            onFavorito = { onToggleFavorito(producto.nombre) },
                             onEliminar = { onEliminar(producto) }
                         )
                     }

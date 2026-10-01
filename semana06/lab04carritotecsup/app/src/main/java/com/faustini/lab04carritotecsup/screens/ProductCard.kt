@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -22,6 +23,8 @@ import com.faustini.lab04carritotecsup.data.ProductoTienda
 @Composable
 fun ProductCard(
     producto: ProductoTienda,
+    esFavorito: Boolean,
+    onFavorito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
@@ -86,13 +89,18 @@ fun ProductCard(
                     onDismissRequest = { expanded = false }
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Favoritos") },
+                        text = { Text(if (esFavorito) "Quitar de favoritos" else "Favoritos") },
                         leadingIcon = {
-                            Icon(Icons.Default.Favorite, contentDescription = null)
+                            Icon(
+                                if (esFavorito) Icons.Default.Favorite else Icons.Default.FavoriteBorder,
+                                contentDescription = null
+                            )
                         },
                         onClick = {
                             expanded = false
-                            Toast.makeText(context, "${producto.nombre} agregado a favoritos", Toast.LENGTH_SHORT).show()
+                            onFavorito()
+                            val mensaje = if (esFavorito) "quitado de favoritos" else "agregado a favoritos"
+                            Toast.makeText(context, "${producto.nombre} $mensaje", Toast.LENGTH_SHORT).show()
                         }
                     )
                     DropdownMenuItem(

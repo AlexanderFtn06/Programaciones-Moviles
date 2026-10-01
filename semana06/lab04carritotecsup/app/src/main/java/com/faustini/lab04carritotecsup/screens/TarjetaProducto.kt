@@ -14,6 +14,8 @@ import com.faustini.lab04carritotecsup.data.Producto
 @Composable
 fun TarjetaProducto(
     producto: Producto,
+    esFavorito: Boolean,
+    onFavorito: () -> Unit,
     onEliminar: () -> Unit
 ) {
     Card(

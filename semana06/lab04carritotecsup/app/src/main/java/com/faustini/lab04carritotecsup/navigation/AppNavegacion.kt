@@ -37,6 +37,11 @@ fun AppNavegacion() {
     val context = LocalContext.current
     val pedidos = remember { mutableStateListOf<Producto>() }
     val catalogo = remember { productosEjemplo.toMutableStateList() }
+    val favoritos = remember { mutableStateListOf<String>() }
+    val onToggleFavorito: (String) -> Unit = { nombre ->
+        val clave = nombre.lowercase()
+        if (clave in favoritos) favoritos.remove(clave) else favoritos.add(clave)
+    }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -77,10 +82,12 @@ fun AppNavegacion() {
                     navController = navController,
                     startDestination = Screen.Inicio.route
                 ) {
-                    composable(Screen.Inicio.route) { HomeScreen(catalogo) }
+                    composable(Screen.Inicio.route) { HomeScreen(catalogo, favoritos, onToggleFavorito) }
                     composable(Screen.Pedidos.route) {
                         MyOrdersScreen(
                             productos = pedidos,
+                            favoritos = favoritos,
+                            onToggleFavorito = onToggleFavorito,
                             onAgregar = { producto ->
                                 pedidos.add(producto)
                                 if (catalogo.none { it.nombre.equals(producto.nombre, ignoreCase = true) }) {
