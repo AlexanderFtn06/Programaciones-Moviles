@@ -42,10 +42,10 @@ fun AppNavegacion() {
     val scope = rememberCoroutineScope()
 
     val drawerItems = listOf(
-        DrawerItem("Inicio", "inicio", Icons.Default.Home),
-        DrawerItem("Mis pedidos", "pedidos", Icons.Default.ShoppingCart),
-        DrawerItem("Favoritos", "favoritos", Icons.Default.Favorite),
-        DrawerItem("Perfil", "perfil", Icons.Default.Person)
+        DrawerItem("Inicio", Screen.Inicio.route, Icons.Default.Home),
+        DrawerItem("Mis pedidos", Screen.Pedidos.route, Icons.Default.ShoppingCart),
+        DrawerItem("Favoritos", Screen.Favoritos.route, Icons.Default.Favorite),
+        DrawerItem("Perfil", Screen.Perfil.route, Icons.Default.Person)
     )
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -104,7 +104,7 @@ fun AppNavegacion() {
                         onClick = {
                             scope.launch { drawerState.close() }
                             navController.navigate(item.route) {
-                                popUpTo("inicio")
+                                popUpTo(Screen.Inicio.route)
                                 launchSingleTop = true
                             }
                         },
@@ -133,12 +133,12 @@ fun AppNavegacion() {
             ) {
                 NavHost(
                     navController = navController,
-                    startDestination = "inicio"
+                    startDestination = Screen.Inicio.route
                 ) {
-                    composable("inicio") { HomeScreen() }
-                    composable("pedidos") { MyOrdersScreen() }
-                    composable("favoritos") { PantallaSimple("Favoritos") }
-                    composable("perfil") { PantallaSimple("Perfil") }
+                    composable(Screen.Inicio.route) { HomeScreen() }
+                    composable(Screen.Pedidos.route) { MyOrdersScreen() }
+                    composable(Screen.Favoritos.route) { PantallaSimple("Favoritos") }
+                    composable(Screen.Perfil.route) { PantallaSimple("Perfil") }
                 }
             }
         }
