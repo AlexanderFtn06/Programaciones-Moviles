@@ -11,6 +11,7 @@ import androidx.compose.runtime.remember
 import com.faustini.lab04carritotecsup.data.Producto
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -38,19 +39,28 @@ fun AppNavegacion() {
     val pedidos = remember { mutableStateListOf<Producto>() }
     val catalogo = remember { productosEjemplo.toMutableStateList() }
     val favoritos = remember { mutableStateListOf<String>() }
+    val nuevosFavoritos = remember { mutableStateListOf<String>() }
     val onToggleFavorito: (String) -> Unit = { nombre ->
         val clave = nombre.lowercase()
-        if (clave in favoritos) favoritos.remove(clave) else favoritos.add(clave)
+        if (clave in favoritos) {
+            favoritos.remove(clave)
+            nuevosFavoritos.remove(clave)
+        } else {
+            favoritos.add(clave)
+            nuevosFavoritos.add(clave)
+        }
     }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
+    LaunchedEffect(currentRoute) {
+        if (currentRoute == Screen.Favoritos.route) nuevosFavoritos.clear()
+    }
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             AppDrawer(
                 currentRoute = currentRoute,
-                cantidadFavoritos = favoritos.size,
+                cantidadFavoritos = nuevosFavoritos.size,
                 onItemClick = { route ->
                     scope.launch { drawerState.close() }
                     navController.navigate(route) {
@@ -103,7 +113,11 @@ fun AppNavegacion() {
                                     val seQuito = catalogo.removeAll {
                                         it.nombre.equals(producto.nombre, ignoreCase = true) && it !in productosEjemplo
                                     }
-                                    if (seQuito) favoritos.remove(producto.nombre.lowercase())
+                                    if (seQuito) {
+                                        val clave = producto.nombre.lowercase()
+                                        favoritos.remove(clave)
+                                        nuevosFavoritos.remove(clave)
+                                    }
                                 }
                             }
                         )
