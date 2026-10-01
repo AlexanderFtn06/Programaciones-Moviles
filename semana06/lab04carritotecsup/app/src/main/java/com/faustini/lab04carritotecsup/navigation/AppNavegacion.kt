@@ -50,6 +50,7 @@ fun AppNavegacion() {
         drawerContent = {
             AppDrawer(
                 currentRoute = currentRoute,
+                cantidadFavoritos = favoritos.size,
                 onItemClick = { route ->
                     scope.launch { drawerState.close() }
                     navController.navigate(route) {

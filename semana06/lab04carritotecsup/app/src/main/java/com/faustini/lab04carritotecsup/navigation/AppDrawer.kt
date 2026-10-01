@@ -28,6 +28,7 @@ private data class DrawerItem(
 @Composable
 fun AppDrawer(
     currentRoute: String?,
+    cantidadFavoritos: Int,
     onItemClick: (String) -> Unit,
     onSalir: () -> Unit
 ) {
@@ -76,9 +77,15 @@ fun AppDrawer(
         Spacer(Modifier.height(8.dp))
 
         drawerItems.forEach { item ->
+            val badge: (@Composable () -> Unit)? =
+                if (item.route == Screen.Favoritos.route && cantidadFavoritos > 0) {
+                    { Badge { Text(cantidadFavoritos.toString()) } }
+                } else null
+
             NavigationDrawerItem(
                 label = { Text(item.label) },
                 icon = { Icon(item.icon, contentDescription = item.label) },
+                badge = badge,
                 selected = currentRoute == item.route,
                 colors = NavigationDrawerItemDefaults.colors(
                     selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
