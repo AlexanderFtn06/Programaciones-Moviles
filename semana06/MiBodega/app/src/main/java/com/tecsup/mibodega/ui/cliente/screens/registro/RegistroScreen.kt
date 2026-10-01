@@ -85,7 +85,7 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Alexander Faustino"
         )
         Spacer(Modifier.height(16.dp))
 
