@@ -1,5 +1,6 @@
 package com.faustini.lab04carritotecsup.navigation
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -14,6 +15,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.platform.LocalContext
 import com.faustini.lab04carritotecsup.data.ProductoTienda
 import com.faustini.lab04carritotecsup.data.productosEjemplo
 import androidx.navigation.compose.NavHost
@@ -22,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.faustini.lab04carritotecsup.screens.HomeScreen
 import com.faustini.lab04carritotecsup.screens.MyOrdersScreen
+import com.faustini.lab04carritotecsup.screens.PantallaPerfil
 import com.faustini.lab04carritotecsup.screens.PantallaSimple
 import kotlinx.coroutines.launch
 
@@ -31,7 +34,7 @@ fun AppNavegacion() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-
+    val context = LocalContext.current
     val pedidos = remember { mutableStateListOf<Producto>() }
     val catalogo = remember { productosEjemplo.toMutableStateList() }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -48,7 +51,8 @@ fun AppNavegacion() {
                         popUpTo(Screen.Inicio.route)
                         launchSingleTop = true
                     }
-                }
+                },
+                onSalir = { (context as? Activity)?.finish() }
             )
         }
     ) {
@@ -96,8 +100,7 @@ fun AppNavegacion() {
                         )
                     }
                     composable(Screen.Favoritos.route) { PantallaSimple("Favoritos") }
-                    composable(Screen.Perfil.route) { PantallaSimple("Perfil") }
-                }
+                    composable(Screen.Perfil.route) { PantallaPerfil() }                }
             }
         }
     }

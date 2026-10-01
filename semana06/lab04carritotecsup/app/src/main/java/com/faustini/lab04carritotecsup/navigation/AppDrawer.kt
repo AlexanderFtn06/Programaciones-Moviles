@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -16,6 +17,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.faustini.lab04carritotecsup.data.usuarioActual
 
 private data class DrawerItem(
     val label: String,
@@ -26,7 +28,8 @@ private data class DrawerItem(
 @Composable
 fun AppDrawer(
     currentRoute: String?,
-    onItemClick: (String) -> Unit
+    onItemClick: (String) -> Unit,
+    onSalir: () -> Unit
 ) {
     val drawerItems = listOf(
         DrawerItem("Inicio", Screen.Inicio.route, Icons.Default.Home),
@@ -50,7 +53,7 @@ fun AppDrawer(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = "AF",
+                    text = usuarioActual.iniciales,
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.onPrimary
                 )
@@ -58,12 +61,12 @@ fun AppDrawer(
             Spacer(Modifier.width(12.dp))
             Column {
                 Text(
-                    text = "Alexander Faustini",
+                    text = usuarioActual.nombre,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Text(
-                    text = "alexander@tecsup.edu.pe",
+                    text = usuarioActual.correo,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -86,5 +89,13 @@ fun AppDrawer(
                 modifier = Modifier.padding(horizontal = 12.dp)
             )
         }
+
+        NavigationDrawerItem(
+            label = { Text("Salir") },
+            icon = { Icon(Icons.AutoMirrored.Filled.ExitToApp, contentDescription = "Salir") },
+            selected = false,
+            onClick = onSalir,
+            modifier = Modifier.padding(horizontal = 12.dp)
+        )
     }
 }
