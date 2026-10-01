@@ -27,15 +27,7 @@ import com.tecsup.mibodega.ui.cliente.screens.registro.RegistroScreen
  * Ninguna Screen navega sola ni modifica el carrito directamente:
  * todas reciben funciones (lambdas) desde aquí (state hoisting).
  */
-private object Rutas {
-    const val BIENVENIDA = "bienvenida"
-    const val REGISTRO = "registro"
-    const val INICIO = "inicio"
-    const val DETALLE = "detalle/{productoId}"
-    const val CARRITO = "carrito"
 
-    fun detalle(productoId: Int) = "detalle/$productoId"
-}
 
 @Composable
 fun ClienteApp() {
