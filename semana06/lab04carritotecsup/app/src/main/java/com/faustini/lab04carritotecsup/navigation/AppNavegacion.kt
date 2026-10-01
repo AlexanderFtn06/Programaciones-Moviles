@@ -13,6 +13,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.runtime.toMutableStateList
+import com.faustini.lab04carritotecsup.data.ProductoTienda
+import com.faustini.lab04carritotecsup.data.productosEjemplo
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -30,7 +33,7 @@ fun AppNavegacion() {
     val scope = rememberCoroutineScope()
 
     val pedidos = remember { mutableStateListOf<Producto>() }
-
+    val catalogo = remember { productosEjemplo.toMutableStateList() }
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -70,12 +73,26 @@ fun AppNavegacion() {
                     navController = navController,
                     startDestination = Screen.Inicio.route
                 ) {
-                    composable(Screen.Inicio.route) { HomeScreen() }
+                    composable(Screen.Inicio.route) { HomeScreen(catalogo) }
                     composable(Screen.Pedidos.route) {
                         MyOrdersScreen(
                             productos = pedidos,
-                            onAgregar = { pedidos.add(it) },
-                            onEliminar = { pedidos.remove(it) }
+                            onAgregar = { producto ->
+                                pedidos.add(producto)
+                                if (catalogo.none { it.nombre.equals(producto.nombre, ignoreCase = true) }) {
+                                    val nuevoId = (catalogo.maxOfOrNull { it.id } ?: 0) + 1
+                                    catalogo.add(ProductoTienda(nuevoId, producto.nombre, producto.precio))
+                                }
+                            },
+                            onEliminar = { producto ->
+                                pedidos.remove(producto)
+                                val quedanIguales = pedidos.any { it.nombre.equals(producto.nombre, ignoreCase = true) }
+                                if (!quedanIguales) {
+                                    catalogo.removeAll {
+                                        it.nombre.equals(producto.nombre, ignoreCase = true) && it !in productosEjemplo
+                                    }
+                                }
+                            }
                         )
                     }
                     composable(Screen.Favoritos.route) { PantallaSimple("Favoritos") }

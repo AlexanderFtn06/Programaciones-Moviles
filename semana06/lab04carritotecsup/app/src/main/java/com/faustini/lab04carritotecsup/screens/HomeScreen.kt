@@ -8,16 +8,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.faustini.lab04carritotecsup.data.productosEjemplo
+import com.faustini.lab04carritotecsup.data.ProductoTienda
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(productos: List<ProductoTienda>) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items(productosEjemplo, key = { it.id }) { producto ->
+        items(productos, key = { it.id }) { producto ->
             ProductCard(producto)
         }
     }
