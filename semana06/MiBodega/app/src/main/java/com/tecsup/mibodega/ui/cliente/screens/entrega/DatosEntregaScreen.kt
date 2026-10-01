@@ -63,7 +63,7 @@ fun DatosEntregaScreen(
             etiqueta = "Nombre",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Juan Pérez"
+            placeholder = "Alexander Faustino"
         )
         Spacer(Modifier.height(16.dp))
 
@@ -80,7 +80,7 @@ fun DatosEntregaScreen(
             etiqueta = "Dirección",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Metropolitana"
         )
         Spacer(Modifier.height(16.dp))
 
