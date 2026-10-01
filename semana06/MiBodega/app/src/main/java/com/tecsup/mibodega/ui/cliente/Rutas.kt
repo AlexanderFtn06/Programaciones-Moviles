@@ -8,6 +8,9 @@ object Rutas {
     const val CARRITO = "carrito"
     const val ENTREGA = "entrega"
     const val CONFIRMACION = "confirmacion"
+    const val CATEGORIAS = "categorias"
+    const val PEDIDOS = "pedidos"
+    const val PERFIL = "perfil"
 
     fun detalle(productoId: Int) = "detalle/$productoId"
 }
