@@ -5,6 +5,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
+import com.faustini.lab04carritotecsup.data.Producto
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -25,6 +28,8 @@ fun AppNavegacion() {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    val pedidos = remember { mutableStateListOf<Producto>() }
 
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -66,7 +71,13 @@ fun AppNavegacion() {
                     startDestination = Screen.Inicio.route
                 ) {
                     composable(Screen.Inicio.route) { HomeScreen() }
-                    composable(Screen.Pedidos.route) { MyOrdersScreen() }
+                    composable(Screen.Pedidos.route) {
+                        MyOrdersScreen(
+                            productos = pedidos,
+                            onAgregar = { pedidos.add(it) },
+                            onEliminar = { pedidos.remove(it) }
+                        )
+                    }
                     composable(Screen.Favoritos.route) { PantallaSimple("Favoritos") }
                     composable(Screen.Perfil.route) { PantallaSimple("Perfil") }
                 }

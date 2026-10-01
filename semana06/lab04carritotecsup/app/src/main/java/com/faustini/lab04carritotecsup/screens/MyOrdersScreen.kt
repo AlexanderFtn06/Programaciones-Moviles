@@ -1,14 +1,12 @@
 package com.faustini.lab04carritotecsup.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.faustini.lab04carritotecsup.data.Producto
@@ -17,13 +15,14 @@ import com.faustini.lab04carritotecsup.data.calcularSubtotal
 import com.faustini.lab04carritotecsup.data.calcularTotal
 
 @Composable
-fun MyOrdersScreen() {
-
+fun MyOrdersScreen(
+    productos: List<Producto>,
+    onAgregar: (Producto) -> Unit,
+    onEliminar: (Producto) -> Unit
+) {
     var nombre by remember { mutableStateOf("") }
     var precio by remember { mutableStateOf("") }
     var cantidad by remember { mutableStateOf("") }
-
-    val productos = remember { mutableStateListOf<Producto>() }
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
@@ -32,8 +31,7 @@ fun MyOrdersScreen() {
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
         ) {
-
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
             OutlinedTextField(
                 value = nombre,
                 onValueChange = { nombre = it },
@@ -41,7 +39,7 @@ fun MyOrdersScreen() {
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
             Row(modifier = Modifier.fillMaxWidth()) {
                 OutlinedTextField(
@@ -50,7 +48,7 @@ fun MyOrdersScreen() {
                     label = { Text("Precio") },
                     modifier = Modifier.weight(1f)
                 )
-                Spacer(modifier = Modifier.width(8.dp))
+                Spacer(Modifier.width(8.dp))
                 OutlinedTextField(
                     value = cantidad,
                     onValueChange = { cantidad = it },
@@ -59,7 +57,7 @@ fun MyOrdersScreen() {
                 )
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
             Button(
                 onClick = {
@@ -67,7 +65,7 @@ fun MyOrdersScreen() {
                     val cantidadInt = cantidad.toIntOrNull() ?: 0
 
                     if (nombre.isNotBlank() && precioDouble > 0 && cantidadInt > 0) {
-                        productos.add(Producto(nombre, precioDouble, cantidadInt))
+                        onAgregar(Producto(nombre, precioDouble, cantidadInt))
                         nombre = ""
                         precio = ""
                         cantidad = ""
@@ -78,7 +76,7 @@ fun MyOrdersScreen() {
                 Text("AGREGAR")
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(8.dp))
 
             if (productos.isEmpty()) {
                 Box(
@@ -87,26 +85,21 @@ fun MyOrdersScreen() {
                         .fillMaxWidth(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = "Agrega tu primer producto",
-                        color = Color.Gray
-                    )
+                    Text(text = "Agrega tu primer producto", color = Color.Gray)
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier.weight(1f)
-                ) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
                     items(productos) { producto ->
                         TarjetaProducto(
                             producto = producto,
-                            onEliminar = { productos.remove(producto) }
+                            onEliminar = { onEliminar(producto) }
                         )
                     }
                 }
             }
-
         }
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Spacer(Modifier.height(8.dp))
 
         val subtotal = calcularSubtotal(productos)
         val igv = calcularIGV(subtotal)
@@ -122,7 +115,7 @@ fun MyOrdersScreen() {
 
                 Text("Productos: ${productos.size}")
                 if (productos.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(Modifier.height(4.dp))
 
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -140,7 +133,7 @@ fun MyOrdersScreen() {
                         Text("S/ %.2f".format(igv))
                     }
                 }
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(Modifier.height(4.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
