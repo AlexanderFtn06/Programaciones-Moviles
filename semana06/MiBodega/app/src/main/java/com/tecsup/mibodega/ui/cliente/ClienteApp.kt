@@ -18,6 +18,7 @@ import com.tecsup.mibodega.ui.cliente.modelo.listaProductosFake
 import com.tecsup.mibodega.ui.cliente.screens.bienvenida.BienvenidaScreen
 import com.tecsup.mibodega.ui.cliente.screens.carrito.COSTO_DELIVERY
 import androidx.compose.ui.platform.LocalContext
+import com.tecsup.mibodega.ui.cliente.modelo.Cliente
 import com.tecsup.mibodega.ui.cliente.screens.carrito.CarritoScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
@@ -43,6 +44,9 @@ fun ClienteApp() {
     // El carrito vive aquí arriba, no en ninguna Screen.
     var carrito by remember { mutableStateOf<List<ItemCarrito>>(emptyList()) }
 
+    // Datos del cliente registrado; se usan para rellenar Datos de entrega.
+    var cliente by remember { mutableStateOf(Cliente()) }
+
     // Ultimo pedido confirmado y contador para numerar los pedidos
     var pedido by remember { mutableStateOf<PedidoConfirmado?>(null) }
     var contadorPedidos by remember { mutableStateOf(1024) }
@@ -63,7 +67,7 @@ fun ClienteApp() {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
                 onCrearCuenta = { nombre, telefono, direccion, referencia ->
-                    // TODO: guardar estos datos cuando exista el registro real
+                    cliente = Cliente(nombre, telefono, direccion, referencia)
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }
@@ -131,6 +135,10 @@ fun ClienteApp() {
         composable(Rutas.ENTREGA) {
             DatosEntregaScreen(
                 onVolver = { navController.popBackStack() },
+                nombreInicial = cliente.nombre,
+                telefonoInicial = cliente.telefono,
+                direccionInicial = cliente.direccion,
+                referenciaInicial = cliente.referencia,
                 onConfirmarPedido = { _, _, direccion, referencia, _ ->
                     val subtotal = carrito.sumOf { it.producto.precio * it.cantidad }
                     pedido = PedidoConfirmado(
