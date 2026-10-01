@@ -25,7 +25,7 @@ import androidx.navigation.compose.rememberNavController
 import com.faustini.lab04carritotecsup.screens.HomeScreen
 import com.faustini.lab04carritotecsup.screens.MyOrdersScreen
 import com.faustini.lab04carritotecsup.screens.PantallaPerfil
-import com.faustini.lab04carritotecsup.screens.PantallaSimple
+import com.faustini.lab04carritotecsup.screens.FavoritosScreen
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,15 +100,22 @@ fun AppNavegacion() {
                                 pedidos.remove(producto)
                                 val quedanIguales = pedidos.any { it.nombre.equals(producto.nombre, ignoreCase = true) }
                                 if (!quedanIguales) {
-                                    catalogo.removeAll {
+                                    val seQuito = catalogo.removeAll {
                                         it.nombre.equals(producto.nombre, ignoreCase = true) && it !in productosEjemplo
                                     }
+                                    if (seQuito) favoritos.remove(producto.nombre.lowercase())
                                 }
                             }
                         )
                     }
-                    composable(Screen.Favoritos.route) { PantallaSimple("Favoritos") }
-                    composable(Screen.Perfil.route) { PantallaPerfil() }                }
+                    composable(Screen.Favoritos.route) {
+                        FavoritosScreen(
+                            favoritos = catalogo.filter { it.nombre.lowercase() in favoritos },
+                            onToggleFavorito = onToggleFavorito
+                        )
+                    }
+                    composable(Screen.Perfil.route) { PantallaPerfil() }
+                }
             }
         }
     }
