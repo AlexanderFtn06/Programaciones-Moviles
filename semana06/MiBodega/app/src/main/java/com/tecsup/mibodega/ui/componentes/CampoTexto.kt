@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 
 /**
@@ -27,7 +28,8 @@ fun CampoTexto(
     onValorCambia: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholder: String? = null,
-    teclado: KeyboardType = KeyboardType.Text
+    teclado: KeyboardType = KeyboardType.Text,
+    visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
@@ -45,6 +47,7 @@ fun CampoTexto(
             singleLine = true,
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = teclado),
+            visualTransformation = visualTransformation,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,

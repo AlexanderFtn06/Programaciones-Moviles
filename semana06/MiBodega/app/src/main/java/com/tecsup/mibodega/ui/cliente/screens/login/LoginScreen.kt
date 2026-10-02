@@ -2,6 +2,7 @@ package com.tecsup.mibodega.ui.cliente.screens.login
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -30,6 +31,7 @@ fun LoginScreen(
 ) {
     var telefono by remember { mutableStateOf("") }
     val telefonoValido = telefono.length == 9
+    var contrasena by remember { mutableStateOf("") }
 
     Column(
         modifier = Modifier
@@ -54,6 +56,17 @@ fun LoginScreen(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(top = 4.dp)
+        )
+
+        Spacer(Modifier.height(16.dp))
+
+        CampoTexto(
+            etiqueta = "Contraseña",
+            valor = contrasena,
+            onValorCambia = { contrasena = it },
+            placeholder = "••••••••",
+            teclado = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
         )
 
         Spacer(Modifier.height(28.dp))
