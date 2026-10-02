@@ -1,5 +1,9 @@
 package com.tecsup.mibodega.ui.cliente.screens.detalle
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.Image
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -65,8 +69,7 @@ fun DetalleProductoScreen(
     ) {
         EncabezadoDetalle(esFavorito = esFavorito, onVolver = onVolver,onFavorito = onFavorito)
 
-        ImagenProducto()
-
+        ImagenProducto(imagen = producto.imagen, descripcion = producto.nombre)
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -142,7 +145,7 @@ private fun EncabezadoDetalle(
 }
 
 @Composable
-private fun ImagenProducto() {
+private fun ImagenProducto(@DrawableRes imagen: Int, descripcion: String) {
     // Placeholder de imagen: reemplázalo por Image(painterResource(...))
     // cuando tengan la foto real de cada producto.
     Box(
@@ -152,11 +155,13 @@ private fun ImagenProducto() {
             .background(GrisClaro),
         contentAlignment = Alignment.Center
     ) {
-        Icon(
-            imageVector = Icons.Default.ShoppingBasket,
-            contentDescription = null,
-            tint = VerdeBodega,
-            modifier = Modifier.size(80.dp)
+        Image(
+            painter = painterResource(imagen),
+            contentDescription = descripcion,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
         )
     }
 }
