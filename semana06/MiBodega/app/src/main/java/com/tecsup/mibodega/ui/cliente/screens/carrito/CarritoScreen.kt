@@ -32,6 +32,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -104,14 +105,19 @@ fun CarritoScreen(
         productoAEliminar?.let { producto ->
             AlertDialog(
                 onDismissRequest = { productoAEliminar = null },
+                icon = { Icon(Icons.Default.Delete, contentDescription = null) },
+                iconContentColor = MaterialTheme.colorScheme.error,
                 title = { Text("Eliminar producto") },
-                text = { Text("¿Quieres quitar este producto del carrito?") },
+                text = { Text("¿Quieres quitar \"${producto.nombre}\" del carrito?") },
                 confirmButton = {
                     TextButton(
                         onClick = {
                             onEliminar(producto)
                             productoAEliminar = null
-                        }
+                        },
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
                     ) {
                         Text("Eliminar")
                     }
@@ -192,8 +198,15 @@ private fun FilaCarrito(
 
         SelectorCantidad(
             cantidad = item.cantidad,
+            minimo = 0, // 1. Permite que el botón "-" se mantenga habilitado cuando la cantidad es 1
             onIncrementar = onIncrementar,
-            onDecrementar = onDecrementar
+            onDecrementar = {
+                if (item.cantidad == 1) {
+                    onEliminar() // 2. Si la cantidad es 1, activa el diálogo de confirmación
+                } else {
+                    onDecrementar() // Si es mayor a 1, resta 1 normalmente
+                }
+            }
         )
 
         IconButton(onClick = onEliminar) {

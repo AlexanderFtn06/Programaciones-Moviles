@@ -37,7 +37,7 @@ fun SelectorCantidad(
     onIncrementar: () -> Unit,
     onDecrementar: () -> Unit,
     modifier: Modifier = Modifier,
-    minimo: Int = 1
+    minimo: Int = 0
 ) {
     Row(
         modifier = modifier,
