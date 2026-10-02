@@ -56,6 +56,9 @@ fun ClienteApp() {
     var historial by remember { mutableStateOf<List<PedidoConfirmado>>(emptyList()) }
     var contadorPedidos by remember { mutableStateOf(1024) }
 
+    // Ids de los productos marcados como favoritos desde el detalle.
+    var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
+
     var categoriaInicial by remember { mutableStateOf("Todos") }
 
     val navegarBarra: (String) -> Unit = { ruta ->
@@ -159,7 +162,18 @@ fun ClienteApp() {
 
             DetalleProductoScreen(
                 producto = producto,
+                esFavorito = producto.id in favoritos,
                 onVolver = { navController.popBackStack() },
+                onFavorito = {
+                    val agregado = producto.id !in favoritos
+                    favoritos = if (agregado) favoritos + producto.id else favoritos - producto.id
+                    Toast.makeText(
+                        contexto,
+                        if (agregado) "${producto.nombre} agregado a favoritos"
+                        else "${producto.nombre} quitado de favoritos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
                 onAgregarAlCarrito = { productoSeleccionado, cantidad ->
                     carrito = agregarOSumarProducto(carrito, productoSeleccionado, cantidad)
                     navController.popBackStack()
