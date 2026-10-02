@@ -48,6 +48,62 @@ val listaProductosFake = listOf(
         precio = 6.50,
         categoria = "Bebidas",
         imagen = R.drawable.prod_coca_cola
+    ),
+    Producto(
+        id = 6,
+        nombre = "Inca Kola 1.5 L",
+        descripcion = "Gaseosa sabor a hierba luisa, la bebida de sabor nacional.",
+        precio = 7.00,
+        categoria = "Bebidas",
+        imagen = R.drawable.prod_inca_kola
+    ),
+    Producto(
+        id = 7,
+        nombre = "Agua San Luis 625 ml",
+        descripcion = "Agua de mesa sin gas, ideal para llevar.",
+        precio = 1.50,
+        categoria = "Bebidas",
+        imagen = R.drawable.prod_agua_san_luis
+    ),
+    Producto(
+        id = 8,
+        nombre = "Néctar Frugos 1 L",
+        descripcion = "Néctar de durazno listo para tomar.",
+        precio = 5.80,
+        categoria = "Bebidas",
+        imagen = R.drawable.prod_frugos
+    ),
+    Producto(
+        id = 9,
+        nombre = "Azúcar Cartavio 1 kg",
+        descripcion = "Azúcar rubia de caña, ideal para postres y bebidas.",
+        precio = 4.30,
+        categoria = "Abarrotes",
+        imagen = R.drawable.prod_azucar_cartavio
+    ),
+    Producto(
+        id = 10,
+        nombre = "Lay's Clásicas 140 g",
+        descripcion = "Papas fritas crocantes con sal, para compartir.",
+        precio = 5.50,
+        categoria = "Snacks",
+        imagen = R.drawable.prod_lays
+    ),
+    Producto(
+        id = 11,
+        nombre = "Chocolate Sublime",
+        descripcion = "Chocolate con leche y maní, barra individual.",
+        precio = 1.50,
+        categoria = "Snacks",
+        imagen = R.drawable.prod_sublime
+    ),
+    Producto(
+        id = 12,
+        nombre = "Chizitos 85 g",
+        descripcion = "Piqueo de maíz sabor a queso.",
+        precio = 2.00,
+        categoria = "Snacks",
+        imagen = R.drawable.prod_chizitos
     )
 )
 
