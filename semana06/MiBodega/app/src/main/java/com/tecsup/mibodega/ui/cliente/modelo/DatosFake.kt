@@ -7,7 +7,15 @@ import com.tecsup.mibodega.R
  * reciben una List<Producto> como parámetro.
  */
 val listaCategorias = listOf("Todos", "Bebidas", "Abarrotes", "Snacks")
+const val TELEFONO_DEMO = "906259697"
+const val CONTRASENA_DEMO = "12345678"
 
+val CLIENTE_DEMO = Cliente(
+    nombre = "Alexander Faustino",
+    telefono = TELEFONO_DEMO,
+    direccion = "Av. Metropolitana - ceres medio",
+    referencia = "Frente al parque"
+)
 val listaProductosFake = listOf(
     Producto(
         id = 1,

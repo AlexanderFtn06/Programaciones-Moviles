@@ -96,8 +96,8 @@ fun ClienteApp() {
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onVolver = { navController.popBackStack() },
-                onIngresar = { telefono ->
-                    cliente = cliente.copy(telefono = telefono)
+                onIngresar = { clienteLogueado ->
+                    cliente = clienteLogueado
                     navController.navigate(Rutas.INICIO) {
                         popUpTo(Rutas.BIENVENIDA) { inclusive = true }
                     }

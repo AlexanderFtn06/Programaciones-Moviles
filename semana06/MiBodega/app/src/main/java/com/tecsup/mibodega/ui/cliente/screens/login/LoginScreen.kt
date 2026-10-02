@@ -14,19 +14,27 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tecsup.mibodega.ui.cliente.modelo.CLIENTE_DEMO
+import com.tecsup.mibodega.ui.cliente.modelo.CONTRASENA_DEMO
+import com.tecsup.mibodega.ui.cliente.modelo.Cliente
+import com.tecsup.mibodega.ui.cliente.modelo.TELEFONO_DEMO
 import com.tecsup.mibodega.ui.componentes.BotonPrimario
 import com.tecsup.mibodega.ui.componentes.CampoTexto
 import com.tecsup.mibodega.ui.theme.BodegaTheme
 import com.tecsup.mibodega.ui.theme.VerdeBodega
 
+
 /**
  * Pantalla de Iniciar sesión.
  * Guarda su propio estado de formulario; al ingresar entrega el teléfono ya listo.
  */
+
+private fun credencialesValidas(telefono: String, contrasena: String): Boolean =
+    telefono == TELEFONO_DEMO && contrasena == CONTRASENA_DEMO
 @Composable
 fun LoginScreen(
     onVolver: () -> Unit,
-    onIngresar: (telefono: String) -> Unit,
+    onIngresar: (Cliente) -> Unit,
     onIrARegistro: () -> Unit
 ) {
     var telefono by remember { mutableStateOf("") }
@@ -73,8 +81,12 @@ fun LoginScreen(
 
         BotonPrimario(
             texto = "Ingresar",
-            habilitado = telefonoValido,
-            onClick = { onIngresar(telefono) }
+            habilitado = telefonoValido && contrasena.isNotEmpty(),
+            onClick = {
+                if (credencialesValidas(telefono, contrasena)) {
+                    onIngresar(CLIENTE_DEMO)
+                }
+            }
         )
 
         Spacer(Modifier.height(12.dp))
