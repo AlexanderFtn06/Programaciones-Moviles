@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.faustino.tecsupfit.repository.ReservasRepository
 import androidx.compose.foundation.background
+import androidx.compose.ui.text.style.TextAlign
 import com.faustino.tecsupfit.ui.theme.VerdeTecsup
 
 @Composable
@@ -23,7 +24,10 @@ fun ReservasScreen() {
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Text("Aún no tienes reservas. Ve a Inicio y reserva una clase.")
+            Text(
+                text = "Aún no tienes reservas.\nVe a Inicio y reserva una clase.",
+                textAlign = TextAlign.Center
+            )
         }
     } else {
         LazyColumn(
