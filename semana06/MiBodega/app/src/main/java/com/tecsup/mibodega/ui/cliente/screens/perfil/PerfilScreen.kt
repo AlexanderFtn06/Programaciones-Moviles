@@ -22,12 +22,14 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 
 /**
  * Destino "Perfil" de la barra inferior.
- * Muestra los datos que el cliente ingresó al registrarse.
+ * Muestra los datos que el cliente ingresó al registrarse y permite alternar modo oscuro.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PerfilScreen(
     cliente: Cliente,
+    modoOscuro: Boolean,
+    onModoOscuroChanged: (Boolean) -> Unit,
     onNavegar: (String) -> Unit
 ) {
     Scaffold(
@@ -47,7 +49,7 @@ fun PerfilScreen(
                 tint = VerdeBodega,
                 modifier = Modifier
                     .size(96.dp)
-                    .background(GrisClaro, CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
                     .padding(4.dp)
             )
 
@@ -61,10 +63,33 @@ fun PerfilScreen(
 
             Spacer(Modifier.height(24.dp))
 
+            // Switch de Modo Oscuro
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp))
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = "Modo oscuro",
+                    style = MaterialTheme.typography.bodyLarge,
+                    fontWeight = FontWeight.Medium
+                )
+                Switch(
+                    checked = modoOscuro,
+                    onCheckedChange = onModoOscuroChanged,
+                    colors = SwitchDefaults.colors(checkedThumbColor = VerdeBodega)
+                )
+            }
+
+            Spacer(Modifier.height(16.dp))
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(GrisClaro, RoundedCornerShape(14.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(14.dp))
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
@@ -97,6 +122,8 @@ private fun PerfilPreview() {
     BodegaTheme {
         PerfilScreen(
             cliente = Cliente("Juan Pérez", "987 654 321", "Av. Los Olivos 123", "Frente al parque"),
+            modoOscuro = false,
+            onModoOscuroChanged = {},
             onNavegar = {}
         )
     }
