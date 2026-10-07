@@ -29,14 +29,15 @@ fun CampoTexto(
     modifier: Modifier = Modifier,
     placeholder: String? = null,
     teclado: KeyboardType = KeyboardType.Text,
-    visualTransformation: VisualTransformation = VisualTransformation.None
+    visualTransformation: VisualTransformation = VisualTransformation.None,
+    isError: Boolean = false
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
         Text(
             text = etiqueta,
             style = MaterialTheme.typography.bodySmall,
             fontWeight = FontWeight.SemiBold,
-            color = MaterialTheme.colorScheme.onBackground
+            color = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground
         )
         OutlinedTextField(
             value = valor,
@@ -48,11 +49,14 @@ fun CampoTexto(
             shape = RoundedCornerShape(10.dp),
             keyboardOptions = KeyboardOptions(keyboardType = teclado),
             visualTransformation = visualTransformation,
+            isError = isError,
             colors = OutlinedTextFieldDefaults.colors(
                 unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
                 focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                focusedBorderColor = MaterialTheme.colorScheme.primary
+                unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.outline,
+                focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                errorBorderColor = MaterialTheme.colorScheme.error,
+                errorContainerColor = MaterialTheme.colorScheme.surfaceVariant
             )
         )
     }

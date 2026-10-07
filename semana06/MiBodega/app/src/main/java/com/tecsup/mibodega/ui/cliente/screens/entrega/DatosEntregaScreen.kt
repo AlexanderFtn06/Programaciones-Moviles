@@ -46,7 +46,7 @@ fun DatosEntregaScreen(
     var referencia by remember { mutableStateOf(referenciaInicial) }
     var metodoPago by remember { mutableStateOf(metodosPago.first()) }
 
-    val datosCompletos = nombre.isNotBlank() && telefono.isNotBlank() && direccion.isNotBlank()
+    var intentarEnviar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -63,7 +63,8 @@ fun DatosEntregaScreen(
             etiqueta = "Nombre",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Alexander Faustino"
+            placeholder = "Alexander Faustino",
+            isError = intentarEnviar && nombre.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -72,7 +73,8 @@ fun DatosEntregaScreen(
             valor = telefono,
             onValorCambia = { telefono = it },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            isError = intentarEnviar && telefono.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -80,7 +82,8 @@ fun DatosEntregaScreen(
             etiqueta = "Dirección",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Metropolitana"
+            placeholder = "Av. Metropolitana",
+            isError = intentarEnviar && direccion.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -112,8 +115,14 @@ fun DatosEntregaScreen(
 
         BotonPrimario(
             texto = "Confirmar pedido",
-            habilitado = datosCompletos,
-            onClick = { onConfirmarPedido(nombre, telefono, direccion, referencia, metodoPago) }
+            habilitado = true,
+            onClick = {
+                intentarEnviar = true
+                val datosCompletos = nombre.isNotBlank() && telefono.isNotBlank() && direccion.isNotBlank()
+                if (datosCompletos) {
+                    onConfirmarPedido(nombre, telefono, direccion, referencia, metodoPago)
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -178,4 +187,3 @@ private fun DatosEntregaPreview() {
         )
     }
 }
-

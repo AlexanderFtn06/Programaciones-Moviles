@@ -55,7 +55,7 @@ fun RegistroScreen(
     var referencia by remember { mutableStateOf("") }
     var contraseña by remember { mutableStateOf("") }
 
-    val datosValidos = nombre.isNotBlank() && telefono.length == 9 && contraseña.length >= 6
+    var intentarEnviar by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -89,7 +89,8 @@ fun RegistroScreen(
             etiqueta = "Nombre completo",
             valor = nombre,
             onValorCambia = { nombre = it },
-            placeholder = "Alexander Faustino"
+            placeholder = "Alexander Faustino",
+            isError = intentarEnviar && nombre.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -98,7 +99,8 @@ fun RegistroScreen(
             valor = telefono,
             onValorCambia = { telefono = it.filter { c -> c.isDigit() }.take(9) },
             placeholder = "987 654 321",
-            teclado = KeyboardType.Phone
+            teclado = KeyboardType.Phone,
+            isError = intentarEnviar && (telefono.isBlank() || telefono.length < 9)
         )
         Spacer(Modifier.height(16.dp))
 
@@ -106,7 +108,8 @@ fun RegistroScreen(
             etiqueta = "Dirección de entrega",
             valor = direccion,
             onValorCambia = { direccion = it },
-            placeholder = "Av. Los Olivos 123"
+            placeholder = "Av. Los Olivos 123",
+            isError = intentarEnviar && direccion.isBlank()
         )
         Spacer(Modifier.height(16.dp))
 
@@ -124,15 +127,22 @@ fun RegistroScreen(
             onValorCambia = { contraseña = it },
             placeholder = "Mínimo 8 caracteres",
             teclado = KeyboardType.Password,
-            visualTransformation = PasswordVisualTransformation()
+            visualTransformation = PasswordVisualTransformation(),
+            isError = intentarEnviar && (contraseña.isBlank() || contraseña.length < 6)
         )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            habilitado = datosValidos,
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia, contraseña) }
+            habilitado = true,
+            onClick = {
+                intentarEnviar = true
+                val datosValidos = nombre.isNotBlank() && telefono.length == 9 && direccion.isNotBlank() && contraseña.length >= 6
+                if (datosValidos) {
+                    onCrearCuenta(nombre, telefono, direccion, referencia, contraseña)
+                }
+            }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -169,6 +179,3 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
         textAlign = androidx.compose.ui.text.style.TextAlign.Center
     )
 }
-
-
-
