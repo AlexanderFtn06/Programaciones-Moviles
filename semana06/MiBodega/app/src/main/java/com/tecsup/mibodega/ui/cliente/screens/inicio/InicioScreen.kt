@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import com.tecsup.mibodega.ui.cliente.Rutas
 import com.tecsup.mibodega.ui.componentes.BarraInferior
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
@@ -44,6 +45,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,9 +70,12 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 fun InicioScreen(
     productos: List<Producto> = listaProductosFake,
     cantidadCarrito: Int,
+    favoritos: Set<Int> = emptySet(),
     onVerCarrito: () -> Unit,
+    onVerFavoritos: () -> Unit,
     onProductoClick: (Producto) -> Unit,
     onAgregarProducto: (Producto) -> Unit,
+    onToggleFavorito: (Producto) -> Unit,
     onNavegar: (String) -> Unit,
     categoriaInicial: String = "Todos"
 ) {
@@ -88,6 +93,9 @@ fun InicioScreen(
             TopAppBar(
                 title = { Text("Mi Bodega", fontWeight = FontWeight.Bold) },
                 actions = {
+                    IconButton(onClick = onVerFavoritos) {
+                        Icon(Icons.Default.Favorite, contentDescription = "Favoritos", tint = Color.Red)
+                    }
                     IconButton(onClick = onVerCarrito) {
                         BadgedBox(
                             badge = {
@@ -102,7 +110,8 @@ fun InicioScreen(
                 }
             )
         },
-        bottomBar = { BarraInferior(rutaActual = Rutas.INICIO, onNavegar = onNavegar) }    ) { paddingInterno ->
+        bottomBar = { BarraInferior(rutaActual = Rutas.INICIO, onNavegar = onNavegar) }
+    ) { paddingInterno ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -156,8 +165,10 @@ fun InicioScreen(
                 items(productosFiltrados) { producto ->
                     ProductoCard(
                         producto = producto,
+                        esFavorito = producto.id in favoritos,
                         onClick = { onProductoClick(producto) },
-                        onAgregar = { onAgregarProducto(producto) }
+                        onAgregar = { onAgregarProducto(producto) },
+                        onToggleFavorito = { onToggleFavorito(producto) }
                     )
                 }
             }
@@ -195,8 +206,10 @@ private fun InicioPreview() {
         InicioScreen(
             cantidadCarrito = 3,
             onVerCarrito = {},
+            onVerFavoritos = {},
             onProductoClick = {},
             onAgregarProducto = {},
+            onToggleFavorito = {},
             onNavegar = {}
         )
     }

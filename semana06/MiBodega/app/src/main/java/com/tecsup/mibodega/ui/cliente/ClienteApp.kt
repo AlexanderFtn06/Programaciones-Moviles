@@ -25,6 +25,7 @@ import com.tecsup.mibodega.ui.cliente.screens.categorias.CategoriasScreen
 import com.tecsup.mibodega.ui.cliente.screens.confirmacion.ConfirmacionScreen
 import com.tecsup.mibodega.ui.cliente.screens.detalle.DetalleProductoScreen
 import com.tecsup.mibodega.ui.cliente.screens.entrega.DatosEntregaScreen
+import com.tecsup.mibodega.ui.cliente.screens.favoritos.FavoritosScreen
 import com.tecsup.mibodega.ui.cliente.screens.inicio.InicioScreen
 import com.tecsup.mibodega.ui.cliente.screens.login.LoginScreen
 import com.tecsup.mibodega.ui.cliente.screens.pedidos.PedidosScreen
@@ -57,7 +58,7 @@ fun ClienteApp() {
     var historial by remember { mutableStateOf<List<PedidoConfirmado>>(emptyList()) }
     var contadorPedidos by remember { mutableStateOf(1024) }
 
-    // Ids de los productos marcados como favoritos desde el detalle.
+    // Ids de los productos marcados como favoritos desde el detalle o grid.
     var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
     var cuentas by remember { mutableStateOf(listOf(CLIENTE_DEMO)) }
@@ -125,15 +126,48 @@ fun ClienteApp() {
         composable(Rutas.INICIO) {
             InicioScreen(
                 cantidadCarrito = carrito.sumOf { it.cantidad },
+                favoritos = favoritos,
                 onVerCarrito = { navController.navigate(Rutas.CARRITO) },
+                onVerFavoritos = { navController.navigate(Rutas.FAVORITOS) },
                 onProductoClick = { producto ->
                     navController.navigate(Rutas.detalle(producto.id))
                 },
                 onAgregarProducto = { producto ->
                     carrito = agregarOSumarProducto(carrito, producto, 1)
                 },
+                onToggleFavorito = { producto ->
+                    val esFav = producto.id in favoritos
+                    favoritos = if (esFav) favoritos - producto.id else favoritos + producto.id
+                    Toast.makeText(
+                        contexto,
+                        if (esFav) "${producto.nombre} quitado de favoritos"
+                        else "${producto.nombre} agregado a favoritos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                },
                 onNavegar = navegarBarra,
                 categoriaInicial = categoriaInicial
+            )
+        }
+        // Destino Favoritos
+        composable(Rutas.FAVORITOS) {
+            FavoritosScreen(
+                productosFavoritos = listaProductosFake.filter { it.id in favoritos },
+                onVolver = { navController.popBackStack() },
+                onProductoClick = { producto ->
+                    navController.navigate(Rutas.detalle(producto.id))
+                },
+                onAgregarProducto = { producto ->
+                    carrito = agregarOSumarProducto(carrito, producto, 1)
+                },
+                onToggleFavorito = { producto ->
+                    favoritos = favoritos - producto.id
+                    Toast.makeText(
+                        contexto,
+                        "${producto.nombre} quitado de favoritos",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
             )
         }
         // Destino Categorías
