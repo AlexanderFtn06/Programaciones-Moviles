@@ -11,6 +11,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.tecsup.mibodega.ui.cliente.modelo.CLIENTE_DEMO
 import com.tecsup.mibodega.ui.cliente.modelo.ItemCarrito
 import com.tecsup.mibodega.ui.cliente.modelo.PedidoConfirmado
 import com.tecsup.mibodega.ui.cliente.modelo.Producto
@@ -59,6 +60,8 @@ fun ClienteApp() {
     // Ids de los productos marcados como favoritos desde el detalle.
     var favoritos by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
+    var cuentas by remember { mutableStateOf(listOf(CLIENTE_DEMO)) }
+
     var categoriaInicial by remember { mutableStateOf("Todos") }
 
     val navegarBarra: (String) -> Unit = { ruta ->
@@ -85,10 +88,16 @@ fun ClienteApp() {
         composable(Rutas.REGISTRO) {
             RegistroScreen(
                 onVolver = { navController.popBackStack() },
-                onCrearCuenta = { nombre, telefono, direccion, referencia ->
-                    cliente = Cliente(nombre, telefono, direccion, referencia)
-                    navController.navigate(Rutas.INICIO) {
-                        popUpTo(Rutas.BIENVENIDA) { inclusive = true }
+                onCrearCuenta = { nombre, telefono, direccion, referencia, contrasena ->
+                    val nueva = Cliente(nombre, telefono, direccion, referencia, contrasena)
+                    cuentas = cuentas.filterNot { it.telefono == telefono } + nueva
+                    Toast.makeText(
+                        contexto,
+                        "Cuenta creada. Inicia sesión para continuar",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    navController.navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.BIENVENIDA)
                     }
                 }
             )
@@ -96,11 +105,15 @@ fun ClienteApp() {
         composable(Rutas.LOGIN) {
             LoginScreen(
                 onVolver = { navController.popBackStack() },
-                onIngresar = { clienteLogueado ->
-                    cliente = clienteLogueado
-                    navController.navigate(Rutas.INICIO) {
-                        popUpTo(Rutas.BIENVENIDA) { inclusive = true }
+                onIngresar = { telefono, contrasena ->
+                    val cuenta = cuentas.find { it.telefono == telefono && it.contraseña == contrasena }
+                    if (cuenta != null) {
+                        cliente = cuenta
+                        navController.navigate(Rutas.INICIO) {
+                            popUpTo(Rutas.BIENVENIDA) { inclusive = true }
+                        }
                     }
+                    cuenta != null
                 },
                 onIrARegistro = { navController.navigate(Rutas.REGISTRO) }
             )

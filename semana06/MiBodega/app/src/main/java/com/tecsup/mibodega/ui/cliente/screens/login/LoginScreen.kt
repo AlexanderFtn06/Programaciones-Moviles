@@ -29,17 +29,17 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
  * Guarda su propio estado de formulario; al ingresar entrega el teléfono ya listo.
  */
 
-private fun credencialesValidas(telefono: String, contrasena: String): Boolean =
-    telefono == TELEFONO_DEMO && contrasena == CONTRASENA_DEMO
+
 @Composable
 fun LoginScreen(
     onVolver: () -> Unit,
-    onIngresar: (Cliente) -> Unit,
+    onIngresar: (telefono: String, contrasena: String) -> Boolean,
     onIrARegistro: () -> Unit
 ) {
     var telefono by remember { mutableStateOf("") }
     val telefonoValido = telefono.length == 9
     var contrasena by remember { mutableStateOf("") }
+    var hayError by remember { mutableStateOf(false) }
 
     Column(
         modifier = Modifier
@@ -55,7 +55,10 @@ fun LoginScreen(
         CampoTexto(
             etiqueta = "Teléfono",
             valor = telefono,
-            onValorCambia = { texto -> telefono = texto.filter { it.isDigit() }.take(9) },
+            onValorCambia = { texto ->
+                telefono = texto.filter { it.isDigit() }.take(9)
+                hayError = false
+            },
             placeholder = "987654321",
             teclado = KeyboardType.Phone
         )
@@ -71,22 +74,29 @@ fun LoginScreen(
         CampoTexto(
             etiqueta = "Contraseña",
             valor = contrasena,
-            onValorCambia = { contrasena = it },
+            onValorCambia = {
+                contrasena = it
+                hayError = false
+            },
             placeholder = "••••••••",
             teclado = KeyboardType.Password,
             visualTransformation = PasswordVisualTransformation()
         )
+        if (hayError) {
+            Text(
+                text = "Teléfono o contraseña incorrectos",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(top = 8.dp)
+            )
+        }
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Ingresar",
             habilitado = telefonoValido && contrasena.isNotEmpty(),
-            onClick = {
-                if (credencialesValidas(telefono, contrasena)) {
-                    onIngresar(CLIENTE_DEMO)
-                }
-            }
+            onClick = { hayError = !onIngresar(telefono, contrasena) }
         )
 
         Spacer(Modifier.height(12.dp))
@@ -125,10 +135,3 @@ private fun EncabezadoLogin(onVolver: () -> Unit) {
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun LoginPreview() {
-    BodegaTheme {
-        LoginScreen(onVolver = {}, onIngresar = {}, onIrARegistro = {})
-    }
-}

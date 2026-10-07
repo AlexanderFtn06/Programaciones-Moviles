@@ -14,7 +14,8 @@ val CLIENTE_DEMO = Cliente(
     nombre = "Alexander Faustino",
     telefono = TELEFONO_DEMO,
     direccion = "Av. Metropolitana - ceres medio",
-    referencia = "Frente al parque"
+    referencia = "Frente al parque",
+    contraseña = CONTRASENA_DEMO
 )
 val listaProductosFake = listOf(
     Producto(

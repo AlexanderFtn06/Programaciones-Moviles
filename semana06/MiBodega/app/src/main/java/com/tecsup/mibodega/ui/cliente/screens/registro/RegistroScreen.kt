@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountCircle
 import androidx.compose.material.icons.filled.ArrowBack
@@ -46,12 +47,15 @@ import com.tecsup.mibodega.ui.theme.VerdeBodega
 @Composable
 fun RegistroScreen(
     onVolver: () -> Unit,
-    onCrearCuenta: (nombre: String, telefono: String, direccion: String, referencia: String) -> Unit
+    onCrearCuenta: (nombre: String, telefono: String, direccion: String, referencia: String, contrasena: String) -> Unit
 ) {
     var nombre by remember { mutableStateOf("") }
     var telefono by remember { mutableStateOf("") }
     var direccion by remember { mutableStateOf("") }
     var referencia by remember { mutableStateOf("") }
+    var contraseña by remember { mutableStateOf("") }
+
+    val datosValidos = nombre.isNotBlank() && telefono.length == 9 && contraseña.length >= 6
 
     Column(
         modifier = Modifier
@@ -92,7 +96,7 @@ fun RegistroScreen(
         CampoTexto(
             etiqueta = "Teléfono",
             valor = telefono,
-            onValorCambia = { telefono = it },
+            onValorCambia = { telefono = it.filter { c -> c.isDigit() }.take(9) },
             placeholder = "987 654 321",
             teclado = KeyboardType.Phone
         )
@@ -112,12 +116,23 @@ fun RegistroScreen(
             onValorCambia = { referencia = it },
             placeholder = "Frente al parque"
         )
+        Spacer(Modifier.height(16.dp))
+
+        CampoTexto(
+            etiqueta = "Contraseña",
+            valor = contraseña,
+            onValorCambia = { contraseña = it },
+            placeholder = "Mínimo 8 caracteres",
+            teclado = KeyboardType.Password,
+            visualTransformation = PasswordVisualTransformation()
+        )
 
         Spacer(Modifier.height(28.dp))
 
         BotonPrimario(
             texto = "Crear cuenta",
-            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia) }
+            habilitado = datosValidos,
+            onClick = { onCrearCuenta(nombre, telefono, direccion, referencia, contraseña) }
         )
 
         Spacer(Modifier.height(24.dp))
@@ -155,11 +170,5 @@ private fun EncabezadoRegistro(onVolver: () -> Unit) {
     )
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun RegistroPreview() {
-    BodegaTheme {
-        RegistroScreen(onVolver = {}, onCrearCuenta = { _, _, _, _ -> })
-    }
-}
+
 
