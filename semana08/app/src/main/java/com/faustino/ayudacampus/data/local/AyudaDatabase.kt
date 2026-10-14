@@ -5,17 +5,23 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import com.faustino.ayudacampus.data.local.dao.CategoriaDao
+import com.faustino.ayudacampus.data.local.dao.TicketDao
+import com.faustino.ayudacampus.data.local.dao.UsuarioDao
 import com.faustino.ayudacampus.data.local.entity.Categoria
+import com.faustino.ayudacampus.data.local.entity.Comentario
+import com.faustino.ayudacampus.data.local.entity.Ticket
+import com.faustino.ayudacampus.data.local.entity.Usuario
 
 @Database(
-    entities = [Categoria::class /* TODO (Paso 3): agrega las otras 3 */],
-    version = 1,
+    entities = [Categoria::class, Usuario::class, Ticket::class, Comentario::class],
+    version = 2,            // subió de 1 a 2 porque cambió el esquema
     exportSchema = false
 )
 abstract class AyudaDatabase : RoomDatabase() {
 
     abstract fun categoriaDao(): CategoriaDao
-    // TODO (Paso 3): usuarioDao() y ticketDao()
+    abstract fun usuarioDao(): UsuarioDao
+    abstract fun ticketDao(): TicketDao
 
     companion object {
         @Volatile
