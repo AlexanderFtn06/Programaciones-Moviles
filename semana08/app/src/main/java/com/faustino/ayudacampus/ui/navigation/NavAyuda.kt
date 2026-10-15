@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import com.faustino.ayudacampus.ui.cliente.DetalleTicketScreen
+import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -79,10 +81,13 @@ fun NavAyuda(app: AyudaApp) {
 
     // Navegación de la barra inferior del estudiante
     val irEstudiante: (String) -> Unit = { ruta ->
-        nav.navigate(ruta) {
-            popUpTo(Rutas.MIS_TICKETS) { saveState = true }
-            launchSingleTop = true
-            restoreState = true
+        if (ruta == Rutas.MIS_TICKETS) {
+            nav.popBackStack(Rutas.MIS_TICKETS, inclusive = false)
+        } else {
+            nav.navigate(ruta) {
+                popUpTo(Rutas.MIS_TICKETS)
+                launchSingleTop = true
+            }
         }
     }
 
@@ -155,11 +160,16 @@ fun NavAyuda(app: AyudaApp) {
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { entrada ->
                 val id = entrada.arguments?.getInt("id") ?: 0
-                PantallaPendiente(
-                    titulo = "Ticket ${numeroTicket(id)}",
-                    nota = "El detalle se construye en el Paso 9.",
-                    onAtras = { nav.popBackStack() }
-                )
+                usuario?.let { u ->
+                    val vm = ayudaViewModel(key = "detalle_${id}_${u.id}") {
+                        TicketDetalleViewModel(repo, id, u)
+                    }
+                    DetalleTicketScreen(
+                        vm = vm,
+                        onAtras = { nav.popBackStack() },
+                        barraInferior = { BarraEstudiante(Rutas.MIS_TICKETS, irEstudiante) }
+                    )
+                }
             }
 
             // TEMPORAL: se reemplaza en el Paso 12
