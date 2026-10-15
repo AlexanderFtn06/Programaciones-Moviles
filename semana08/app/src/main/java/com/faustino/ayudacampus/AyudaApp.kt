@@ -3,6 +3,7 @@ package com.faustino.ayudacampus
 import android.app.Application
 import com.faustino.ayudacampus.data.local.AyudaDatabase
 import com.faustino.ayudacampus.data.local.DatosIniciales
+import com.faustino.ayudacampus.data.prefs.PreferenciasStore
 import com.faustino.ayudacampus.data.repository.AyudaRepository
 import com.faustino.ayudacampus.data.repository.AyudaRepositoryRoom
 import kotlinx.coroutines.CoroutineScope
@@ -17,7 +18,8 @@ class AyudaApp : Application() {
     // Los ViewModels solo conocen la interface, nunca la implementación
     val repository: AyudaRepository by lazy { AyudaRepositoryRoom(database) }
 
-    // TODO (Paso 5): val preferencias by lazy { PreferenciasStore(this) }
+    // Preferencias del dispositivo (DataStore)
+    val preferencias: PreferenciasStore by lazy { PreferenciasStore(this) }
 
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
