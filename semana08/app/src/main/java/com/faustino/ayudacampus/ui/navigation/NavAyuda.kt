@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
+import com.faustino.ayudacampus.viewmodel.NuevoTicketViewModel
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -133,11 +135,18 @@ fun NavAyuda(app: AyudaApp) {
 
             // TEMPORAL: se reemplaza en el Paso 8
             composable(Rutas.NUEVO_TICKET) {
-                PantallaPendiente(
-                    titulo = "Nuevo ticket",
-                    nota = "El formulario se construye en el Paso 8.",
-                    onAtras = { nav.popBackStack() }
-                )
+                usuario?.let { u ->
+                    val vm = ayudaViewModel(key = "nuevo_ticket_${u.id}") {
+                        NuevoTicketViewModel(repo, u)
+                    }
+                    NuevoTicketScreen(
+                        vm = vm,
+                        onAtras = { nav.popBackStack() },
+                        // Vuelve a Mis tickets: el nuevo aparece arriba (el DAO ordena por fecha)
+                        onEnviado = { nav.popBackStack(Rutas.MIS_TICKETS, inclusive = false) },
+                        barraInferior = { BarraEstudiante(Rutas.NUEVO_TICKET, irEstudiante) }
+                    )
+                }
             }
 
             // TEMPORAL: se reemplaza en el Paso 9
