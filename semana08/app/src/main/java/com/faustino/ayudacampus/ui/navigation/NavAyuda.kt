@@ -9,9 +9,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -23,20 +28,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.faustino.ayudacampus.AyudaApp
 import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.model.Rol
 import com.faustino.ayudacampus.ui.cliente.LoginScreen
+import com.faustino.ayudacampus.ui.cliente.MisTicketsScreen
 import com.faustino.ayudacampus.ui.cliente.SplashScreen
 import com.faustino.ayudacampus.ui.components.AppTopBar
 import com.faustino.ayudacampus.ui.components.AyudaButton
+import com.faustino.ayudacampus.ui.components.numeroTicket
 import com.faustino.ayudacampus.ui.soporte.CategoriasScreen
 import com.faustino.ayudacampus.ui.theme.AyudaTheme
 import com.faustino.ayudacampus.viewmodel.CategoriasViewModel
+import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
 import com.faustino.ayudacampus.viewmodel.ayudaViewModel
 
@@ -64,10 +75,19 @@ fun NavAyuda(app: AyudaApp) {
         }
     }
 
+    // Navegación de la barra inferior del estudiante
+    val irEstudiante: (String) -> Unit = { ruta ->
+        nav.navigate(ruta) {
+            popUpTo(Rutas.MIS_TICKETS) { saveState = true }
+            launchSingleTop = true
+            restoreState = true
+        }
+    }
+
     AyudaTheme(rol = rolActual, oscuro = oscuro) {
         NavHost(navController = nav, startDestination = Rutas.SPLASH) {
 
-            // Splash: si ya hay perfil guardado, salta el login
+            // ---------- Splash: si ya hay perfil guardado, salta el login ----------
             composable(Rutas.SPLASH) {
                 var animacionLista by remember { mutableStateOf(false) }
                 val verificada by sesionVm.sesionVerificada.collectAsState()
@@ -95,22 +115,63 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // TEMPORAL: se reemplaza en el Paso 7
+            // ---------- Estudiante ----------
+
             composable(Rutas.MIS_TICKETS) {
+                usuario?.let { u ->
+                    val vm = ayudaViewModel(key = "mis_tickets_${u.id}") {
+                        MisTicketsViewModel(repo, u)
+                    }
+                    MisTicketsScreen(
+                        vm = vm,
+                        onAbrirTicket = { id -> nav.navigate(Rutas.detalleTicket(id)) },
+                        onNuevoTicket = { nav.navigate(Rutas.NUEVO_TICKET) },
+                        barraInferior = { BarraEstudiante(Rutas.MIS_TICKETS, irEstudiante) }
+                    )
+                }
+            }
+
+            // TEMPORAL: se reemplaza en el Paso 8
+            composable(Rutas.NUEVO_TICKET) {
                 PantallaPendiente(
-                    titulo = "Mis tickets",
-                    usuario = usuario,
-                    nota = "Esta pantalla se construye en el Paso 7.",
-                    onCerrarSesion = cerrarSesion
+                    titulo = "Nuevo ticket",
+                    nota = "El formulario se construye en el Paso 8.",
+                    onAtras = { nav.popBackStack() }
                 )
             }
+
+            // TEMPORAL: se reemplaza en el Paso 9
+            composable(
+                Rutas.DETALLE_TICKET,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: 0
+                PantallaPendiente(
+                    titulo = "Ticket ${numeroTicket(id)}",
+                    nota = "El detalle se construye en el Paso 9.",
+                    onAtras = { nav.popBackStack() }
+                )
+            }
+
+            // TEMPORAL: se reemplaza en el Paso 12
+            composable(Rutas.PERFIL) {
+                PantallaPendiente(
+                    titulo = "Perfil",
+                    nota = "El perfil se construye en el Paso 12.",
+                    usuario = usuario,
+                    onCerrarSesion = cerrarSesion,
+                    barraInferior = { BarraEstudiante(Rutas.PERFIL, irEstudiante) }
+                )
+            }
+
+            // ---------- Soporte TI ----------
 
             // TEMPORAL: se reemplaza en el Paso 10
             composable(Rutas.PANEL) {
                 PantallaPendiente(
                     titulo = "Panel",
-                    usuario = usuario,
                     nota = "Esta pantalla se construye en el Paso 10.",
+                    usuario = usuario,
                     onCerrarSesion = cerrarSesion,
                     onExtra = { nav.navigate(Rutas.CATEGORIAS) },
                     textoExtra = "Ver categorías"
@@ -128,9 +189,28 @@ fun NavAyuda(app: AyudaApp) {
                 }
             }
 
-            // TODO (Pasos 7-9): MIS_TICKETS, NUEVO_TICKET, DETALLE_TICKET
-            // TODO (Pasos 10-11): PANEL, BANDEJA, ATENDER_TICKET, FORMULARIO_CATEGORIA
-            // TODO (Paso 12): PERFIL, AJUSTES y NavigationBar de cada perfil
+            // TODO (Pasos 10-11): BANDEJA, ATENDER_TICKET, FORMULARIO_CATEGORIA
+            // TODO (Paso 12): AJUSTES y NavigationBar de Soporte
+        }
+    }
+}
+
+/** Barra inferior del estudiante: Tickets, Nuevo y Perfil. */
+@Composable
+private fun BarraEstudiante(actual: String, onIr: (String) -> Unit) {
+    val items: List<Triple<String, String, ImageVector>> = listOf(
+        Triple(Rutas.MIS_TICKETS, "Tickets", Icons.Filled.Menu),
+        Triple(Rutas.NUEVO_TICKET, "Nuevo", Icons.Filled.Add),
+        Triple(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
+    )
+    NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
+        items.forEach { (ruta, etiqueta, icono) ->
+            NavigationBarItem(
+                selected = actual == ruta,
+                onClick = { onIr(ruta) },
+                icon = { Icon(icono, contentDescription = null) },
+                label = { Text(etiqueta) }
+            )
         }
     }
 }
@@ -139,20 +219,25 @@ fun NavAyuda(app: AyudaApp) {
 @Composable
 private fun PantallaPendiente(
     titulo: String,
-    usuario: Usuario?,
     nota: String,
-    onCerrarSesion: () -> Unit,
+    usuario: Usuario? = null,
+    onAtras: (() -> Unit)? = null,
+    onCerrarSesion: (() -> Unit)? = null,
     onExtra: (() -> Unit)? = null,
-    textoExtra: String = ""
+    textoExtra: String = "",
+    barraInferior: @Composable () -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            AppTopBar(titulo, acciones = {
-                IconButton(onClick = onCerrarSesion) {
-                    Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+            AppTopBar(titulo, onAtras = onAtras, acciones = {
+                if (onCerrarSesion != null) {
+                    IconButton(onClick = onCerrarSesion) {
+                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
+                    }
                 }
             })
-        }
+        },
+        bottomBar = barraInferior
     ) { padding ->
         Column(
             Modifier
@@ -162,15 +247,19 @@ private fun PantallaPendiente(
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text("Hola, ${usuario?.nombre ?: ""}", style = MaterialTheme.typography.headlineSmall)
-            Spacer(Modifier.height(8.dp))
+            if (usuario != null) {
+                Text("Hola, ${usuario.nombre}", style = MaterialTheme.typography.headlineSmall)
+                Spacer(Modifier.height(8.dp))
+            }
             Text(nota, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(24.dp))
             if (onExtra != null) {
                 AyudaButton(textoExtra, onClick = onExtra)
                 Spacer(Modifier.height(12.dp))
             }
-            AyudaButton("Cerrar sesión", onClick = onCerrarSesion, secundario = true)
+            if (onCerrarSesion != null) {
+                AyudaButton("Cerrar sesión", onClick = onCerrarSesion, secundario = true)
+            }
         }
     }
 }

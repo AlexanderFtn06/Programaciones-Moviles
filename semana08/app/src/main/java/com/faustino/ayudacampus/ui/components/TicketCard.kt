@@ -50,14 +50,18 @@ fun iconoCategoria(icono: String): ImageVector = when (icono) {
     else -> Icons.Outlined.LocalOffer
 }
 
-/** "hace 5 min", "hace 3 h", "hace 2 d" */
+/** "#0012" */
+fun numeroTicket(id: Int): String = "#%04d".format(id)
+
+/** "Ahora", "Hace 5 min", "Hace 3 h", "Ayer", "Hace 4 d" */
 fun tiempoTranscurrido(millis: Long): String {
     val min = (System.currentTimeMillis() - millis) / 60_000
     return when {
-        min < 1 -> "ahora"
-        min < 60 -> "hace $min min"
-        min < 60 * 24 -> "hace ${min / 60} h"
-        else -> "hace ${min / (60 * 24)} d"
+        min < 1 -> "Ahora"
+        min < 60 -> "Hace $min min"
+        min < 60 * 24 -> "Hace ${min / 60} h"
+        min < 60 * 48 -> "Ayer"
+        else -> "Hace ${min / (60 * 24)} d"
     }
 }
 
@@ -66,14 +70,13 @@ fun tiempoTranscurrido(millis: Long): String {
 fun TicketCard(
     numero: Int,
     titulo: String,
-    categoria: String,
+    detalle: String,          // Estudiante: ubicación · Soporte: nombre del cliente
     icono: String,
     estado: EstadoTicket,
     prioridad: Prioridad,
     fecha: Long,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    cliente: String? = null,        // Soporte muestra quién lo reportó
     comentarios: Int = 0
 ) {
     Card(
@@ -96,7 +99,7 @@ fun TicketCard(
                     .weight(1f)
                     .padding(14.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row {
                     Box(
                         Modifier
                             .size(40.dp)
@@ -108,39 +111,29 @@ fun TicketCard(
                     ) {
                         Icon(
                             iconoCategoria(icono),
-                            contentDescription = categoria,
+                            contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary
                         )
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(
-                            "#$numero · $categoria",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
                             titulo,
                             style = MaterialTheme.typography.titleSmall,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
                         )
+                        Spacer(Modifier.height(2.dp))
+                        Text(
+                            "${numeroTicket(numero)} · $detalle",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
+                        )
                     }
-                    Text(
-                        tiempoTranscurrido(fecha),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
-                if (cliente != null) {
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        "Reportado por $cliente",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                Spacer(Modifier.height(10.dp))
+                Spacer(Modifier.height(14.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -152,7 +145,7 @@ fun TicketCard(
                         Icon(
                             Icons.Outlined.ChatBubbleOutline,
                             contentDescription = "Comentarios",
-                            modifier = Modifier.size(16.dp),
+                            modifier = Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
@@ -161,6 +154,11 @@ fun TicketCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
+                    Text(
+                        tiempoTranscurrido(fecha),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
             }
         }
