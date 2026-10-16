@@ -18,8 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.faustino.ayudacampus.data.model.Rol
-import com.faustino.ayudacampus.ui.theme.CianContenedor
-import com.faustino.ayudacampus.ui.theme.CianContenedorOscuro
 import com.faustino.ayudacampus.ui.theme.VioletaContenedor
 import com.faustino.ayudacampus.ui.theme.VioletaContenedorOscuro
 import java.text.SimpleDateFormat
@@ -45,12 +43,12 @@ fun BurbujaComentario(
     val fondo = when {
         propio -> MaterialTheme.colorScheme.primary
         rolAutor == Rol.ADMIN -> if (oscuro) VioletaContenedorOscuro else VioletaContenedor
-        else -> if (oscuro) CianContenedorOscuro else CianContenedor
+        else -> MaterialTheme.colorScheme.surface      // estudiante visto por Soporte: burbuja blanca
     }
     val colorTexto = when {
         propio -> MaterialTheme.colorScheme.onPrimary
-        oscuro -> Color.White
-        else -> Color(0xFF1F2937)
+        rolAutor == Rol.ADMIN -> if (oscuro) Color.White else Color(0xFF1F2937)
+        else -> MaterialTheme.colorScheme.onSurface
     }
     val forma = if (propio) RoundedCornerShape(16.dp, 16.dp, 4.dp, 16.dp)
     else RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)

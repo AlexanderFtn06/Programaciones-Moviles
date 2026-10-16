@@ -26,9 +26,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.FloatingActionButton
+import com.faustino.ayudacampus.ui.soporte.AtenderTicketScreen
+import com.faustino.ayudacampus.ui.soporte.FormularioCategoriaScreen
+import com.faustino.ayudacampus.viewmodel.AtenderViewModel
 import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -246,29 +247,61 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // TEMPORAL: se reemplaza en el Paso 11
             composable(
                 Rutas.ATENDER_TICKET,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
             ) { entrada ->
                 val id = entrada.arguments?.getInt("id") ?: 0
-                PantallaPendiente(
-                    titulo = "Ticket ${numeroTicket(id)}",
-                    nota = "La atención del ticket se construye en el Paso 11.",
-                    onAtras = { nav.popBackStack() }
-                )
+                usuario?.let { u ->
+                    val vm = ayudaViewModel(key = "atender_$id") {
+                        AtenderViewModel(repo, id, u)
+                    }
+                    AtenderTicketScreen(
+                        vm = vm,
+                        onAtras = { nav.popBackStack() },
+                        barraInferior = { BarraSoporte(Rutas.BANDEJA, irSoporte) }
+                    )
+                }
             }
 
             composable(Rutas.CATEGORIAS) {
                 val vm = ayudaViewModel { CategoriasViewModel(repo) }
                 Scaffold(
                     topBar = { AppTopBar("Categorías") },
-                    bottomBar = { BarraSoporte(Rutas.CATEGORIAS, irSoporte) }
+                    bottomBar = { BarraSoporte(Rutas.CATEGORIAS, irSoporte) },
+                    floatingActionButton = {
+                        FloatingActionButton(
+                            onClick = { nav.navigate(Rutas.formularioCategoria()) },
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary
+                        ) {
+                            Icon(Icons.Filled.Add, contentDescription = "Nueva categoría")
+                        }
+                    }
                 ) { padding ->
                     Box(Modifier.padding(padding)) {
-                        CategoriasScreen(vm, onEditar = { /* TODO (Paso 11): abrir formulario */ })
+                        CategoriasScreen(
+                            vm,
+                            onEditar = { id -> nav.navigate(Rutas.formularioCategoria(id)) }
+                        )
                     }
                 }
+            }
+
+            composable(
+                Rutas.FORMULARIO_CATEGORIA,
+                arguments = listOf(navArgument("id") {
+                    type = NavType.IntType
+                    defaultValue = -1                 // -1 = nueva categoría
+                })
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: -1
+                val vm = ayudaViewModel(key = "form_categoria_$id") { CategoriasViewModel(repo) }
+                FormularioCategoriaScreen(
+                    vm = vm,
+                    categoriaId = id.takeIf { it > 0 },
+                    onCerrar = { nav.popBackStack() }
+                )
             }
 
             // TEMPORAL: se reemplaza en el Paso 12
@@ -282,7 +315,6 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // TODO (Paso 11): ATENDER_TICKET real y FORMULARIO_CATEGORIA
             // TODO (Paso 12): PERFIL y AJUSTES reales
         }
     }

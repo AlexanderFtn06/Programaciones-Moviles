@@ -39,7 +39,7 @@ fun CategoriasScreen(vm: CategoriasViewModel, onEditar: (Int) -> Unit) {
     val categorias by vm.categorias.collectAsState()
 
     LazyColumn(
-        contentPadding = PaddingValues(16.dp),
+        contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 88.dp),
         verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
         items(categorias, key = { it.id }) { c ->
