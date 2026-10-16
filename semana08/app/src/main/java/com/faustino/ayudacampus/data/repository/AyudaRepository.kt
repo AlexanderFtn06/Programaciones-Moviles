@@ -4,6 +4,7 @@ import com.faustino.ayudacampus.data.local.entity.Categoria
 import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.local.relation.TicketConDetalle
 import com.faustino.ayudacampus.data.model.ConteoCategoria
+import com.faustino.ayudacampus.data.model.Rol
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.model.Prioridad
 import kotlinx.coroutines.flow.Flow
@@ -13,6 +14,8 @@ interface AyudaRepository {
     // Usuarios
     suspend fun login(correo: String, clave: String): Usuario?
     suspend fun obtenerUsuario(id: Int): Usuario?              // Paso 6: recordar la sesión
+
+    suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario?       // Paso 12: cambiar de perfil
 
     // Categorías (ejemplo resuelto)
     fun observarCategorias(): Flow<List<Categoria>>

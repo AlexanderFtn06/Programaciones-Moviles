@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
-/** Filtros de los chips. También los usará la Bandeja de Soporte (Paso 10). */
+/** Filtros de los chips. También los usa la Bandeja de Soporte (Paso 10). */
 enum class FiltroEstado(val etiqueta: String) {
     TODOS("Todos"),
     ABIERTOS("Abiertos"),
@@ -28,6 +28,13 @@ enum class FiltroEstado(val etiqueta: String) {
         RESUELTOS -> estado == EstadoTicket.RESUELTO.name
     }
 }
+
+/** Contadores del Perfil: Abiertos · Resueltos · Total */
+data class ResumenMisTickets(
+    val abiertos: Int = 0,
+    val resueltos: Int = 0,      // RESUELTO + CERRADO
+    val total: Int = 0
+)
 
 class MisTicketsViewModel(
     repo: AyudaRepository,
@@ -55,6 +62,20 @@ class MisTicketsViewModel(
     val abiertos: StateFlow<Int> = misTickets
         .map { lista -> lista.count { it.ticket.estado == EstadoTicket.ABIERTO.name } }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 0)
+
+    // Paso 12: contadores del Perfil
+    val resumen: StateFlow<ResumenMisTickets> = misTickets
+        .map { lista ->
+            ResumenMisTickets(
+                abiertos = lista.count { it.ticket.estado == EstadoTicket.ABIERTO.name },
+                resueltos = lista.count {
+                    it.ticket.estado == EstadoTicket.RESUELTO.name ||
+                            it.ticket.estado == EstadoTicket.CERRADO.name
+                },
+                total = lista.size
+            )
+        }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), ResumenMisTickets())
 
     fun seleccionarFiltro(f: FiltroEstado) {
         _filtro.value = f

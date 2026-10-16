@@ -32,8 +32,15 @@ class SesionViewModel(
     private val _sesionVerificada = MutableStateFlow(false)
     val sesionVerificada: StateFlow<Boolean> = _sesionVerificada.asStateFlow()
 
+    // ---------- Preferencias (DataStore) ----------
     val modoOscuro: StateFlow<Boolean> = prefs.modoOscuro
         .stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    val notificaciones: StateFlow<Boolean> = prefs.notificaciones
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
+
+    val recibirTickets: StateFlow<Boolean> = prefs.recibirTickets
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
 
     init {
         restaurarSesion()
@@ -86,6 +93,40 @@ class SesionViewModel(
         _error.value = null
     }
 
+    // ---------- Paso 12 ----------
+
+    fun cambiarModoOscuro(activo: Boolean) {
+        viewModelScope.launch { prefs.guardarModoOscuro(activo) }
+    }
+
+    fun cambiarNotificaciones(activas: Boolean) {
+        viewModelScope.launch { prefs.guardarNotificaciones(activas) }
+    }
+
+    fun cambiarRecibirTickets(recibir: Boolean) {
+        viewModelScope.launch { prefs.guardarRecibirTickets(recibir) }
+    }
+
+    /**
+     * Modo práctica: guarda el OTRO perfil en DataStore, entra con su cuenta
+     * y avisa a la navegación para ir a su grafo.
+     */
+    fun cambiarPerfil(onCambiado: (Usuario) -> Unit) {
+        val actual = _usuarioActual.value ?: return
+        val otroRol = if (actual.rol == Rol.ADMIN.name) Rol.CLIENTE else Rol.ADMIN
+        viewModelScope.launch {
+            val otro = repo.obtenerUsuarioPorRol(otroRol)
+            if (otro == null) {
+                _error.value = "No hay una cuenta de ${otroRol.etiqueta}"
+                return@launch
+            }
+            prefs.guardarSesion(otroRol, otro.id)
+            _usuarioActual.value = otro
+            onCambiado(otro)
+        }
+    }
+
+    /** Borra el perfil activo; el modo oscuro y los demás ajustes se conservan. */
     fun cerrarSesion() {
         _usuarioActual.value = null            // primero, para que el Login no redirija
         viewModelScope.launch { prefs.cerrarSesion() }

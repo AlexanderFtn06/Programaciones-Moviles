@@ -7,6 +7,7 @@ import com.faustino.ayudacampus.data.local.entity.Ticket
 import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.local.relation.TicketConDetalle
 import com.faustino.ayudacampus.data.model.ConteoCategoria
+import com.faustino.ayudacampus.data.model.Rol
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.model.Prioridad
 import kotlinx.coroutines.flow.Flow
@@ -24,6 +25,8 @@ class AyudaRepositoryRoom(db: AyudaDatabase) : AyudaRepository {
 
     override suspend fun obtenerUsuario(id: Int): Usuario? =
         usuarioDao.obtenerPorId(id)
+    override suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario? =
+        usuarioDao.obtenerPorRol(rol.name)
 
     //  Categorías (ejemplo resuelto)
 

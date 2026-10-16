@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.faustino.ayudacampus.data.local.entity.Categoria
 import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.model.Prioridad
+import com.faustino.ayudacampus.data.prefs.PreferenciasStore
 import com.faustino.ayudacampus.data.repository.AyudaRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -29,13 +30,17 @@ data class FormularioTicket(
 
 class NuevoTicketViewModel(
     private val repo: AyudaRepository,
-    private val usuario: Usuario
+    private val usuario: Usuario,
+    prefs: PreferenciasStore
 ) : ViewModel() {
 
     // Solo categorías activas: las inactivas NO aparecen
     val categorias: StateFlow<List<Categoria>> = repo.observarCategoriasActivas()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    // Paso 12: si Soporte apagó "Recibir tickets", la mesa de ayuda está cerrada
+    val recibirTickets: StateFlow<Boolean> = prefs.recibirTickets
+        .stateIn(viewModelScope, SharingStarted.Eagerly, true)
     private val _form = MutableStateFlow(FormularioTicket())
     val form: StateFlow<FormularioTicket> = _form.asStateFlow()
 
@@ -59,6 +64,7 @@ class NuevoTicketViewModel(
     fun enviar() {
         val f = _form.value
         if (f.enviando) return
+        if (!recibirTickets.value) return // mesa de ayuda cerrada
 
         // Reglas de negocio del lab
         val categoriaId = f.categoriaId

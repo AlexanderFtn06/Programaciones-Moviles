@@ -21,4 +21,8 @@ interface UsuarioDao {
     // Se usará en el Paso 6 para recuperar al usuario guardado en DataStore
     @Query("SELECT * FROM usuarios WHERE id = :id")
     suspend fun obtenerPorId(id: Int): Usuario?
+
+    // Paso 12 (modo práctica): cuenta del otro perfil
+    @Query("SELECT * FROM usuarios WHERE rol = :rol ORDER BY id LIMIT 1")
+    suspend fun obtenerPorRol(rol: String): Usuario?
 }

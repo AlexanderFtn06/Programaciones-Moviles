@@ -1,22 +1,16 @@
 package com.faustino.ayudacampus.ui.navigation
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -26,15 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.material3.FloatingActionButton
-import com.faustino.ayudacampus.ui.soporte.AtenderTicketScreen
-import com.faustino.ayudacampus.ui.soporte.FormularioCategoriaScreen
-import com.faustino.ayudacampus.viewmodel.AtenderViewModel
-import kotlinx.coroutines.delay
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,14 +34,17 @@ import com.faustino.ayudacampus.ui.cliente.DetalleTicketScreen
 import com.faustino.ayudacampus.ui.cliente.LoginScreen
 import com.faustino.ayudacampus.ui.cliente.MisTicketsScreen
 import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
+import com.faustino.ayudacampus.ui.cliente.PerfilScreen
 import com.faustino.ayudacampus.ui.cliente.SplashScreen
 import com.faustino.ayudacampus.ui.components.AppTopBar
-import com.faustino.ayudacampus.ui.components.AyudaButton
-import com.faustino.ayudacampus.ui.components.numeroTicket
+import com.faustino.ayudacampus.ui.soporte.AjustesScreen
+import com.faustino.ayudacampus.ui.soporte.AtenderTicketScreen
 import com.faustino.ayudacampus.ui.soporte.BandejaScreen
 import com.faustino.ayudacampus.ui.soporte.CategoriasScreen
+import com.faustino.ayudacampus.ui.soporte.FormularioCategoriaScreen
 import com.faustino.ayudacampus.ui.soporte.PanelScreen
 import com.faustino.ayudacampus.ui.theme.AyudaTheme
+import com.faustino.ayudacampus.viewmodel.AtenderViewModel
 import com.faustino.ayudacampus.viewmodel.BandejaViewModel
 import com.faustino.ayudacampus.viewmodel.CategoriasViewModel
 import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
@@ -63,6 +53,7 @@ import com.faustino.ayudacampus.viewmodel.PanelViewModel
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
 import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
 import com.faustino.ayudacampus.viewmodel.ayudaViewModel
+import kotlinx.coroutines.delay
 
 /** Pantalla principal de cada perfil. */
 private fun inicioDe(u: Usuario): String =
@@ -81,13 +72,22 @@ fun NavAyuda(app: AyudaApp) {
     val usuario by sesionVm.usuarioActual.collectAsState()
     val oscuro by sesionVm.modoOscuro.collectAsState()
 
-    // El tema sigue al perfil activo
+    // El tema sigue al perfil activo y al modo oscuro guardado en DataStore
     val rolActual = usuario?.let { Rol.desde(it.rol) } ?: Rol.CLIENTE
 
     val cerrarSesion: () -> Unit = {
         sesionVm.cerrarSesion()
         nav.navigate(Rutas.LOGIN) {
             popUpTo(nav.graph.id) { inclusive = true }
+        }
+    }
+
+    // Modo práctica: guarda el otro perfil y navega a su grafo
+    val cambiarPerfil: () -> Unit = {
+        sesionVm.cambiarPerfil { otro ->
+            nav.navigate(inicioDe(otro)) {
+                popUpTo(nav.graph.id) { inclusive = true }
+            }
         }
     }
 
@@ -178,7 +178,7 @@ fun NavAyuda(app: AyudaApp) {
             composable(Rutas.NUEVO_TICKET) {
                 usuario?.let { u ->
                     val vm = ayudaViewModel(key = "nuevo_ticket_${u.id}") {
-                        NuevoTicketViewModel(repo, u)
+                        NuevoTicketViewModel(repo, u, app.preferencias)
                     }
                     NuevoTicketScreen(
                         vm = vm,
@@ -206,15 +206,20 @@ fun NavAyuda(app: AyudaApp) {
                 }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 12
             composable(Rutas.PERFIL) {
-                PantallaPendiente(
-                    titulo = "Perfil",
-                    nota = "El perfil se construye en el Paso 12.",
-                    usuario = usuario,
-                    onCerrarSesion = cerrarSesion,
-                    barraInferior = { BarraEstudiante(Rutas.PERFIL, irEstudiante) }
-                )
+                usuario?.let { u ->
+                    val ticketsVm = ayudaViewModel(key = "perfil_${u.id}") {
+                        MisTicketsViewModel(repo, u)
+                    }
+                    PerfilScreen(
+                        sesionVm = sesionVm,
+                        ticketsVm = ticketsVm,
+                        onAtras = { nav.popBackStack() },
+                        onCambiarPerfil = cambiarPerfil,
+                        onCerrarSesion = cerrarSesion,
+                        barraInferior = { BarraEstudiante(Rutas.PERFIL, irEstudiante) }
+                    )
+                }
             }
 
             // ======================= Soporte TI =======================
@@ -304,18 +309,15 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // TEMPORAL: se reemplaza en el Paso 12
             composable(Rutas.AJUSTES) {
-                PantallaPendiente(
-                    titulo = "Ajustes",
-                    nota = "Los ajustes se construyen en el Paso 12.",
-                    usuario = usuario,
+                AjustesScreen(
+                    sesionVm = sesionVm,
+                    onAtras = { nav.popBackStack() },
+                    onCambiarPerfil = cambiarPerfil,
                     onCerrarSesion = cerrarSesion,
                     barraInferior = { BarraSoporte(Rutas.AJUSTES, irSoporte) }
                 )
             }
-
-            // TODO (Paso 12): PERFIL y AJUSTES reales
         }
     }
 }
@@ -363,49 +365,6 @@ private fun BarraInferior(
                 icon = { Icon(icono, contentDescription = null) },
                 label = { Text(etiqueta) }
             )
-        }
-    }
-}
-
-/** Pantalla provisional mientras se construyen las reales. */
-@Composable
-private fun PantallaPendiente(
-    titulo: String,
-    nota: String,
-    usuario: Usuario? = null,
-    onAtras: (() -> Unit)? = null,
-    onCerrarSesion: (() -> Unit)? = null,
-    barraInferior: @Composable () -> Unit = {}
-) {
-    Scaffold(
-        topBar = {
-            AppTopBar(titulo, onAtras = onAtras, acciones = {
-                if (onCerrarSesion != null) {
-                    IconButton(onClick = onCerrarSesion) {
-                        Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = "Cerrar sesión")
-                    }
-                }
-            })
-        },
-        bottomBar = barraInferior
-    ) { padding ->
-        Column(
-            Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .padding(24.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            if (usuario != null) {
-                Text("Hola, ${usuario.nombre}", style = MaterialTheme.typography.headlineSmall)
-                Spacer(Modifier.height(8.dp))
-            }
-            Text(nota, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Spacer(Modifier.height(24.dp))
-            if (onCerrarSesion != null) {
-                AyudaButton("Cerrar sesión", onClick = onCerrarSesion, secundario = true)
-            }
         }
     }
 }

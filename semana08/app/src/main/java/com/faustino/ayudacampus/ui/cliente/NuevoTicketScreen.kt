@@ -12,6 +12,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material.icons.outlined.Info
+import com.faustino.ayudacampus.ui.theme.ColorAlta
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.consumeWindowInsets
@@ -61,6 +63,7 @@ fun NuevoTicketScreen(
     val form by vm.form.collectAsState()
     val categorias by vm.categorias.collectAsState()
     val enviado by vm.enviado.collectAsState()
+    val recibir by vm.recibirTickets.collectAsState()
 
     // Cuando el ViewModel confirma que se guardó, volvemos a Mis tickets
     LaunchedEffect(enviado) {
@@ -81,6 +84,10 @@ fun NuevoTicketScreen(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 20.dp, vertical = 8.dp)
         ) {
+            if (!recibir) {
+                AvisoMesaCerrada()
+                Spacer(Modifier.height(8.dp))
+            }
             // ---------- Categoría (solo activas) ----------
             TituloSeccion("Categoría")
             FlowRow(
@@ -175,7 +182,7 @@ fun NuevoTicketScreen(
             AyudaButton(
                 texto = if (form.enviando) "Enviando…" else "Enviar ticket",
                 onClick = vm::enviar,
-                habilitado = !form.enviando
+                habilitado = !form.enviando && recibir
             )
 
             Spacer(Modifier.height(16.dp))
@@ -232,6 +239,27 @@ private fun SelectorPrioridad(seleccionada: Prioridad, onElegir: (Prioridad) -> 
                     p.etiqueta,
                     style = MaterialTheme.typography.labelLarge,
                     color = if (activo) Color.White else MaterialTheme.colorScheme.onSurface
+                )
+            }
+        }
+    }
+}
+@Composable
+private fun AvisoMesaCerrada() {
+    Surface(
+        color = ColorAlta.copy(alpha = 0.12f),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(Icons.Outlined.Info, contentDescription = null, tint = ColorAlta)
+            Spacer(Modifier.width(10.dp))
+            Column {
+                Text("Mesa de ayuda cerrada", style = MaterialTheme.typography.titleSmall, color = ColorAlta)
+                Text(
+                    "Soporte TI no está recibiendo tickets por ahora. Intenta más tarde.",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
