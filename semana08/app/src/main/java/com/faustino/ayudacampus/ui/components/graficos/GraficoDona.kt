@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,13 +31,15 @@ data class DatoGrafico(val etiqueta: String, val valor: Float, val color: Color)
 fun GraficoDona(
     datos: List<DatoGrafico>,
     modifier: Modifier = Modifier,
-    tamano: Dp = 140.dp,
-    grosor: Dp = 26.dp
+    tamano: Dp = 130.dp,
+    grosor: Dp = 22.dp,
+    textoCentro: String = "tickets"
 ) {
     val total = datos.sumOf { it.valor.toDouble() }.toFloat()
     val vacio = MaterialTheme.colorScheme.surfaceVariant
 
     Row(modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+        // Dona dibujada con Canvas
         Box(Modifier.size(tamano), contentAlignment = Alignment.Center) {
             Canvas(Modifier.fillMaxSize()) {
                 val g = grosor.toPx()
@@ -57,19 +59,31 @@ fun GraficoDona(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text("${total.toInt()}", style = MaterialTheme.typography.headlineSmall)
                 Text(
-                    "tickets",
+                    textoCentro,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
+
         Spacer(Modifier.width(20.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+
+        // Leyenda: color · etiqueta ............ número
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(10.dp)) {
             datos.forEach { d ->
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(Modifier.size(10.dp).background(d.color, CircleShape))
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        Modifier
+                            .size(10.dp)
+                            .background(d.color, RoundedCornerShape(3.dp))
+                    )
                     Spacer(Modifier.width(8.dp))
-                    Text("${d.etiqueta}: ${d.valor.toInt()}", style = MaterialTheme.typography.bodyMedium)
+                    Text(
+                        d.etiqueta,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    Text("${d.valor.toInt()}", style = MaterialTheme.typography.titleSmall)
                 }
             }
         }

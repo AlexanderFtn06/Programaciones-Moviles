@@ -5,21 +5,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import com.faustino.ayudacampus.ui.cliente.DetalleTicketScreen
-import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
-import com.faustino.ayudacampus.viewmodel.NuevoTicketViewModel
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import kotlinx.coroutines.delay
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -31,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import kotlinx.coroutines.delay
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -43,22 +42,33 @@ import androidx.navigation.navArgument
 import com.faustino.ayudacampus.AyudaApp
 import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.model.Rol
+import com.faustino.ayudacampus.ui.cliente.DetalleTicketScreen
 import com.faustino.ayudacampus.ui.cliente.LoginScreen
 import com.faustino.ayudacampus.ui.cliente.MisTicketsScreen
+import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.faustino.ayudacampus.ui.cliente.SplashScreen
 import com.faustino.ayudacampus.ui.components.AppTopBar
 import com.faustino.ayudacampus.ui.components.AyudaButton
 import com.faustino.ayudacampus.ui.components.numeroTicket
+import com.faustino.ayudacampus.ui.soporte.BandejaScreen
 import com.faustino.ayudacampus.ui.soporte.CategoriasScreen
+import com.faustino.ayudacampus.ui.soporte.PanelScreen
 import com.faustino.ayudacampus.ui.theme.AyudaTheme
+import com.faustino.ayudacampus.viewmodel.BandejaViewModel
 import com.faustino.ayudacampus.viewmodel.CategoriasViewModel
 import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
+import com.faustino.ayudacampus.viewmodel.NuevoTicketViewModel
+import com.faustino.ayudacampus.viewmodel.PanelViewModel
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
+import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
 import com.faustino.ayudacampus.viewmodel.ayudaViewModel
 
 /** Pantalla principal de cada perfil. */
 private fun inicioDe(u: Usuario): String =
     if (u.rol == Rol.ADMIN.name) Rutas.PANEL else Rutas.MIS_TICKETS
+
+/** Bandeja con filtro opcional "solo ALTA" (lo usa la alerta del panel). */
+private const val RUTA_BANDEJA = "${Rutas.BANDEJA}?alta={alta}"
 
 @Composable
 fun NavAyuda(app: AyudaApp) {
@@ -80,13 +90,25 @@ fun NavAyuda(app: AyudaApp) {
         }
     }
 
-    // Navegación de la barra inferior del estudiante
+    // Barra inferior del estudiante
     val irEstudiante: (String) -> Unit = { ruta ->
         if (ruta == Rutas.MIS_TICKETS) {
             nav.popBackStack(Rutas.MIS_TICKETS, inclusive = false)
         } else {
             nav.navigate(ruta) {
                 popUpTo(Rutas.MIS_TICKETS)
+                launchSingleTop = true
+            }
+        }
+    }
+
+    // Barra inferior de Soporte
+    val irSoporte: (String) -> Unit = { ruta ->
+        if (ruta == Rutas.PANEL) {
+            nav.popBackStack(Rutas.PANEL, inclusive = false)
+        } else {
+            nav.navigate(ruta) {
+                popUpTo(Rutas.PANEL)
                 launchSingleTop = true
             }
         }
@@ -136,7 +158,7 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // ---------- Estudiante ----------
+            // ======================= Estudiante =======================
 
             composable(Rutas.MIS_TICKETS) {
                 usuario?.let { u ->
@@ -152,7 +174,6 @@ fun NavAyuda(app: AyudaApp) {
                 }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 8
             composable(Rutas.NUEVO_TICKET) {
                 usuario?.let { u ->
                     val vm = ayudaViewModel(key = "nuevo_ticket_${u.id}") {
@@ -161,14 +182,12 @@ fun NavAyuda(app: AyudaApp) {
                     NuevoTicketScreen(
                         vm = vm,
                         onAtras = { nav.popBackStack() },
-                        // Vuelve a Mis tickets: el nuevo aparece arriba (el DAO ordena por fecha)
                         onEnviado = { nav.popBackStack(Rutas.MIS_TICKETS, inclusive = false) },
                         barraInferior = { BarraEstudiante(Rutas.NUEVO_TICKET, irEstudiante) }
                     )
                 }
             }
 
-            // TEMPORAL: se reemplaza en el Paso 9
             composable(
                 Rutas.DETALLE_TICKET,
                 arguments = listOf(navArgument("id") { type = NavType.IntType })
@@ -197,24 +216,54 @@ fun NavAyuda(app: AyudaApp) {
                 )
             }
 
-            // ---------- Soporte TI ----------
+            // ======================= Soporte TI =======================
 
-            // TEMPORAL: se reemplaza en el Paso 10
             composable(Rutas.PANEL) {
+                val vm = ayudaViewModel { PanelViewModel(repo) }
+                PanelScreen(
+                    vm = vm,
+                    onVerAltas = { nav.navigate("${Rutas.BANDEJA}?alta=true") },
+                    barraInferior = { BarraSoporte(Rutas.PANEL, irSoporte) }
+                )
+            }
+
+            composable(
+                RUTA_BANDEJA,
+                arguments = listOf(navArgument("alta") {
+                    type = NavType.BoolType
+                    defaultValue = false
+                })
+            ) { entrada ->
+                val soloAlta = entrada.arguments?.getBoolean("alta") ?: false
+                val vm = ayudaViewModel(key = "bandeja_$soloAlta") {
+                    BandejaViewModel(repo, soloAlta)
+                }
+                BandejaScreen(
+                    vm = vm,
+                    onAtras = { nav.popBackStack() },
+                    onAbrirTicket = { id -> nav.navigate(Rutas.atenderTicket(id)) },
+                    barraInferior = { BarraSoporte(Rutas.BANDEJA, irSoporte) }
+                )
+            }
+
+            // TEMPORAL: se reemplaza en el Paso 11
+            composable(
+                Rutas.ATENDER_TICKET,
+                arguments = listOf(navArgument("id") { type = NavType.IntType })
+            ) { entrada ->
+                val id = entrada.arguments?.getInt("id") ?: 0
                 PantallaPendiente(
-                    titulo = "Panel",
-                    nota = "Esta pantalla se construye en el Paso 10.",
-                    usuario = usuario,
-                    onCerrarSesion = cerrarSesion,
-                    onExtra = { nav.navigate(Rutas.CATEGORIAS) },
-                    textoExtra = "Ver categorías"
+                    titulo = "Ticket ${numeroTicket(id)}",
+                    nota = "La atención del ticket se construye en el Paso 11.",
+                    onAtras = { nav.popBackStack() }
                 )
             }
 
             composable(Rutas.CATEGORIAS) {
                 val vm = ayudaViewModel { CategoriasViewModel(repo) }
                 Scaffold(
-                    topBar = { AppTopBar("Categorías", onAtras = { nav.popBackStack() }) }
+                    topBar = { AppTopBar("Categorías") },
+                    bottomBar = { BarraSoporte(Rutas.CATEGORIAS, irSoporte) }
                 ) { padding ->
                     Box(Modifier.padding(padding)) {
                         CategoriasScreen(vm, onEditar = { /* TODO (Paso 11): abrir formulario */ })
@@ -222,8 +271,19 @@ fun NavAyuda(app: AyudaApp) {
                 }
             }
 
-            // TODO (Pasos 10-11): BANDEJA, ATENDER_TICKET, FORMULARIO_CATEGORIA
-            // TODO (Paso 12): AJUSTES y NavigationBar de Soporte
+            // TEMPORAL: se reemplaza en el Paso 12
+            composable(Rutas.AJUSTES) {
+                PantallaPendiente(
+                    titulo = "Ajustes",
+                    nota = "Los ajustes se construyen en el Paso 12.",
+                    usuario = usuario,
+                    onCerrarSesion = cerrarSesion,
+                    barraInferior = { BarraSoporte(Rutas.AJUSTES, irSoporte) }
+                )
+            }
+
+            // TODO (Paso 11): ATENDER_TICKET real y FORMULARIO_CATEGORIA
+            // TODO (Paso 12): PERFIL y AJUSTES reales
         }
     }
 }
@@ -231,11 +291,38 @@ fun NavAyuda(app: AyudaApp) {
 /** Barra inferior del estudiante: Tickets, Nuevo y Perfil. */
 @Composable
 private fun BarraEstudiante(actual: String, onIr: (String) -> Unit) {
-    val items: List<Triple<String, String, ImageVector>> = listOf(
-        Triple(Rutas.MIS_TICKETS, "Tickets", Icons.Filled.Menu),
-        Triple(Rutas.NUEVO_TICKET, "Nuevo", Icons.Filled.Add),
-        Triple(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
+    BarraInferior(
+        actual = actual,
+        onIr = onIr,
+        items = listOf(
+            Triple(Rutas.MIS_TICKETS, "Tickets", Icons.Filled.Menu),
+            Triple(Rutas.NUEVO_TICKET, "Nuevo", Icons.Filled.Add),
+            Triple(Rutas.PERFIL, "Perfil", Icons.Outlined.Person)
+        )
     )
+}
+
+/** Barra inferior de Soporte: Panel, Tickets, Categorías y Ajustes. */
+@Composable
+private fun BarraSoporte(actual: String, onIr: (String) -> Unit) {
+    BarraInferior(
+        actual = actual,
+        onIr = onIr,
+        items = listOf(
+            Triple(Rutas.PANEL, "Panel", Icons.Outlined.BarChart),
+            Triple(Rutas.BANDEJA, "Tickets", Icons.Filled.Menu),
+            Triple(Rutas.CATEGORIAS, "Categorías", Icons.Outlined.LocalOffer),
+            Triple(Rutas.AJUSTES, "Ajustes", Icons.Outlined.Settings)
+        )
+    )
+}
+
+@Composable
+private fun BarraInferior(
+    actual: String,
+    onIr: (String) -> Unit,
+    items: List<Triple<String, String, ImageVector>>
+) {
     NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
         items.forEach { (ruta, etiqueta, icono) ->
             NavigationBarItem(
@@ -256,8 +343,6 @@ private fun PantallaPendiente(
     usuario: Usuario? = null,
     onAtras: (() -> Unit)? = null,
     onCerrarSesion: (() -> Unit)? = null,
-    onExtra: (() -> Unit)? = null,
-    textoExtra: String = "",
     barraInferior: @Composable () -> Unit = {}
 ) {
     Scaffold(
@@ -286,10 +371,6 @@ private fun PantallaPendiente(
             }
             Text(nota, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(24.dp))
-            if (onExtra != null) {
-                AyudaButton(textoExtra, onClick = onExtra)
-                Spacer(Modifier.height(12.dp))
-            }
             if (onCerrarSesion != null) {
                 AyudaButton("Cerrar sesión", onClick = onCerrarSesion, secundario = true)
             }
