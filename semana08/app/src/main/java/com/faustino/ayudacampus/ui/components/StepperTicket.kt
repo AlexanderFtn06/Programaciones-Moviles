@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import com.faustino.ayudacampus.ui.theme.ColorResuelto
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
@@ -59,13 +60,13 @@ fun StepperTicket(estado: EstadoTicket, modifier: Modifier = Modifier) {
                             completado -> Box(
                                 Modifier
                                     .size(24.dp)
-                                    .background(activo, CircleShape),
+                                    .background(ColorResuelto, CircleShape),
                                 contentAlignment = Alignment.Center
                             ) {
                                 Icon(
                                     Icons.Filled.Check,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onPrimary,
+                                    tint = Color.White,
                                     modifier = Modifier.size(16.dp)
                                 )
                             }

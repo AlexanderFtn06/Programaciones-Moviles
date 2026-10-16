@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import kotlinx.coroutines.delay
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -94,21 +95,34 @@ fun NavAyuda(app: AyudaApp) {
     AyudaTheme(rol = rolActual, oscuro = oscuro) {
         NavHost(navController = nav, startDestination = Rutas.SPLASH) {
 
-            // ---------- Splash: si ya hay perfil guardado, salta el login ----------
+            // ---------- Splash ----------
             composable(Rutas.SPLASH) {
-                var animacionLista by remember { mutableStateOf(false) }
                 val verificada by sesionVm.sesionVerificada.collectAsState()
+                val haySesion = verificada && usuario != null
 
-                SplashScreen(onTerminar = { animacionLista = true })
+                val irALogin: () -> Unit = {
+                    nav.navigate(Rutas.LOGIN) {
+                        popUpTo(Rutas.SPLASH) { inclusive = true }
+                    }
+                }
 
-                LaunchedEffect(animacionLista, verificada) {
-                    if (animacionLista && verificada) {
-                        val destino = usuario?.let { inicioDe(it) } ?: Rutas.LOGIN
-                        nav.navigate(destino) {
-                            popUpTo(Rutas.SPLASH) { inclusive = true }
+                // Regla del Paso 6: si ya hay perfil guardado, salta el login
+                LaunchedEffect(haySesion) {
+                    if (haySesion) {
+                        delay(800)
+                        usuario?.let { u ->
+                            nav.navigate(inicioDe(u)) {
+                                popUpTo(Rutas.SPLASH) { inclusive = true }
+                            }
                         }
                     }
                 }
+
+                SplashScreen(
+                    mostrarBotones = verificada && usuario == null,
+                    onComenzar = irALogin,
+                    onYaTengoCuenta = irALogin
+                )
             }
 
             composable(Rutas.LOGIN) {
