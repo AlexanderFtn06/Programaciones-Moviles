@@ -108,6 +108,19 @@ class AyudaRepositoryRoom(db: AyudaDatabase) : AyudaRepository {
         )
     }
 
+    override suspend fun agregarNotaInterna(ticketId: Int, autor: Usuario, texto: String) {
+        ticketDao.insertarComentario(
+            Comentario(
+                ticketId = ticketId,
+                autorId = autor.id,
+                autorNombre = autor.nombre,
+                autorRol = autor.rol,
+                texto = texto.trim(),
+                interno = true
+            )
+        )
+    }
+
     //  Tickets: lectura (Flow, sin suspend)
 
     override fun observarTicketsCliente(clienteId: Int): Flow<List<TicketConDetalle>> =

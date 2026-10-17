@@ -30,7 +30,7 @@ class TicketDetalleViewModel(
 
     // @Relation no ordena: los ordenamos aquí por fecha
     val comentarios: StateFlow<List<Comentario>> = ticket
-        .map { t -> t?.comentarios?.sortedBy { it.fecha } ?: emptyList() }
+        .map { t -> t?.comentarios?.filter { !it.interno }?.sortedBy { it.fecha } ?: emptyList() }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _texto = MutableStateFlow("")

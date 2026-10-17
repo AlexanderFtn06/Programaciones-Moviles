@@ -30,6 +30,8 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -62,6 +64,7 @@ import com.faustino.ayudacampus.ui.components.AyudaButton
 import com.faustino.ayudacampus.ui.components.BurbujaComentario
 import com.faustino.ayudacampus.ui.components.Estrellas
 import com.faustino.ayudacampus.ui.components.numeroTicket
+import com.faustino.ayudacampus.ui.theme.ColorAbierto
 import com.faustino.ayudacampus.ui.theme.colorEstado
 import com.faustino.ayudacampus.ui.theme.colorPrioridad
 import com.faustino.ayudacampus.viewmodel.AtenderViewModel
@@ -79,6 +82,7 @@ fun AtenderTicketScreen(
     val prioridadSel by vm.prioridadSeleccionada.collectAsState()
     val hayCambios by vm.hayCambios.collectAsState()
     val texto by vm.texto.collectAsState()
+    val modoNota by vm.modoNotaInterna.collectAsState()
     val mensaje by vm.mensaje.collectAsState()
 
     val cerrado = detalle?.ticket?.estado == EstadoTicket.CERRADO.name
@@ -105,7 +109,7 @@ fun AtenderTicketScreen(
         bottomBar = {
             Column(Modifier.imePadding()) {
                 if (detalle != null && !cerrado) {
-                    CajaRespuesta(texto, vm::cambiarTexto, vm::responder)
+                    CajaRespuesta(texto, modoNota, vm::alternarNotaInterna, vm::cambiarTexto, vm::responder)
                     if (!tecladoVisible) {
                         AyudaButton(
                             texto = "Guardar cambios",
@@ -195,7 +199,8 @@ fun AtenderTicketScreen(
                         autor = if (propio) "Tú" else nombreCorto(c.autorNombre),
                         fecha = c.fecha,
                         propio = propio,
-                        rolAutor = Rol.desde(c.autorRol) ?: Rol.CLIENTE
+                        rolAutor = Rol.desde(c.autorRol) ?: Rol.CLIENTE,
+                        interno = c.interno
                     )
                 }
 
@@ -305,40 +310,71 @@ private fun AvisoCerrado(calificacion: Int) {
 @Composable
 private fun CajaRespuesta(
     texto: String,
+    modoNota: Boolean,
+    onAlternarNota: () -> Unit,
     onCambio: (String) -> Unit,
     onEnviar: () -> Unit
 ) {
     Surface(color = MaterialTheme.colorScheme.background) {
-        Row(
+        Column(
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .padding(horizontal = 16.dp, vertical = 6.dp)
         ) {
-            OutlinedTextField(
-                value = texto,
-                onValueChange = onCambio,
-                placeholder = { Text("Responder al cliente…") },
+            FilterChip(
+                selected = modoNota,
+                onClick = onAlternarNota,
+                label = { Text("Nota interna") },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                },
                 shape = RoundedCornerShape(50),
-                maxLines = 3,
-                colors = OutlinedTextFieldDefaults.colors(
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
-                ),
-                modifier = Modifier.weight(1f)
+                colors = FilterChipDefaults.filterChipColors(
+                    containerColor = MaterialTheme.colorScheme.surface,
+                    selectedContainerColor = ColorAbierto.copy(alpha = 0.2f),
+                    selectedLabelColor = ColorAbierto,
+                    selectedLeadingIconColor = ColorAbierto
+                )
             )
-            Spacer(Modifier.width(10.dp))
-            FilledIconButton(
-                onClick = onEnviar,
-                enabled = texto.isNotBlank(),
-                colors = IconButtonDefaults.filledIconButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary
-                ),
-                modifier = Modifier.size(52.dp)
+            Spacer(Modifier.height(6.dp))
+            Row(
+                Modifier
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar respuesta")
+                OutlinedTextField(
+                    value = texto,
+                    onValueChange = onCambio,
+                    placeholder = {
+                        Text(
+                            if (modoNota) "Nota interna (el estudiante no la ve)…" else "Responder al cliente…"
+                        )
+                    },
+                    shape = RoundedCornerShape(50),
+                    maxLines = 3,
+                    colors = OutlinedTextFieldDefaults.colors(
+                        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                        focusedContainerColor = MaterialTheme.colorScheme.surface,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant
+                    ),
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(Modifier.width(10.dp))
+                FilledIconButton(
+                    onClick = onEnviar,
+                    enabled = texto.isNotBlank(),
+                    colors = IconButtonDefaults.filledIconButtonColors(
+                        containerColor = if (modoNota) ColorAbierto else MaterialTheme.colorScheme.primary,
+                        contentColor = if (modoNota) Color.White else MaterialTheme.colorScheme.onPrimary
+                    ),
+                    modifier = Modifier.size(52.dp)
+                ) {
+                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = "Enviar respuesta")
+                }
             }
         }
     }

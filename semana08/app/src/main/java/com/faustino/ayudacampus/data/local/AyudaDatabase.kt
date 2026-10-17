@@ -14,7 +14,7 @@ import com.faustino.ayudacampus.data.local.entity.Usuario
 
 @Database(
     entities = [Categoria::class, Usuario::class, Ticket::class, Comentario::class],
-    version = 2,            // subió de 1 a 2 porque cambió el esquema
+    version = 3,            // subió de 2 a 3 porque cambió el esquema
     exportSchema = false
 )
 abstract class AyudaDatabase : RoomDatabase() {

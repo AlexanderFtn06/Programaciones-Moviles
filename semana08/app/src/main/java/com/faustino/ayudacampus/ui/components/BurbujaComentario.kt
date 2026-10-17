@@ -8,16 +8,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.unit.dp
 import com.faustino.ayudacampus.data.model.Rol
+import com.faustino.ayudacampus.ui.theme.ColorAbierto
 import com.faustino.ayudacampus.ui.theme.VioletaContenedor
 import com.faustino.ayudacampus.ui.theme.VioletaContenedorOscuro
 import java.text.SimpleDateFormat
@@ -37,15 +44,18 @@ fun BurbujaComentario(
     fecha: Long,
     propio: Boolean,
     rolAutor: Rol,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    interno: Boolean = false
 ) {
     val oscuro = MaterialTheme.colorScheme.background.luminance() < 0.5f
     val fondo = when {
+        interno -> ColorAbierto.copy(alpha = 0.15f)
         propio -> MaterialTheme.colorScheme.primary
         rolAutor == Rol.ADMIN -> if (oscuro) VioletaContenedorOscuro else VioletaContenedor
         else -> MaterialTheme.colorScheme.surface      // estudiante visto por Soporte: burbuja blanca
     }
     val colorTexto = when {
+        interno -> MaterialTheme.colorScheme.onSurface
         propio -> MaterialTheme.colorScheme.onPrimary
         rolAutor == Rol.ADMIN -> if (oscuro) Color.White else Color(0xFF1F2937)
         else -> MaterialTheme.colorScheme.onSurface
@@ -63,11 +73,28 @@ fun BurbujaComentario(
                 .background(fondo, forma)
                 .padding(horizontal = 14.dp, vertical = 10.dp)
         ) {
-            Text(
-                "$autor · ${horaComentario(fecha)}",
-                style = MaterialTheme.typography.labelSmall,
-                color = colorTexto.copy(alpha = 0.75f)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "$autor · ${horaComentario(fecha)}",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = colorTexto.copy(alpha = 0.75f)
+                )
+                if (interno) {
+                    Spacer(Modifier.width(6.dp))
+                    Icon(
+                        Icons.Outlined.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(12.dp),
+                        tint = colorTexto.copy(alpha = 0.75f)
+                    )
+                    Spacer(Modifier.width(2.dp))
+                    Text(
+                        "Nota interna",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = colorTexto.copy(alpha = 0.75f)
+                    )
+                }
+            }
             Spacer(Modifier.height(2.dp))
             Text(texto, style = MaterialTheme.typography.bodyMedium, color = colorTexto)
         }

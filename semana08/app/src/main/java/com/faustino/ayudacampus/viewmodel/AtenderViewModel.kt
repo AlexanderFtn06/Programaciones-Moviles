@@ -55,6 +55,13 @@ class AtenderViewModel(
     private val _texto = MutableStateFlow("")
     val texto: StateFlow<String> = _texto.asStateFlow()
 
+    private val _modoNotaInterna = MutableStateFlow(false)
+    val modoNotaInterna: StateFlow<Boolean> = _modoNotaInterna.asStateFlow()
+
+    fun alternarNotaInterna() {
+        _modoNotaInterna.value = !_modoNotaInterna.value
+    }
+
     private val _mensaje = MutableStateFlow<String?>(null)
     val mensaje: StateFlow<String?> = _mensaje.asStateFlow()
 
@@ -105,10 +112,14 @@ class AtenderViewModel(
         }
         _texto.value = ""
         viewModelScope.launch {
-            repo.agregarComentario(ticketId, usuario, texto)
-            // Regla: al responder un ticket ABIERTO, pasa automáticamente a EN_PROCESO
-            if (estado == EstadoTicket.ABIERTO) {
-                repo.cambiarEstado(ticketId, EstadoTicket.EN_PROCESO)
+            if (_modoNotaInterna.value) {
+                repo.agregarNotaInterna(ticketId, usuario, texto)
+            } else {
+                repo.agregarComentario(ticketId, usuario, texto)
+                // Regla: al responder un ticket ABIERTO, pasa automáticamente a EN_PROCESO
+                if (estado == EstadoTicket.ABIERTO) {
+                    repo.cambiarEstado(ticketId, EstadoTicket.EN_PROCESO)
+                }
             }
         }
     }

@@ -25,5 +25,6 @@ data class Comentario(
     val autorNombre: String,    // "foto" del momento: se muestra sin buscar en otra tabla
     val autorRol: String,       // Rol.name: CLIENTE | ADMIN
     val texto: String,
-    val fecha: Long = System.currentTimeMillis()
+    val fecha: Long = System.currentTimeMillis(),
+    val interno: Boolean = false
 )
