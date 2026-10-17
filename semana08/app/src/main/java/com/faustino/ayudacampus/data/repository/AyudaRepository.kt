@@ -18,6 +18,8 @@ interface AyudaRepository {
     suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario?       // Paso 12: cambiar de perfil
     suspend fun correoRegistrado(correo: String): Boolean
     suspend fun registrarEstudiante(nombre: String, correo: String, clave: String): Usuario
+    suspend fun buscarUsuarioPorCorreo(correo: String): Usuario?
+    suspend fun cambiarClave(usuarioId: Int, nuevaClave: String)
 
     // Categorías (ejemplo resuelto)
     fun observarCategorias(): Flow<List<Categoria>>

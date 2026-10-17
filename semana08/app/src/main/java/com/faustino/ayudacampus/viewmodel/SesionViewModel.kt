@@ -25,6 +25,17 @@ class SesionViewModel(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error.asStateFlow()
 
+    private val _aviso = MutableStateFlow<String?>(null)
+    val aviso: StateFlow<String?> = _aviso.asStateFlow()
+
+    fun mostrarAviso(texto: String) {
+        _aviso.value = texto
+    }
+
+    fun limpiarAviso() {
+        _aviso.value = null
+    }
+
     private val _cargando = MutableStateFlow(false)
     val cargando: StateFlow<Boolean> = _cargando.asStateFlow()
 
@@ -60,6 +71,7 @@ class SesionViewModel(
 
     fun login(correo: String, clave: String, rolSeleccionado: Rol) {
         _error.value = null
+        limpiarAviso()
 
         // Regla 1: campos vacíos
         if (correo.isBlank() || clave.isBlank()) {

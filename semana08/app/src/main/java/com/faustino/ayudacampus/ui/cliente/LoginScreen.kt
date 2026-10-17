@@ -12,13 +12,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,13 +46,20 @@ import com.faustino.ayudacampus.data.model.Rol
 import com.faustino.ayudacampus.ui.components.AyudaButton
 import com.faustino.ayudacampus.ui.components.AyudaTextField
 import com.faustino.ayudacampus.ui.theme.AyudaTheme
+import com.faustino.ayudacampus.ui.theme.ColorResuelto
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
 
 /** Un solo Composable para ambos roles. */
 @Composable
-fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrarse: () -> Unit) {
+fun LoginScreen(
+    vm: SesionViewModel,
+    onIngresar: (Usuario) -> Unit,
+    onRegistrarse: () -> Unit,
+    onOlvidoClave: () -> Unit
+) {
     val usuario by vm.usuarioActual.collectAsState()
     val mensajeError by vm.error.collectAsState()
+    val aviso by vm.aviso.collectAsState()
     val cargando by vm.cargando.collectAsState()
     val oscuro by vm.modoOscuro.collectAsState()
 
@@ -94,6 +104,7 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrars
                     onSeleccionar = {
                         rol = it
                         vm.limpiarError()
+                        vm.limpiarAviso()
                     }
                 )
 
@@ -101,7 +112,11 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrars
 
                 AyudaTextField(
                     valor = correo,
-                    onCambio = { correo = it; vm.limpiarError() },
+                    onCambio = {
+                        correo = it
+                        vm.limpiarError()
+                        vm.limpiarAviso()
+                    },
                     etiqueta = "Correo",
                     icono = Icons.Outlined.Email,
                     teclado = KeyboardType.Email
@@ -109,15 +124,18 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrars
                 Spacer(Modifier.height(12.dp))
                 AyudaTextField(
                     valor = clave,
-                    onCambio = { clave = it; vm.limpiarError() },
+                    onCambio = {
+                        clave = it
+                        vm.limpiarError()
+                        vm.limpiarAviso()
+                    },
                     etiqueta = "Contraseña",
                     icono = Icons.Outlined.Lock,
                     esClave = true
                 )
 
-                // Solo visual: el lab no pide recuperar contraseña
                 TextButton(
-                    onClick = { },
+                    onClick = onOlvidoClave,
                     modifier = Modifier.align(Alignment.End)
                 ) {
                     Text(
@@ -134,6 +152,26 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrars
                         style = MaterialTheme.typography.bodyMedium
                     )
                     Spacer(Modifier.height(8.dp))
+                }
+
+                aviso?.let { msg ->
+                    Surface(
+                        color = ColorResuelto.copy(alpha = 0.12f),
+                        shape = RoundedCornerShape(14.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp)
+                    ) {
+                        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Filled.CheckCircle, contentDescription = null, tint = ColorResuelto)
+                            Spacer(Modifier.width(10.dp))
+                            Text(
+                                msg,
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = ColorResuelto
+                            )
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(8.dp))

@@ -43,6 +43,12 @@ class AyudaRepositoryRoom(db: AyudaDatabase) : AyudaRepository {
         return usuario.copy(id = id)
     }
 
+    override suspend fun buscarUsuarioPorCorreo(correo: String): Usuario? =
+        usuarioDao.obtenerPorCorreo(correo.trim().lowercase())
+
+    override suspend fun cambiarClave(usuarioId: Int, nuevaClave: String) =
+        usuarioDao.actualizarClave(usuarioId, nuevaClave)
+
     //  Categorías (ejemplo resuelto)
 
     override fun observarCategorias(): Flow<List<Categoria>> =

@@ -40,6 +40,7 @@ import com.faustino.ayudacampus.ui.cliente.LoginScreen
 import com.faustino.ayudacampus.ui.cliente.MisTicketsScreen
 import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.faustino.ayudacampus.ui.cliente.PerfilScreen
+import com.faustino.ayudacampus.ui.cliente.RecuperarClaveScreen
 import com.faustino.ayudacampus.ui.cliente.RegistroScreen
 import com.faustino.ayudacampus.ui.cliente.SplashScreen
 import com.faustino.ayudacampus.ui.components.AppTopBar
@@ -56,6 +57,7 @@ import com.faustino.ayudacampus.viewmodel.CategoriasViewModel
 import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
 import com.faustino.ayudacampus.viewmodel.NuevoTicketViewModel
 import com.faustino.ayudacampus.viewmodel.PanelViewModel
+import com.faustino.ayudacampus.viewmodel.RecuperarClaveViewModel
 import com.faustino.ayudacampus.viewmodel.RegistroViewModel
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
 import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
@@ -176,7 +178,20 @@ fun NavAyuda(app: AyudaApp) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
                         }
                     },
-                    onRegistrarse = { nav.navigate(Rutas.REGISTRO) }
+                    onRegistrarse = { nav.navigate(Rutas.REGISTRO) },
+                    onOlvidoClave = { nav.navigate(Rutas.RECUPERAR_CLAVE) }
+                )
+            }
+
+            composable(Rutas.RECUPERAR_CLAVE) {
+                val vm = ayudaViewModel { RecuperarClaveViewModel(repo) }
+                RecuperarClaveScreen(
+                    vm = vm,
+                    onAtras = { nav.popBackStack() },
+                    onListo = {
+                        sesionVm.mostrarAviso("Contraseña actualizada. Ingresa con tu nueva contraseña.")
+                        nav.popBackStack()
+                    }
                 )
             }
 
