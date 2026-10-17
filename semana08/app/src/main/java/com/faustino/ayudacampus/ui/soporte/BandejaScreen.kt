@@ -49,6 +49,7 @@ fun BandejaScreen(
     val tickets by vm.tickets.collectAsState()
     val filtro by vm.filtro.collectAsState()
     val soloAlta by vm.soloAlta.collectAsState()
+    val slas by vm.slas.collectAsState()
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -129,7 +130,8 @@ fun BandejaScreen(
                             estado = EstadoTicket.desde(t.ticket.estado),
                             prioridad = Prioridad.desde(t.ticket.prioridad),
                             fecha = t.ticket.fecha,
-                            onClick = { onAbrirTicket(t.ticket.id) }
+                            onClick = { onAbrirTicket(t.ticket.id) },
+                            sla = slas[t.ticket.id]
                         )
                     }
                 }

@@ -6,11 +6,13 @@ import com.faustino.ayudacampus.data.local.entity.Usuario
 import com.faustino.ayudacampus.data.local.relation.TicketConDetalle
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.repository.AyudaRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
@@ -57,6 +59,20 @@ class MisTicketsViewModel(
         combine(misTickets, _filtro, _busqueda) { lista, filtro, texto ->
             lista.filter { filtro.incluye(it.ticket.estado) && coincideBusqueda(it, texto) }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val reloj = flow {
+        while (true) {
+            emit(System.currentTimeMillis())
+            delay(60_000)
+        }
+    }
+
+    val slas: StateFlow<Map<Int, EstadoSla>> =
+        combine(misTickets, reloj) { lista, ahora ->
+            lista.mapNotNull { t ->
+                calcularSla(t.ticket, ahora)?.let { sla -> t.ticket.id to sla }
+            }.toMap()
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
     // Para el saludo "Hola, Juan · 3 abiertos"
     val abiertos: StateFlow<Int> = misTickets

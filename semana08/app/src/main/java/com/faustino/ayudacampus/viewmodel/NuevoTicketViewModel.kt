@@ -55,11 +55,7 @@ class NuevoTicketViewModel(
     fun cambiarPrioridad(p: Prioridad) = _form.update { it.copy(prioridad = p) }
     fun cambiarDescripcion(d: String) = _form.update { it.copy(descripcion = d, errorDescripcion = null) }
 
-    fun tiempoRespuesta(p: Prioridad): String = when (p) {
-        Prioridad.ALTA -> "4 horas"
-        Prioridad.MEDIA -> "24 horas"
-        Prioridad.BAJA -> "72 horas"
-    }
+    fun tiempoRespuesta(p: Prioridad): String = "${horasSla(p)} horas"
 
     fun enviar() {
         val f = _form.value

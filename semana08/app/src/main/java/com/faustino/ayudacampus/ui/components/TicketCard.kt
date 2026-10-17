@@ -22,6 +22,7 @@ import androidx.compose.material.icons.outlined.Key
 import androidx.compose.material.icons.outlined.LocalOffer
 import androidx.compose.material.icons.outlined.Print
 import androidx.compose.material.icons.outlined.Wifi
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -36,7 +37,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.model.Prioridad
+import com.faustino.ayudacampus.ui.theme.ColorAbierto
+import com.faustino.ayudacampus.ui.theme.ColorAlta
 import com.faustino.ayudacampus.ui.theme.colorPrioridad
+import com.faustino.ayudacampus.viewmodel.EstadoSla
 
 /** Iconos válidos para una categoría. */
 val ICONOS_CATEGORIA = listOf("pc", "code", "wifi", "key", "printer", "tag")
@@ -77,7 +81,8 @@ fun TicketCard(
     fecha: Long,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    comentarios: Int = 0
+    comentarios: Int = 0,
+    sla: EstadoSla? = null
 ) {
     Card(
         onClick = onClick,
@@ -159,6 +164,28 @@ fun TicketCard(
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
+                }
+                if (sla != null) {
+                    Spacer(Modifier.height(8.dp))
+                    val colorSla = when {
+                        sla.vencido -> ColorAlta
+                        sla.porVencer -> ColorAbierto
+                        else -> MaterialTheme.colorScheme.onSurfaceVariant
+                    }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Outlined.Schedule,
+                            contentDescription = null,
+                            modifier = Modifier.size(12.dp),
+                            tint = colorSla
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            sla.texto,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = colorSla
+                        )
+                    }
                 }
             }
         }
