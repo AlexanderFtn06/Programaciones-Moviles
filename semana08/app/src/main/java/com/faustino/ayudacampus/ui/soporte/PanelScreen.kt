@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -16,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -52,6 +54,7 @@ fun PanelScreen(
     val resumen by vm.resumen.collectAsState()
     val porCategoria by vm.porCategoria.collectAsState()
     val altas by vm.altasSinAtender.collectAsState()
+    val tiempoPromedio by vm.tiempoPromedio.collectAsState()
 
     // Datos para la dona (colores del tema por estado)
     val datosEstado = listOf(
@@ -109,6 +112,35 @@ fun PanelScreen(
                 TarjetaContador("Abiertos", resumen.abiertos, ColorAbierto, Modifier.weight(1f))
                 TarjetaContador("En proceso", resumen.enProceso, ColorEnProceso, Modifier.weight(1f))
                 TarjetaContador("Resueltos", resumen.resueltos, ColorResuelto, Modifier.weight(1f))
+            }
+
+            Spacer(Modifier.height(12.dp))
+
+            TarjetaBlanca {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.Schedule,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(28.dp)
+                    )
+                    Spacer(Modifier.width(16.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(
+                            "Tiempo promedio de resolución",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            tiempoPromedio,
+                            style = MaterialTheme.typography.headlineSmall,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
             }
 
             TituloSeccion("Tickets por estado")
