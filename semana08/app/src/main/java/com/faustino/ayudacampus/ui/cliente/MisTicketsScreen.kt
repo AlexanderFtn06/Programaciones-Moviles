@@ -38,6 +38,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.model.Prioridad
+import com.faustino.ayudacampus.ui.components.EstadoVacio
 import com.faustino.ayudacampus.ui.components.TicketCard
 import com.faustino.ayudacampus.viewmodel.FiltroEstado
 import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
@@ -144,7 +145,14 @@ fun MisTicketsScreen(
 
             // Lista o estado vacío
             if (tickets.isEmpty()) {
-                EstadoVacio()
+                EstadoVacio(
+                    icono = Icons.Outlined.Inbox,
+                    titulo = "No tienes tickets aquí",
+                    mensaje = "Cambia el filtro o reporta una incidencia",
+                    textoAccion = "Crear ticket",
+                    onAccion = onNuevoTicket,
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 96.dp),
@@ -160,7 +168,8 @@ fun MisTicketsScreen(
                             prioridad = Prioridad.desde(t.ticket.prioridad),
                             fecha = t.ticket.fecha,
                             onClick = { onAbrirTicket(t.ticket.id) },
-                            sla = slas[t.ticket.id]
+                            sla = slas[t.ticket.id],
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }
@@ -169,27 +178,3 @@ fun MisTicketsScreen(
     }
 }
 
-@Composable
-private fun EstadoVacio() {
-    Column(
-        Modifier
-            .fillMaxSize()
-            .padding(32.dp),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            Icons.Outlined.Inbox,
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.size(56.dp)
-        )
-        Spacer(Modifier.height(12.dp))
-        Text("No tienes tickets aquí", style = MaterialTheme.typography.titleMedium)
-        Text(
-            "Cambia el filtro o crea uno con el botón +",
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
-        )
-    }
-}

@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.faustino.ayudacampus.data.model.EstadoTicket
 import com.faustino.ayudacampus.data.model.Prioridad
 import com.faustino.ayudacampus.ui.components.AppTopBar
+import com.faustino.ayudacampus.ui.components.EstadoVacio
 import com.faustino.ayudacampus.ui.components.TicketCard
 import com.faustino.ayudacampus.ui.theme.ColorAlta
 import com.faustino.ayudacampus.ui.theme.colorPrioridad
@@ -229,22 +230,14 @@ fun BandejaScreen(
             Spacer(Modifier.height(4.dp))
 
             if (tickets.isEmpty()) {
-                Column(
-                    Modifier
-                        .fillMaxSize()
-                        .padding(32.dp),
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        Icons.Outlined.Inbox,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(56.dp)
-                    )
-                    Spacer(Modifier.height(12.dp))
-                    Text("No hay tickets con estos filtros", style = MaterialTheme.typography.titleMedium)
-                }
+                EstadoVacio(
+                    icono = Icons.Outlined.Inbox,
+                    titulo = "No hay tickets con estos filtros",
+                    mensaje = "Prueba con otra búsqueda o limpia los filtros",
+                    textoAccion = "Limpiar filtros",
+                    onAccion = vm::limpiarFiltros,
+                    modifier = Modifier.fillMaxSize()
+                )
             } else {
                 LazyColumn(
                     contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 8.dp, bottom = 16.dp),
@@ -260,7 +253,8 @@ fun BandejaScreen(
                             prioridad = Prioridad.desde(t.ticket.prioridad),
                             fecha = t.ticket.fecha,
                             onClick = { onAbrirTicket(t.ticket.id) },
-                            sla = slas[t.ticket.id]
+                            sla = slas[t.ticket.id],
+                            modifier = Modifier.animateItem()
                         )
                     }
                 }
