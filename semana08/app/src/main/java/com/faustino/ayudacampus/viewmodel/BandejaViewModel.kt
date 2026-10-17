@@ -2,6 +2,7 @@ package com.faustino.ayudacampus.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.faustino.ayudacampus.data.local.entity.Categoria
 import com.faustino.ayudacampus.data.local.relation.TicketConDetalle
 import com.faustino.ayudacampus.data.model.Prioridad
 import com.faustino.ayudacampus.data.repository.AyudaRepository
@@ -12,30 +13,53 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
+
+data class FiltrosBandeja(
+    val estado: FiltroEstado = FiltroEstado.TODOS,
+    val prioridad: Prioridad? = null,
+    val categoriaId: Int? = null,
+    val texto: String = "",
+    val soloAlta: Boolean = false
+)
 
 class BandejaViewModel(
     repo: AyudaRepository,
     soloAltaInicial: Boolean   // true cuando se llega desde la alerta del panel
 ) : ViewModel() {
 
-    private val _filtro = MutableStateFlow(
-        if (soloAltaInicial) FiltroEstado.ABIERTOS else FiltroEstado.TODOS
-    )
-    val filtro: StateFlow<FiltroEstado> = _filtro.asStateFlow()
+    private val estadoInicial = if (soloAltaInicial) FiltroEstado.ABIERTOS else FiltroEstado.TODOS
 
-    private val _soloAlta = MutableStateFlow(soloAltaInicial)
-    val soloAlta: StateFlow<Boolean> = _soloAlta.asStateFlow()
+    private val _filtros = MutableStateFlow(
+        FiltrosBandeja(
+            estado = estadoInicial,
+            soloAlta = soloAltaInicial
+        )
+    )
+    val filtros: StateFlow<FiltrosBandeja> = _filtros.asStateFlow()
+
+    // Categorías para el selector
+    val categorias: StateFlow<List<Categoria>> = repo.observarCategorias()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    // True si hay algún filtro activo distinto del valor por defecto
+    val hayFiltrosActivos: StateFlow<Boolean> = _filtros
+        .map { it != FiltrosBandeja() }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     private val todos = repo.observarTodosLosTickets()
 
-    // Regla de visibilidad: Soporte ve TODOS los tickets.
-    // El DAO ya los entrega con ALTA primero y luego por fecha
+    // Regla de visibilidad: Soporte ve TODOS los tickets aplicando todos los filtros a la vez
     val tickets: StateFlow<List<TicketConDetalle>> =
-        combine(todos, _filtro, _soloAlta) { lista, filtro, alta ->
+        combine(todos, _filtros) { lista, f ->
             lista.filter { t ->
-                filtro.incluye(t.ticket.estado) &&
-                        (!alta || t.ticket.prioridad == Prioridad.ALTA.name)
+                f.estado.incluye(t.ticket.estado) &&
+                        (f.prioridad == null || t.ticket.prioridad == f.prioridad.name) &&
+                        (f.categoriaId == null || t.ticket.categoriaId == f.categoriaId) &&
+                        coincideBusqueda(t, f.texto) &&
+                        (!f.soloAlta || t.ticket.prioridad == Prioridad.ALTA.name)
             }
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
@@ -53,11 +77,36 @@ class BandejaViewModel(
             }.toMap()
         }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
 
-    fun seleccionarFiltro(f: FiltroEstado) {
-        _filtro.value = f
+    fun seleccionarFiltro(e: FiltroEstado) {
+        _filtros.update { it.copy(estado = e) }
+    }
+
+    fun elegirPrioridad(p: Prioridad?) {
+        _filtros.update { it.copy(prioridad = if (it.prioridad == p) null else p) }
+    }
+
+    fun elegirCategoria(id: Int?) {
+        _filtros.update { it.copy(categoriaId = id) }
+    }
+
+    fun buscar(texto: String) {
+        _filtros.update { it.copy(texto = texto) }
     }
 
     fun quitarSoloAlta() {
-        _soloAlta.value = false
+        _filtros.update { it.copy(soloAlta = false) }
+    }
+
+    fun limpiarFiltros() {
+        _filtros.value = FiltrosBandeja()
+    }
+
+    private fun coincideBusqueda(t: TicketConDetalle, texto: String): Boolean {
+        val q = texto.trim().removePrefix("#")
+        if (q.isEmpty()) return true
+        val numero = "%04d".format(t.ticket.id)
+        return t.ticket.titulo.contains(q, ignoreCase = true) ||
+                numero.contains(q) ||
+                t.cliente.nombre.contains(q, ignoreCase = true)
     }
 }
