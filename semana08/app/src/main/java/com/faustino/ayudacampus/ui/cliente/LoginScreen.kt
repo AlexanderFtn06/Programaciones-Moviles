@@ -47,7 +47,7 @@ import com.faustino.ayudacampus.viewmodel.SesionViewModel
 
 /** Un solo Composable para ambos roles. */
 @Composable
-fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit) {
+fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit, onRegistrarse: () -> Unit) {
     val usuario by vm.usuarioActual.collectAsState()
     val mensajeError by vm.error.collectAsState()
     val cargando by vm.cargando.collectAsState()
@@ -158,8 +158,8 @@ fun LoginScreen(vm: SesionViewModel, onIngresar: (Usuario) -> Unit) {
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        // Solo visual: el registro es una mejora opcional de la Fase 2
-                        TextButton(onClick = { }) {
+                        // Enlace de registro
+                        TextButton(onClick = onRegistrarse) {
                             Text(
                                 "Regístrate",
                                 style = MaterialTheme.typography.bodyMedium,

@@ -3,6 +3,7 @@ package com.faustino.ayudacampus.ui.navigation
 object Rutas {
     const val SPLASH = "splash"
     const val LOGIN = "login"
+    const val REGISTRO = "registro"
 
     // Estudiante
     const val MIS_TICKETS = "mis_tickets"

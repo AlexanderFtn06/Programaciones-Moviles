@@ -16,6 +16,8 @@ interface AyudaRepository {
     suspend fun obtenerUsuario(id: Int): Usuario?              // Paso 6: recordar la sesión
 
     suspend fun obtenerUsuarioPorRol(rol: Rol): Usuario?       // Paso 12: cambiar de perfil
+    suspend fun correoRegistrado(correo: String): Boolean
+    suspend fun registrarEstudiante(nombre: String, correo: String, clave: String): Usuario
 
     // Categorías (ejemplo resuelto)
     fun observarCategorias(): Flow<List<Categoria>>

@@ -9,11 +9,17 @@ import com.faustino.ayudacampus.data.local.entity.Usuario
 interface UsuarioDao {
 
     // Acción única -> suspend. Devuelve null si no coincide
-    @Query("SELECT * FROM usuarios WHERE correo = :correo AND clave = :clave LIMIT 1")
+    @Query("SELECT * FROM usuarios WHERE LOWER(correo) = LOWER(:correo) AND clave = :clave LIMIT 1")
     suspend fun login(correo: String, clave: String): Usuario?
 
     @Insert
     suspend fun insertarTodos(lista: List<Usuario>)
+
+    @Query("SELECT COUNT(*) FROM usuarios WHERE LOWER(correo) = LOWER(:correo)")
+    suspend fun contarPorCorreo(correo: String): Int
+
+    @Insert
+    suspend fun insertar(u: Usuario): Long
 
     @Query("SELECT COUNT(*) FROM usuarios")
     suspend fun contar(): Int

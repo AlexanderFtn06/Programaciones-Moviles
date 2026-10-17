@@ -126,6 +126,13 @@ class SesionViewModel(
         }
     }
 
+    fun iniciarSesionCon(usuario: Usuario) {
+        _usuarioActual.value = usuario
+        viewModelScope.launch {
+            prefs.guardarSesion(Rol.CLIENTE, usuario.id)
+        }
+    }
+
     /** Borra el perfil activo; el modo oscuro y los demás ajustes se conservan. */
     fun cerrarSesion() {
         _usuarioActual.value = null            // primero, para que el Login no redirija

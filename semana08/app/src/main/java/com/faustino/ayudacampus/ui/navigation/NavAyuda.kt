@@ -35,6 +35,7 @@ import com.faustino.ayudacampus.ui.cliente.LoginScreen
 import com.faustino.ayudacampus.ui.cliente.MisTicketsScreen
 import com.faustino.ayudacampus.ui.cliente.NuevoTicketScreen
 import com.faustino.ayudacampus.ui.cliente.PerfilScreen
+import com.faustino.ayudacampus.ui.cliente.RegistroScreen
 import com.faustino.ayudacampus.ui.cliente.SplashScreen
 import com.faustino.ayudacampus.ui.components.AppTopBar
 import com.faustino.ayudacampus.ui.soporte.AjustesScreen
@@ -50,6 +51,7 @@ import com.faustino.ayudacampus.viewmodel.CategoriasViewModel
 import com.faustino.ayudacampus.viewmodel.MisTicketsViewModel
 import com.faustino.ayudacampus.viewmodel.NuevoTicketViewModel
 import com.faustino.ayudacampus.viewmodel.PanelViewModel
+import com.faustino.ayudacampus.viewmodel.RegistroViewModel
 import com.faustino.ayudacampus.viewmodel.SesionViewModel
 import com.faustino.ayudacampus.viewmodel.TicketDetalleViewModel
 import com.faustino.ayudacampus.viewmodel.ayudaViewModel
@@ -129,6 +131,12 @@ fun NavAyuda(app: AyudaApp) {
                     }
                 }
 
+                val irARegistro: () -> Unit = {
+                    nav.navigate(Rutas.REGISTRO) {
+                        popUpTo(Rutas.SPLASH) { inclusive = true }
+                    }
+                }
+
                 // Regla del Paso 6: si ya hay perfil guardado, salta el login
                 LaunchedEffect(haySesion) {
                     if (haySesion) {
@@ -143,7 +151,7 @@ fun NavAyuda(app: AyudaApp) {
 
                 SplashScreen(
                     mostrarBotones = verificada && usuario == null,
-                    onComenzar = irALogin,
+                    onComenzar = irARegistro,
                     onYaTengoCuenta = irALogin
                 )
             }
@@ -154,6 +162,27 @@ fun NavAyuda(app: AyudaApp) {
                     onIngresar = { u ->
                         nav.navigate(inicioDe(u)) {
                             popUpTo(Rutas.LOGIN) { inclusive = true }
+                        }
+                    },
+                    onRegistrarse = { nav.navigate(Rutas.REGISTRO) }
+                )
+            }
+
+            composable(Rutas.REGISTRO) {
+                val vm = ayudaViewModel { RegistroViewModel(repo) }
+                RegistroScreen(
+                    vm = vm,
+                    onRegistrado = { u ->
+                        sesionVm.iniciarSesionCon(u)
+                        nav.navigate(inicioDe(u)) {
+                            popUpTo(nav.graph.id) { inclusive = true }
+                        }
+                    },
+                    onIrLogin = {
+                        if (!nav.popBackStack(Rutas.LOGIN, inclusive = false)) {
+                            nav.navigate(Rutas.LOGIN) {
+                                popUpTo(Rutas.REGISTRO) { inclusive = true }
+                            }
                         }
                     }
                 )
