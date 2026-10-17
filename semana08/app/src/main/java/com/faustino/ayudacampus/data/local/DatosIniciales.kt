@@ -41,21 +41,21 @@ object DatosIniciales {
     )
 
     // ---------- 1 estudiante y 1 soporte (datos ficticios) ----------
-    private val juan = Usuario(
-        id = 1, nombre = "Juan Pérez", correo = "juan@campus.test",
+    private val alex = Usuario(
+        id = 1, nombre = "Alexander Faustino", correo = "alex@campus.test",
         clave = "1234", rol = Rol.CLIENTE.name
     )
     private val soporte = Usuario(
         id = 2, nombre = "Soporte TI", correo = "soporte@campus.test",
         clave = "admin", rol = Rol.ADMIN.name
     )
-    private val usuarios = listOf(juan, soporte)
+    private val usuarios = listOf(alex, soporte)
 
     // ---------- 6 tickets en distintos estados y prioridades ----------
     private fun tickets(ahora: Long) = listOf(
         // ALTA + ABIERTO con más de 1 hora -> cuenta en la alerta del panel
         Ticket(
-            id = 1, clienteId = juan.id, categoriaId = 3,
+            id = 1, clienteId = alex.id, categoriaId = 3,
             titulo = "El Wi-Fi se desconecta en la biblioteca",
             descripcion = "Cada 10 minutos pierdo la conexión y tengo que volver a ingresar.",
             ubicacion = "Biblioteca, 2do piso",
@@ -63,7 +63,7 @@ object DatosIniciales {
             fecha = ahora - 3 * HORA
         ),
         Ticket(
-            id = 2, clienteId = juan.id, categoriaId = 1,
+            id = 2, clienteId = alex.id, categoriaId = 1,
             titulo = "La PC del laboratorio 4 no enciende",
             descripcion = "Presiono el botón de encendido y no hace nada, ni luces.",
             ubicacion = "Lab. 4 - PC 12",
@@ -71,7 +71,7 @@ object DatosIniciales {
             fecha = ahora - 26 * HORA
         ),
         Ticket(
-            id = 3, clienteId = juan.id, categoriaId = 4,
+            id = 3, clienteId = alex.id, categoriaId = 4,
             titulo = "No puedo entrar al aula virtual",
             descripcion = "Me aparece credenciales inválidas aunque la clave es correcta.",
             ubicacion = "Remoto",
@@ -79,7 +79,7 @@ object DatosIniciales {
             fecha = ahora - 50 * HORA
         ),
         Ticket(
-            id = 4, clienteId = juan.id, categoriaId = 2,
+            id = 4, clienteId = alex.id, categoriaId = 2,
             titulo = "Instalar Android Studio en el lab 2",
             descripcion = "Necesitamos Android Studio para el curso de móviles.",
             ubicacion = "Lab. 2",
@@ -88,7 +88,7 @@ object DatosIniciales {
             fechaCierre = ahora - 100 * HORA, calificacion = 5
         ),
         Ticket(
-            id = 5, clienteId = juan.id, categoriaId = 5,
+            id = 5, clienteId = alex.id, categoriaId = 5,
             titulo = "La impresora del pabellón B atasca hojas",
             descripcion = "Se traba en la bandeja 2 con cualquier tipo de papel.",
             ubicacion = "Pabellón B, 1er piso",
@@ -97,7 +97,7 @@ object DatosIniciales {
         ),
         // ALTA + ABIERTO pero reciente -> todavía NO cuenta en la alerta
         Ticket(
-            id = 6, clienteId = juan.id, categoriaId = 1,
+            id = 6, clienteId = alex.id, categoriaId = 1,
             titulo = "Proyector del aula 301 sin señal HDMI",
             descripcion = "El proyector enciende pero no detecta la laptop por HDMI.",
             ubicacion = "Aula 301",
@@ -109,7 +109,7 @@ object DatosIniciales {
     // ---------- 4 comentarios ----------
     private fun comentarios(ahora: Long) = listOf(
         Comentario(
-            ticketId = 2, autorId = juan.id, autorNombre = juan.nombre, autorRol = juan.rol,
+            ticketId = 2, autorId = alex.id, autorNombre = alex.nombre, autorRol = alex.rol,
             texto = "Ya probé con otro enchufe y sigue sin encender.",
             fecha = ahora - 25 * HORA
         ),
@@ -124,7 +124,7 @@ object DatosIniciales {
             fecha = ahora - 46 * HORA
         ),
         Comentario(
-            ticketId = 1, autorId = juan.id, autorNombre = juan.nombre, autorRol = juan.rol,
+            ticketId = 1, autorId = alex.id, autorNombre = alex.nombre, autorRol = alex.rol,
             texto = "Pasa sobre todo en las mesas del fondo.",
             fecha = ahora - 2 * HORA
         )
