@@ -22,16 +22,7 @@ Ambos perfiles comparten la misma base de datos **Room**: cuando Soporte respond
 
 ## Arquitectura MVVM
 
-```mermaid
-flowchart LR
-    View["View<br/>Composables en ui/"] -- "eventos: clic, texto" --> VM["ViewModel<br/>StateFlow + reglas de negocio"]
-    VM -- "StateFlow → collectAsState" --> View
-    VM --> Repo["AyudaRepository<br/>(interface)"]
-    VM --> Prefs[("DataStore<br/>preferencias")]
-    Repo --> Impl["AyudaRepositoryRoom"]
-    Impl --> DAO["DAOs<br/>lectura Flow · escritura suspend"]
-    DAO --> DB[("Room · SQLite<br/>ayudacampus.db")]
-```
+<img width="1311" height="221" alt="image" src="https://github.com/user-attachments/assets/d6c16d09-ebca-4339-8f41-fcf6f82e001c" />
 
 - **View:** solo observa el estado y avisa los eventos; no tiene reglas ni acceso a datos.
 - **ViewModel:** valida y aplica las reglas de negocio; depende de la **interface** `AyudaRepository`, nunca de Room.
@@ -141,9 +132,3 @@ com.faustino.ayudacampus
 | ¿Por qué `crearTicket` es suspend y `observarTicket` es Flow? | Crear es una acción única que se ejecuta y termina; observar es una lectura que debe avisar cada cambio en la base para que la pantalla se actualice sola. |
 | ¿Qué pasaría si un ticket se cerrara sin calificación? | Se perdería la opinión del estudiante y habría tickets cerrados sin evaluar, rompiendo la regla RESUELTO → CERRADO con 1 a 5 estrellas. |
 | ¿Qué cambiaría si los tickets vivieran en un servidor? | Solo crearía otra implementación de `AyudaRepository` (por ejemplo con Retrofit) y la usaría en `AyudaApp`; ViewModels y pantallas no cambian porque dependen de la interface. |
-
-## Notas
-
-- No se entregó el ZIP del proyecto base, así que se **reconstruyó siguiendo el laboratorio** (archivos [E] y [G] en el commit 1). Se usó el paquete `com.faustino.ayudacampus` en lugar de `com.tecsup.ayudacampus`.
-- Las versiones se fijaron en AGP 8.7.3 + Kotlin 2.0.21 porque la plantilla nueva de Android Studio (AGP 9) no es compatible con KSP y Room 2.6.1.
-- El switch **Notificaciones** guarda la preferencia en DataStore, como pide el lab; no envía avisos reales.
