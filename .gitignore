@@ -1,0 +1,8 @@
+# Laboratorio 11-12 (Books)
+semana12/Books/build/
+semana12/Books/.idea/
+semana12/Books/.gradle/
+semana12/Books/local.properties
+semana12/Books/app/google-services.json
+semana12/Books/**/*.iml
+semana12/Books/**/.DS_Store
