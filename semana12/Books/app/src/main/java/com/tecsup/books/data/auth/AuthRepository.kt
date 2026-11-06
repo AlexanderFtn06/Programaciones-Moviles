@@ -1,0 +1,9 @@
+package com.tecsup.books.data.auth
+
+import com.tecsup.books.domain.model.Sesion
+
+interface AuthRepository {
+    suspend fun iniciarSesion(correo: String, clave: String): Result<Sesion>
+    suspend fun cerrarSesion()
+    suspend fun sesionActual(): Sesion?
+}
