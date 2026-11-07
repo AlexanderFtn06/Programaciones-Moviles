@@ -36,17 +36,27 @@ class FirebaseAuthRepository(
         return try {
             leerSesion(usuario.uid, usuario.email.orEmpty())
         } catch (e: Exception) {
-            // Sin Firestore ni caché: por seguridad se trata como usuario normal
+            // En caso de error de red al consultar Firestore:
+            // Se mantiene la sesión activa con rol USUARIO y rolConfirmado = false
             Sesion(
                 uid = usuario.uid,
                 correo = usuario.email.orEmpty(),
                 rol = Rol.USUARIO,
-                nombre = usuario.email.orEmpty()
+                nombre = usuario.email.orEmpty(),
+                rolConfirmado = false
             )
         }
     }
 
-    // Si el documento no existe, el rol es USUARIO: es el valor más seguro por defecto
+    override suspend fun contarUsuarios(): Result<Int> {
+        return try {
+            val snapshot = firestore.collection("usuarios").get().await()
+            Result.success(snapshot.size())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     private suspend fun leerSesion(uid: String, correo: String): Sesion {
         val documento = firestore.collection("usuarios").document(uid).get().await()
         val rol = if (documento.getString("rol") == "admin") Rol.ADMIN else Rol.USUARIO
@@ -54,7 +64,8 @@ class FirebaseAuthRepository(
             uid = uid,
             correo = correo,
             rol = rol,
-            nombre = documento.getString("nombre") ?: correo
+            nombre = documento.getString("nombre") ?: correo,
+            rolConfirmado = true
         )
     }
 }

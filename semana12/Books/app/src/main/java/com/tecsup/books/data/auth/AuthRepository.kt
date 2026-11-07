@@ -6,4 +6,5 @@ interface AuthRepository {
     suspend fun iniciarSesion(correo: String, clave: String): Result<Sesion>
     suspend fun cerrarSesion()
     suspend fun sesionActual(): Sesion?
+    suspend fun contarUsuarios(): Result<Int>
 }

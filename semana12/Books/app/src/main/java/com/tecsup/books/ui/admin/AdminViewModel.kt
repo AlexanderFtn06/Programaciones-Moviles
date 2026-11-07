@@ -3,6 +3,8 @@ package com.tecsup.books.ui.admin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.books.data.repository.LibroRepository
+import com.tecsup.books.domain.model.Rol
+import com.tecsup.books.domain.model.Sesion
 import com.tecsup.books.notification.Notificador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -36,7 +38,13 @@ class AdminViewModel(
         }
     }
 
-    fun sincronizar() {
+    fun sincronizar(sesion: Sesion) {
+        if (sesion.rol != Rol.ADMIN || !sesion.rolConfirmado) {
+            _ui.update {
+                it.copy(mensaje = "Requiere conexión activa para validar permisos de administrador")
+            }
+            return
+        }
         viewModelScope.launch {
             _ui.update { it.copy(sincronizando = true, mensaje = null) }
             repositorio.refrescar()
@@ -57,7 +65,13 @@ class AdminViewModel(
         }
     }
 
-    fun limpiarCache() {
+    fun limpiarCache(sesion: Sesion) {
+        if (sesion.rol != Rol.ADMIN || !sesion.rolConfirmado) {
+            _ui.update {
+                it.copy(mensaje = "Requiere conexión activa para validar permisos de administrador")
+            }
+            return
+        }
         viewModelScope.launch {
             repositorio.limpiarCache()
             _ui.update { it.copy(mensaje = "Caché limpiada") }
