@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
@@ -17,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -28,6 +30,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.books.AppContainer
 import com.tecsup.books.domain.model.Rol
+import com.tecsup.books.ui.admin.AdminScreen
+import com.tecsup.books.ui.admin.AdminViewModel
+import com.tecsup.books.ui.admin.AdminViewModelFactory
 import com.tecsup.books.ui.components.Cargando
 import com.tecsup.books.ui.components.EncabezadoSeccion
 import com.tecsup.books.ui.detalle.DetalleScreen
@@ -52,11 +57,16 @@ private data class Destino(
     val icono: ImageVector
 )
 
-private val destinos = listOf(
-    Destino("lista", "Catálogo", Icons.Filled.Home),
-    Destino("favoritos", "Favoritos", Icons.Filled.Favorite),
-    Destino("perfil", "Perfil", Icons.Filled.Person)
-)
+// El rol decide la tercera pestaña: el administrador ve Admin; el usuario ve Favoritos
+private fun destinosPara(esAdmin: Boolean): List<Destino> = buildList {
+    add(Destino("lista", "Catálogo", Icons.Filled.Home))
+    if (esAdmin) {
+        add(Destino("admin", "Admin", Icons.Filled.AdminPanelSettings))
+    } else {
+        add(Destino("favoritos", "Favoritos", Icons.Filled.Favorite))
+    }
+    add(Destino("perfil", "Perfil", Icons.Filled.Person))
+}
 
 @Composable
 fun AppNav(container: AppContainer) {
@@ -64,10 +74,13 @@ fun AppNav(container: AppContainer) {
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(container))
     val sesion by authViewModel.sesion.collectAsStateWithLifecycle()
     val restaurando by authViewModel.restaurando.collectAsStateWithLifecycle()
+    val esAdmin = sesion?.rol == Rol.ADMIN
+
+    val destinos = destinosPara(esAdmin)
+    val rutasPrincipales = destinos.map { it.ruta }
 
     val entrada by navController.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
-    val rutasPrincipales = destinos.map { it.ruta }
 
     // Si cambia la sesión, redirige: al entrar va a Catálogo; al salir vuelve a Login
     LaunchedEffect(sesion) {
@@ -154,6 +167,31 @@ fun AppNav(container: AppContainer) {
                     }
                 }
 
+                composable("admin") {
+                    // Defensa extra: aunque la pestaña no aparece para el usuario, la ruta también valida el rol
+                    if (esAdmin) {
+                        val viewModel: AdminViewModel = viewModel(
+                            factory = AdminViewModelFactory(container)
+                        )
+                        val ui by viewModel.ui.collectAsStateWithLifecycle()
+
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            EncabezadoSeccion("Admin")
+                            AdminScreen(
+                                ui = ui,
+                                onSincronizar = viewModel::sincronizar,
+                                onLimpiarCache = viewModel::limpiarCache,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                    } else {
+                        Text(
+                            text = "No tienes acceso a esta pantalla.",
+                            modifier = Modifier.padding(24.dp)
+                        )
+                    }
+                }
+
                 composable("perfil") {
                     val viewModel: PerfilViewModel = viewModel(
                         factory = PerfilViewModelFactory(container)
@@ -167,8 +205,6 @@ fun AppNav(container: AppContainer) {
                             PerfilScreen(
                                 sesion = sesionPerfil,
                                 ui = ui,
-                                onSincronizar = viewModel::sincronizar,
-                                onLimpiarCache = viewModel::limpiarCache,
                                 onCerrarSesion = authViewModel::cerrarSesion,
                                 modifier = Modifier.weight(1f)
                             )
@@ -191,7 +227,8 @@ fun AppNav(container: AppContainer) {
                         estado = estado,
                         onReintentar = viewModel::cargar,
                         onVolver = { navController.popBackStack() },
-                        onAlternarFavorito = viewModel::alternarFavorito
+                        onAlternarFavorito = viewModel::alternarFavorito,
+                        mostrarFavorito = !esAdmin
                     )
                 }
             }

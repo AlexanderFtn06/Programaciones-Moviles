@@ -33,7 +33,8 @@ fun DetalleScreen(
     onReintentar: () -> Unit,
     onVolver: () -> Unit,
     onAlternarFavorito: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    mostrarFavorito: Boolean = true
 ) {
     when (estado) {
         is UiState.Cargando -> Cargando(modifier)
@@ -48,6 +49,7 @@ fun DetalleScreen(
             libro = estado.datos,
             onVolver = onVolver,
             onAlternarFavorito = onAlternarFavorito,
+            mostrarFavorito = mostrarFavorito,
             modifier = modifier
         )
     }
@@ -58,6 +60,7 @@ private fun DetalleContenido(
     libro: Libro,
     onVolver: () -> Unit,
     onAlternarFavorito: () -> Unit,
+    mostrarFavorito: Boolean,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -75,20 +78,23 @@ private fun DetalleContenido(
                 Text("← Volver")
             }
 
-            IconButton(onClick = onAlternarFavorito) {
-                Icon(
-                    imageVector = if (libro.esFavorito) {
-                        Icons.Filled.Favorite
-                    } else {
-                        Icons.Outlined.FavoriteBorder
-                    },
-                    contentDescription = if (libro.esFavorito) {
-                        "Quitar de favoritos"
-                    } else {
-                        "Agregar a favoritos"
-                    },
-                    tint = MaterialTheme.colorScheme.primary
-                )
+            // El administrador no ve el corazón: solo el usuario gestiona favoritos
+            if (mostrarFavorito) {
+                IconButton(onClick = onAlternarFavorito) {
+                    Icon(
+                        imageVector = if (libro.esFavorito) {
+                            Icons.Filled.Favorite
+                        } else {
+                            Icons.Outlined.FavoriteBorder
+                        },
+                        contentDescription = if (libro.esFavorito) {
+                            "Quitar de favoritos"
+                        } else {
+                            "Agregar a favoritos"
+                        },
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
         }
 

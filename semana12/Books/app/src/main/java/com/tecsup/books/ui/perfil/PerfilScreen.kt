@@ -11,15 +11,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -37,17 +33,12 @@ import com.tecsup.books.domain.model.Sesion
 fun PerfilScreen(
     sesion: Sesion,
     ui: PerfilUiState,
-    onSincronizar: () -> Unit,
-    onLimpiarCache: () -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val esAdmin = sesion.rol == Rol.ADMIN
-
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -58,24 +49,14 @@ fun PerfilScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             TarjetaEstadistica(
+                titulo = "Libros",
+                valor = ui.totalGuardados.toString(),
+                modifier = Modifier.weight(1f)
+            )
+            TarjetaEstadistica(
                 titulo = "Favoritos",
                 valor = ui.totalFavoritos.toString(),
                 modifier = Modifier.weight(1f)
-            )
-            if (esAdmin) {
-                TarjetaEstadistica(
-                    titulo = "Libros",
-                    valor = ui.totalGuardados.toString(),
-                    modifier = Modifier.weight(1f)
-                )
-            }
-        }
-
-        if (esAdmin) {
-            PanelAdmin(
-                ui = ui,
-                onSincronizar = onSincronizar,
-                onLimpiarCache = onLimpiarCache
             )
         }
 
@@ -112,9 +93,7 @@ private fun TarjetaUsuario(sesion: Sesion) {
                     tint = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
-
             Spacer(modifier = Modifier.width(16.dp))
-
             Column {
                 Text(
                     text = sesion.nombre,
@@ -156,54 +135,6 @@ private fun TarjetaEstadistica(titulo: String, valor: String, modifier: Modifier
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-        }
-    }
-}
-
-@Composable
-private fun PanelAdmin(
-    ui: PerfilUiState,
-    onSincronizar: () -> Unit,
-    onLimpiarCache: () -> Unit
-) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            Text(
-                text = "Panel Admin",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            Button(
-                onClick = onSincronizar,
-                enabled = !ui.sincronizando,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (ui.sincronizando) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
-                    )
-                } else {
-                    Text("Sincronizar")
-                }
-            }
-
-            OutlinedButton(
-                onClick = onLimpiarCache,
-                enabled = !ui.sincronizando,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Limpiar caché")
-            }
-
-            ui.mensaje?.let {
-                Text(text = it, style = MaterialTheme.typography.bodyMedium)
-            }
         }
     }
 }
