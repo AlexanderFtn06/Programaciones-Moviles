@@ -7,5 +7,6 @@ data class Libro(
     val portadaUrl: String?,
     val esFavorito: Boolean = false,
     val descripcion: String? = null,
-    val anio: String? = null
+    val anio: String? = null,
+    val temas: List<String> = emptyList()
 )

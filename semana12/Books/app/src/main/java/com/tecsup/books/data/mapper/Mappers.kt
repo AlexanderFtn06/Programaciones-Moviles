@@ -9,13 +9,17 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
+private const val MAX_TEMAS = 6
+private const val SEPARADOR = "|"
+
 // DTO de la lista -> modelo de UI
 fun LibroDto.aModelo(): Libro = Libro(
     id = key.removePrefix("/works/"),
     titulo = title,
     autor = authorName?.firstOrNull() ?: "Autor desconocido",
     portadaUrl = coverId?.let { "https://covers.openlibrary.org/b/id/$it-M.jpg" },
-    anio = anio?.takeIf { it > 0 }?.toString()
+    anio = anio?.takeIf { it > 0 }?.toString(),
+    temas = subject.orEmpty().take(MAX_TEMAS)
 )
 
 // DTO del detalle -> modelo de UI. El detalle no trae autor: se toma del libro guardado
@@ -27,7 +31,8 @@ fun DetalleLibroDto.aModeloDetalle(id: String, base: Libro?): Libro = Libro(
         ?: covers?.firstOrNull()?.let { "https://covers.openlibrary.org/b/id/$it-L.jpg" },
     esFavorito = base?.esFavorito ?: false,
     descripcion = description.aTexto(),
-    anio = base?.anio ?: fechaPublicacion
+    anio = base?.anio ?: fechaPublicacion,
+    temas = base?.temas?.takeIf { it.isNotEmpty() } ?: subjects.orEmpty().take(MAX_TEMAS)
 )
 
 // Entidad de Room -> modelo de UI
@@ -38,7 +43,8 @@ fun LibroEntity.aModelo(): Libro = Libro(
     portadaUrl = portadaUrl,
     esFavorito = esFavorito,
     descripcion = descripcion,
-    anio = anio
+    anio = anio,
+    temas = temas.split(SEPARADOR).filter { it.isNotBlank() }
 )
 
 // Modelo de UI -> entidad de Room
@@ -49,7 +55,8 @@ fun Libro.aEntity(): LibroEntity = LibroEntity(
     portadaUrl = portadaUrl,
     anio = anio,
     descripcion = descripcion,
-    esFavorito = esFavorito
+    esFavorito = esFavorito,
+    temas = temas.joinToString(SEPARADOR) { it.replace(SEPARADOR, "/") }
 )
 
 // La descripción puede ser texto o un objeto { "type", "value" }
