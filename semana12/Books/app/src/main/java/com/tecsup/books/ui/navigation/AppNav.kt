@@ -1,27 +1,37 @@
 package com.tecsup.books.ui.navigation
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.books.AppContainer
+import com.tecsup.books.domain.model.Rol
+import com.tecsup.books.ui.admin.AdminScreen
+import com.tecsup.books.ui.admin.AdminViewModel
+import com.tecsup.books.ui.admin.AdminViewModelFactory
 import com.tecsup.books.ui.components.Cargando
 import com.tecsup.books.ui.detalle.DetalleScreen
 import com.tecsup.books.ui.detalle.DetalleViewModel
@@ -36,28 +46,72 @@ import com.tecsup.books.ui.login.AuthViewModel
 import com.tecsup.books.ui.login.AuthViewModelFactory
 import com.tecsup.books.ui.login.LoginScreen
 
+private data class Destino(
+    val ruta: String,
+    val etiqueta: String,
+    val icono: ImageVector
+)
+
 @Composable
 fun AppNav(container: AppContainer) {
     val navController = rememberNavController()
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(container))
     val sesion by authViewModel.sesion.collectAsStateWithLifecycle()
     val restaurando by authViewModel.restaurando.collectAsStateWithLifecycle()
+    val esAdmin = sesion?.rol == Rol.ADMIN
+
+    val entrada by navController.currentBackStackEntryAsState()
+    val rutaActual = entrada?.destination?.route
+
+    // El rol decide qué pestañas se ven (R02)
+    val destinos = buildList {
+        add(Destino("lista", "Catálogo", Icons.Filled.Home))
+        add(Destino("favoritos", "Favoritos", Icons.Filled.Favorite))
+        if (esAdmin) add(Destino("admin", "Admin", Icons.Filled.AdminPanelSettings))
+    }
+    val rutasPrincipales = destinos.map { it.ruta }
 
     // Si cambia la sesión, redirige: al entrar va a Lista; al salir vuelve a Login
     LaunchedEffect(sesion) {
-        val rutaActual = navController.currentBackStackEntry?.destination?.route
-        if (sesion != null && rutaActual == "login") {
+        val rutaActualEfecto = navController.currentBackStackEntry?.destination?.route
+        if (sesion != null && rutaActualEfecto == "login") {
             navController.navigate("lista") {
                 popUpTo("login") { inclusive = true }
             }
-        } else if (sesion == null && rutaActual != null && rutaActual != "login") {
+        } else if (sesion == null && rutaActualEfecto != null && rutaActualEfecto != "login") {
             navController.navigate("login") {
                 popUpTo(navController.graph.id) { inclusive = true }
             }
         }
     }
 
-    Scaffold { innerPadding ->
+    Scaffold(
+        bottomBar = {
+            if (sesion != null && rutaActual != null && rutaActual in rutasPrincipales) {
+                NavigationBar {
+                    destinos.forEach { destino ->
+                        NavigationBarItem(
+                            selected = rutaActual == destino.ruta,
+                            onClick = { navegarA(navController, destino.ruta) },
+                            icon = { Icon(destino.icono, contentDescription = destino.etiqueta) },
+                            label = { Text(destino.etiqueta) }
+                        )
+                    }
+                    NavigationBarItem(
+                        selected = false,
+                        onClick = authViewModel::cerrarSesion,
+                        icon = {
+                            Icon(
+                                Icons.AutoMirrored.Filled.Logout,
+                                contentDescription = "Cerrar sesión"
+                            )
+                        },
+                        label = { Text("Salir") }
+                    )
+                }
+            }
+        }
+    ) { innerPadding ->
         if (restaurando) {
             Cargando(Modifier.padding(innerPadding))
         } else {
@@ -85,29 +139,13 @@ fun AppNav(container: AppContainer) {
                     val estado by viewModel.estado.collectAsStateWithLifecycle()
                     val sinConexion by viewModel.sinConexion.collectAsStateWithLifecycle()
 
-                    Column(modifier = Modifier.fillMaxSize()) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            TextButton(onClick = { navController.navigate("favoritos") }) {
-                                Text("Ver favoritos")
-                            }
-                            TextButton(onClick = authViewModel::cerrarSesion) {
-                                Text("Cerrar sesión")
-                            }
-                        }
-
-                        ListaScreen(
-                            estado = estado,
-                            onReintentar = viewModel::cargar,
-                            onLibroClick = { id -> navController.navigate("detalle/$id") },
-                            modifier = Modifier.weight(1f),
-                            sinConexion = sinConexion
-                        )
-                    }
+                    ListaScreen(
+                        estado = estado,
+                        onReintentar = viewModel::cargar,
+                        onLibroClick = { id -> navController.navigate("detalle/$id") },
+                        modifier = Modifier.fillMaxSize(),
+                        sinConexion = sinConexion
+                    )
                 }
 
                 composable("favoritos") {
@@ -121,6 +159,28 @@ fun AppNav(container: AppContainer) {
                         onLibroClick = { id -> navController.navigate("detalle/$id") },
                         onVolver = { navController.popBackStack() }
                     )
+                }
+
+                composable("admin") {
+                    // Defensa extra: aunque la pestaña no aparece, la ruta también valida el rol
+                    if (!esAdmin) {
+                        Text(
+                            text = "No tienes acceso a esta pantalla.",
+                            modifier = Modifier.padding(24.dp)
+                        )
+                    } else {
+                        val viewModel: AdminViewModel = viewModel(
+                            factory = AdminViewModelFactory(container)
+                        )
+                        val ui by viewModel.ui.collectAsStateWithLifecycle()
+
+                        AdminScreen(
+                            ui = ui,
+                            onSincronizar = viewModel::sincronizar,
+                            onLimpiarCache = viewModel::limpiarCache,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
                 }
 
                 composable(
@@ -143,5 +203,14 @@ fun AppNav(container: AppContainer) {
                 }
             }
         }
+    }
+}
+
+// Cambia de pestaña sin acumular pantallas en la pila de navegación
+private fun navegarA(navController: NavHostController, ruta: String) {
+    navController.navigate(ruta) {
+        popUpTo(navController.graph.startDestinationId) { saveState = true }
+        launchSingleTop = true
+        restoreState = true
     }
 }
