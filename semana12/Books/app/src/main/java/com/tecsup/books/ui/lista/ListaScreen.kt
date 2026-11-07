@@ -2,6 +2,8 @@ package com.tecsup.books.ui.lista
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.CardDefaults
+import com.tecsup.books.ui.theme.TealClaro
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -64,7 +66,10 @@ private fun LibroItem(libro: Libro, onClick: () -> Unit) {
         onClick = onClick,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = TealClaro
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
