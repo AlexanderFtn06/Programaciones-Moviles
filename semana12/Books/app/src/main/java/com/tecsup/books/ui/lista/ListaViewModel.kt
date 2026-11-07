@@ -18,14 +18,20 @@ class ListaViewModel(
     private val _estado = MutableStateFlow<UiState<List<Libro>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Libro>>> = _estado.asStateFlow()
 
-    // Mientras no termine el primer refresco, una lista vacía significa "todavía cargando"
+    // true cuando el último refresco ya terminó (con éxito o con error)
     private var refrescoTerminado = false
 
     init {
         viewModelScope.launch {
             repositorio.libros.collect { lista ->
-                if (lista.isNotEmpty() || refrescoTerminado) {
-                    _estado.value = UiState.Exito(lista)
+                when {
+                    // Hay datos guardados: se muestran
+                    lista.isNotEmpty() -> _estado.value = UiState.Exito(lista)
+
+                    // Room está vacío después del refresco y no hubo error: estado Vacío
+                    // Si hubo error, no se sobrescribe: el usuario debe ver el mensaje con Reintentar
+                    refrescoTerminado && _estado.value !is UiState.Error ->
+                        _estado.value = UiState.Exito(lista)
                 }
             }
         }
@@ -34,6 +40,7 @@ class ListaViewModel(
 
     fun cargar() {
         viewModelScope.launch {
+            refrescoTerminado = false
             if (_estado.value !is UiState.Exito) {
                 _estado.value = UiState.Cargando
             }
@@ -44,7 +51,6 @@ class ListaViewModel(
                 }
                 .onFailure {
                     refrescoTerminado = true
-                    // Si no hay nada guardado, mostramos el error. Si hay datos, se mantiene la lista
                     if (repositorio.cantidadGuardada() == 0) {
                         _estado.value = UiState.Error(
                             "No se pudo cargar la lista. Revisa tu conexión e inténtalo de nuevo."
