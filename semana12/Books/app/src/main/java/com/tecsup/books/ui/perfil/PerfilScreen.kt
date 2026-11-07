@@ -19,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -33,6 +34,7 @@ import com.tecsup.books.domain.model.Sesion
 fun PerfilScreen(
     sesion: Sesion,
     ui: PerfilUiState,
+    onModoOscuroChange: (Boolean) -> Unit,
     onCerrarSesion: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -43,6 +45,14 @@ fun PerfilScreen(
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         TarjetaUsuario(sesion)
+
+        if (!sesion.rolConfirmado) {
+            Text(
+                text = "Modo sin conexión",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -57,6 +67,40 @@ fun PerfilScreen(
                 titulo = "Favoritos",
                 valor = ui.totalFavoritos.toString(),
                 modifier = Modifier.weight(1f)
+            )
+            if (sesion.rol == Rol.ADMIN && sesion.rolConfirmado) {
+                TarjetaEstadistica(
+                    titulo = "Usuarios",
+                    valor = ui.totalUsuarios?.toString() ?: "...",
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        Card(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Modo oscuro",
+                    style = MaterialTheme.typography.bodyLarge
+                )
+                Switch(
+                    checked = ui.modoOscuro,
+                    onCheckedChange = onModoOscuroChange
+                )
+            }
+        }
+
+        ui.mensaje?.let { msg ->
+            Text(
+                text = msg,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
             )
         }
 

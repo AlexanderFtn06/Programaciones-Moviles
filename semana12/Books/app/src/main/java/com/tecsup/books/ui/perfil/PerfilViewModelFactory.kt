@@ -10,6 +10,10 @@ class PerfilViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return PerfilViewModel(container.libroRepository) as T
+        return PerfilViewModel(
+            container.libroRepository,
+            container.authRepository,
+            container.ajustesRepository
+        ) as T
     }
 }

@@ -169,8 +169,8 @@ fun AppNav(container: AppContainer) {
                 }
 
                 composable("admin") {
-                    // Defensa extra: aunque la pestaña no aparece para el usuario, la ruta también valida el rol
-                    if (esAdmin) {
+                    val sesionAdmin = sesion
+                    if (esAdmin && sesionAdmin != null) {
                         val viewModel: AdminViewModel = viewModel(
                             factory = AdminViewModelFactory(container)
                         )
@@ -180,8 +180,8 @@ fun AppNav(container: AppContainer) {
                             EncabezadoSeccion("Admin")
                             AdminScreen(
                                 ui = ui,
-                                onSincronizar = viewModel::sincronizar,
-                                onLimpiarCache = viewModel::limpiarCache,
+                                onSincronizar = { viewModel.sincronizar(sesionAdmin) },
+                                onLimpiarCache = { viewModel.limpiarCache(sesionAdmin) },
                                 modifier = Modifier.weight(1f)
                             )
                         }
@@ -200,12 +200,17 @@ fun AppNav(container: AppContainer) {
                     val ui by viewModel.ui.collectAsStateWithLifecycle()
                     val sesionPerfil = sesion
 
+                    LaunchedEffect(sesionPerfil) {
+                        sesionPerfil?.let { viewModel.cargarDatosPerfil(it) }
+                    }
+
                     if (sesionPerfil != null) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             EncabezadoSeccion("Perfil")
                             PerfilScreen(
                                 sesion = sesionPerfil,
                                 ui = ui,
+                                onModoOscuroChange = viewModel::cambiarModoOscuro,
                                 onCerrarSesion = authViewModel::cerrarSesion,
                                 modifier = Modifier.weight(1f)
                             )

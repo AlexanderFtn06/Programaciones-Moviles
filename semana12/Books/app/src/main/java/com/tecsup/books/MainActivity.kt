@@ -8,7 +8,10 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.tecsup.books.ui.navigation.AppNav
 import com.tecsup.books.ui.theme.BooksTheme
 
@@ -19,9 +22,10 @@ class MainActivity : ComponentActivity() {
         val container = AppContainer(applicationContext)
 
         setContent {
-            BooksTheme {
-                // Si el usuario niega el permiso, la app funciona igual sin avisos (PA-14).
-                // No hace falta reaccionar al resultado: el notificador revisa el permiso
+            val modoOscuroGuardado by container.ajustesRepository.modoOscuro.collectAsStateWithLifecycle(initialValue = null)
+            val darkTheme = modoOscuroGuardado ?: isSystemInDarkTheme()
+
+            BooksTheme(darkTheme = darkTheme) {
                 val lanzador = rememberLauncherForActivityResult(
                     ActivityResultContracts.RequestPermission()
                 ) { }
