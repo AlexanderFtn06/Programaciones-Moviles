@@ -1,10 +1,15 @@
 package com.tecsup.books.ui.navigation
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -16,6 +21,9 @@ import com.tecsup.books.AppContainer
 import com.tecsup.books.ui.detalle.DetalleScreen
 import com.tecsup.books.ui.detalle.DetalleViewModel
 import com.tecsup.books.ui.detalle.DetalleViewModelFactory
+import com.tecsup.books.ui.favoritos.FavoritosScreen
+import com.tecsup.books.ui.favoritos.FavoritosViewModel
+import com.tecsup.books.ui.favoritos.FavoritosViewModelFactory
 import com.tecsup.books.ui.lista.ListaScreen
 import com.tecsup.books.ui.lista.ListaViewModel
 import com.tecsup.books.ui.lista.ListaViewModelFactory
@@ -36,10 +44,33 @@ fun AppNav(container: AppContainer) {
                 )
                 val estado by viewModel.estado.collectAsStateWithLifecycle()
 
-                ListaScreen(
+                Column(modifier = Modifier.fillMaxSize()) {
+                    TextButton(
+                        onClick = { navController.navigate("favoritos") },
+                        modifier = Modifier.padding(horizontal = 8.dp)
+                    ) {
+                        Text("Ver favoritos")
+                    }
+
+                    ListaScreen(
+                        estado = estado,
+                        onReintentar = viewModel::cargar,
+                        onLibroClick = { id -> navController.navigate("detalle/$id") },
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+            }
+
+            composable("favoritos") {
+                val viewModel: FavoritosViewModel = viewModel(
+                    factory = FavoritosViewModelFactory(container)
+                )
+                val estado by viewModel.estado.collectAsStateWithLifecycle()
+
+                FavoritosScreen(
                     estado = estado,
-                    onReintentar = viewModel::cargar,
-                    onLibroClick = { id -> navController.navigate("detalle/$id") }
+                    onLibroClick = { id -> navController.navigate("detalle/$id") },
+                    onVolver = { navController.popBackStack() }
                 )
             }
 
