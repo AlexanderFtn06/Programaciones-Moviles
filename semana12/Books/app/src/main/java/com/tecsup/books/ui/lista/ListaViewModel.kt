@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.books.data.repository.LibroRepository
 import com.tecsup.books.domain.model.Libro
+import com.tecsup.books.notification.Notificador
 import com.tecsup.books.ui.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,13 +13,13 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class ListaViewModel(
-    private val repositorio: LibroRepository
+    private val repositorio: LibroRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UiState<List<Libro>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Libro>>> = _estado.asStateFlow()
 
-    // true cuando el último refresco falló pero hay datos guardados para mostrar
     private val _sinConexion = MutableStateFlow(false)
     val sinConexion: StateFlow<Boolean> = _sinConexion.asStateFlow()
 
@@ -46,21 +47,21 @@ class ListaViewModel(
                 _estado.value = UiState.Cargando
             }
             repositorio.refrescar()
-                .onSuccess {
+                .onSuccess { cantidad ->
                     refrescoTerminado = true
                     _sinConexion.value = false
                     _estado.value = UiState.Exito(repositorio.libros.first())
+                    // Solo se notifica cuando la sincronización terminó bien (PA-05)
+                    notificador.notificarSincronizacion(cantidad)
                 }
                 .onFailure {
                     refrescoTerminado = true
                     if (repositorio.cantidadGuardada() == 0) {
-                        // Sin datos guardados: error con Reintentar (PA-09)
                         _sinConexion.value = false
                         _estado.value = UiState.Error(
                             "No se pudo cargar la lista. Revisa tu conexión e inténtalo de nuevo."
                         )
                     } else {
-                        // Con datos guardados: se muestran con el aviso (PA-08)
                         _sinConexion.value = true
                         _estado.value = UiState.Exito(repositorio.libros.first())
                     }

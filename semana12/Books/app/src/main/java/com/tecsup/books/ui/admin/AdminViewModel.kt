@@ -3,6 +3,7 @@ package com.tecsup.books.ui.admin
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.tecsup.books.data.repository.LibroRepository
+import com.tecsup.books.notification.Notificador
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,14 +19,14 @@ data class AdminUiState(
 )
 
 class AdminViewModel(
-    private val repositorio: LibroRepository
+    private val repositorio: LibroRepository,
+    private val notificador: Notificador
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(AdminUiState())
     val ui: StateFlow<AdminUiState> = _ui.asStateFlow()
 
     init {
-        // Los totales se actualizan solos cuando Room cambia
         viewModelScope.launch {
             combine(repositorio.libros, repositorio.favoritos) { libros, favoritos ->
                 libros.size to favoritos.size
@@ -43,6 +44,7 @@ class AdminViewModel(
                     _ui.update {
                         it.copy(sincronizando = false, mensaje = "Se guardaron $cantidad elementos")
                     }
+                    notificador.notificarSincronizacion(cantidad)
                 }
                 .onFailure {
                     _ui.update {

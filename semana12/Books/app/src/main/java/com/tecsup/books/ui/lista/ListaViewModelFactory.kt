@@ -10,6 +10,6 @@ class ListaViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return ListaViewModel(container.libroRepository) as T
+        return ListaViewModel(container.libroRepository, container.notificador) as T
     }
 }

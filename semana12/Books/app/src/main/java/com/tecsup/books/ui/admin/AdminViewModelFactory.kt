@@ -10,6 +10,6 @@ class AdminViewModelFactory(
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AdminViewModel(container.libroRepository) as T
+        return AdminViewModel(container.libroRepository, container.notificador) as T
     }
 }
