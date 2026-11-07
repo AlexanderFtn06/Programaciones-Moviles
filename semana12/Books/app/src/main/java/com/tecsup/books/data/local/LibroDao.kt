@@ -31,4 +31,10 @@ interface LibroDao {
 
     @Query("DELETE FROM libros")
     suspend fun borrarTodo()
+
+    @Query("SELECT * FROM libros WHERE id = :id")
+    suspend fun obtener(id: String): LibroEntity?
+
+    @Query("SELECT * FROM libros")
+    suspend fun listaActual(): List<LibroEntity>
 }

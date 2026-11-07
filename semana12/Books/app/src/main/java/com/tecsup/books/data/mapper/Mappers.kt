@@ -1,5 +1,6 @@
 package com.tecsup.books.data.mapper
 
+import com.tecsup.books.data.local.LibroEntity
 import com.tecsup.books.data.remote.dto.DetalleLibroDto
 import com.tecsup.books.data.remote.dto.LibroDto
 import com.tecsup.books.domain.model.Libro
@@ -8,6 +9,7 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
+// DTO de la lista -> modelo de UI
 fun LibroDto.aModelo(): Libro = Libro(
     id = key.removePrefix("/works/"),
     titulo = title,
@@ -16,7 +18,7 @@ fun LibroDto.aModelo(): Libro = Libro(
     anio = anio?.takeIf { it > 0 }?.toString()
 )
 
-// El detalle no trae autor: se toma del libro de la lista si está disponible
+// DTO del detalle -> modelo de UI. El detalle no trae autor: se toma del libro guardado
 fun DetalleLibroDto.aModeloDetalle(id: String, base: Libro?): Libro = Libro(
     id = id,
     titulo = title ?: base?.titulo ?: "Sin título",
@@ -26,6 +28,28 @@ fun DetalleLibroDto.aModeloDetalle(id: String, base: Libro?): Libro = Libro(
     esFavorito = base?.esFavorito ?: false,
     descripcion = description.aTexto(),
     anio = base?.anio ?: fechaPublicacion
+)
+
+// Entidad de Room -> modelo de UI
+fun LibroEntity.aModelo(): Libro = Libro(
+    id = id,
+    titulo = titulo,
+    autor = autor,
+    portadaUrl = portadaUrl,
+    esFavorito = esFavorito,
+    descripcion = descripcion,
+    anio = anio
+)
+
+// Modelo de UI -> entidad de Room
+fun Libro.aEntity(): LibroEntity = LibroEntity(
+    id = id,
+    titulo = titulo,
+    autor = autor,
+    portadaUrl = portadaUrl,
+    anio = anio,
+    descripcion = descripcion,
+    esFavorito = esFavorito
 )
 
 // La descripción puede ser texto o un objeto { "type", "value" }
