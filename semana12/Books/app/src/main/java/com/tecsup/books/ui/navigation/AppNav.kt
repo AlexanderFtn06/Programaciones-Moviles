@@ -146,7 +146,8 @@ fun AppNav(container: AppContainer) {
                             onReintentar = viewModel::cargar,
                             onLibroClick = { id -> navController.navigate("detalle/$id") },
                             modifier = Modifier.weight(1f),
-                            sinConexion = sinConexion
+                            sinConexion = sinConexion,
+                            onAlternarFavorito = if (esAdmin) null else viewModel::alternarFavorito
                         )
                     }
                 }

@@ -43,6 +43,13 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
+            text = "BookVerse",
+            style = MaterialTheme.typography.titleLarge,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
             text = "Bienvenido",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
