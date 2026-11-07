@@ -11,6 +11,7 @@ interface ApiService {
     @GET("search.json")
     suspend fun listar(
         @Query("subject") subject: String,
+        @Query("language") language: String,
         @Query("limit") limit: Int
     ): BusquedaDto
 

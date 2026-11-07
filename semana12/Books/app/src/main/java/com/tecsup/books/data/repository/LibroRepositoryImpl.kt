@@ -1,6 +1,7 @@
 package com.tecsup.books.data.repository
 
 import com.tecsup.books.data.mapper.aModelo
+import com.tecsup.books.data.mapper.aModeloDetalle
 import com.tecsup.books.data.remote.ApiService
 import com.tecsup.books.domain.model.Libro
 import kotlinx.coroutines.flow.Flow
@@ -23,7 +24,7 @@ class LibroRepositoryImpl(
         _libros.map { lista -> lista.filter { it.esFavorito } }
 
     override suspend fun refrescar(): Result<Int> = try {
-        val nuevos = api.listar(subject = "science_fiction", limit = 30)
+        val nuevos = api.listar(subject = "science_fiction", language = "spa", limit = 30)
             .docs
             .map { it.aModelo() }
         _libros.value = nuevos
@@ -45,6 +46,13 @@ class LibroRepositoryImpl(
         _libros.value = emptyList()
     }
 
-    override suspend fun obtenerDetalle(id: String): Result<Libro> =
-        TODO("Se implementa en H7")
+    override suspend fun obtenerDetalle(id: String): Result<Libro> = try {
+        val base = _libros.value.find { it.id == id }
+        val detalle = api.detalle(id)
+        Result.success(detalle.aModeloDetalle(id, base))
+    } catch (e: IOException) {
+        Result.failure(e)
+    } catch (e: HttpException) {
+        Result.failure(e)
+    }
 }
