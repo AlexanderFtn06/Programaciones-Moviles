@@ -1,12 +1,12 @@
 package com.tecsup.books.ui.navigation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.filled.AdminPanelSettings
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -17,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -29,10 +28,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.tecsup.books.AppContainer
 import com.tecsup.books.domain.model.Rol
-import com.tecsup.books.ui.admin.AdminScreen
-import com.tecsup.books.ui.admin.AdminViewModel
-import com.tecsup.books.ui.admin.AdminViewModelFactory
 import com.tecsup.books.ui.components.Cargando
+import com.tecsup.books.ui.components.EncabezadoSeccion
 import com.tecsup.books.ui.detalle.DetalleScreen
 import com.tecsup.books.ui.detalle.DetalleViewModel
 import com.tecsup.books.ui.detalle.DetalleViewModelFactory
@@ -45,11 +42,20 @@ import com.tecsup.books.ui.lista.ListaViewModelFactory
 import com.tecsup.books.ui.login.AuthViewModel
 import com.tecsup.books.ui.login.AuthViewModelFactory
 import com.tecsup.books.ui.login.LoginScreen
+import com.tecsup.books.ui.perfil.PerfilScreen
+import com.tecsup.books.ui.perfil.PerfilViewModel
+import com.tecsup.books.ui.perfil.PerfilViewModelFactory
 
 private data class Destino(
     val ruta: String,
     val etiqueta: String,
     val icono: ImageVector
+)
+
+private val destinos = listOf(
+    Destino("lista", "Catálogo", Icons.Filled.Home),
+    Destino("favoritos", "Favoritos", Icons.Filled.Favorite),
+    Destino("perfil", "Perfil", Icons.Filled.Person)
 )
 
 @Composable
@@ -58,20 +64,12 @@ fun AppNav(container: AppContainer) {
     val authViewModel: AuthViewModel = viewModel(factory = AuthViewModelFactory(container))
     val sesion by authViewModel.sesion.collectAsStateWithLifecycle()
     val restaurando by authViewModel.restaurando.collectAsStateWithLifecycle()
-    val esAdmin = sesion?.rol == Rol.ADMIN
 
     val entrada by navController.currentBackStackEntryAsState()
     val rutaActual = entrada?.destination?.route
-
-    // El rol decide qué pestañas se ven (R02)
-    val destinos = buildList {
-        add(Destino("lista", "Catálogo", Icons.Filled.Home))
-        add(Destino("favoritos", "Favoritos", Icons.Filled.Favorite))
-        if (esAdmin) add(Destino("admin", "Admin", Icons.Filled.AdminPanelSettings))
-    }
     val rutasPrincipales = destinos.map { it.ruta }
 
-    // Si cambia la sesión, redirige: al entrar va a Lista; al salir vuelve a Login
+    // Si cambia la sesión, redirige: al entrar va a Catálogo; al salir vuelve a Login
     LaunchedEffect(sesion) {
         val rutaActualEfecto = navController.currentBackStackEntry?.destination?.route
         if (sesion != null && rutaActualEfecto == "login") {
@@ -97,17 +95,6 @@ fun AppNav(container: AppContainer) {
                             label = { Text(destino.etiqueta) }
                         )
                     }
-                    NavigationBarItem(
-                        selected = false,
-                        onClick = authViewModel::cerrarSesion,
-                        icon = {
-                            Icon(
-                                Icons.AutoMirrored.Filled.Logout,
-                                contentDescription = "Cerrar sesión"
-                            )
-                        },
-                        label = { Text("Salir") }
-                    )
                 }
             }
         }
@@ -139,13 +126,16 @@ fun AppNav(container: AppContainer) {
                     val estado by viewModel.estado.collectAsStateWithLifecycle()
                     val sinConexion by viewModel.sinConexion.collectAsStateWithLifecycle()
 
-                    ListaScreen(
-                        estado = estado,
-                        onReintentar = viewModel::cargar,
-                        onLibroClick = { id -> navController.navigate("detalle/$id") },
-                        modifier = Modifier.fillMaxSize(),
-                        sinConexion = sinConexion
-                    )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        EncabezadoSeccion("Libros")
+                        ListaScreen(
+                            estado = estado,
+                            onReintentar = viewModel::cargar,
+                            onLibroClick = { id -> navController.navigate("detalle/$id") },
+                            modifier = Modifier.weight(1f),
+                            sinConexion = sinConexion
+                        )
+                    }
                 }
 
                 composable("favoritos") {
@@ -154,32 +144,35 @@ fun AppNav(container: AppContainer) {
                     )
                     val estado by viewModel.estado.collectAsStateWithLifecycle()
 
-                    FavoritosScreen(
-                        estado = estado,
-                        onLibroClick = { id -> navController.navigate("detalle/$id") },
-                        onVolver = { navController.popBackStack() }
-                    )
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        EncabezadoSeccion("Favoritos")
+                        FavoritosScreen(
+                            estado = estado,
+                            onLibroClick = { id -> navController.navigate("detalle/$id") },
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
                 }
 
-                composable("admin") {
-                    // Defensa extra: aunque la pestaña no aparece, la ruta también valida el rol
-                    if (!esAdmin) {
-                        Text(
-                            text = "No tienes acceso a esta pantalla.",
-                            modifier = Modifier.padding(24.dp)
-                        )
-                    } else {
-                        val viewModel: AdminViewModel = viewModel(
-                            factory = AdminViewModelFactory(container)
-                        )
-                        val ui by viewModel.ui.collectAsStateWithLifecycle()
+                composable("perfil") {
+                    val viewModel: PerfilViewModel = viewModel(
+                        factory = PerfilViewModelFactory(container)
+                    )
+                    val ui by viewModel.ui.collectAsStateWithLifecycle()
+                    val sesionPerfil = sesion
 
-                        AdminScreen(
-                            ui = ui,
-                            onSincronizar = viewModel::sincronizar,
-                            onLimpiarCache = viewModel::limpiarCache,
-                            modifier = Modifier.fillMaxSize()
-                        )
+                    if (sesionPerfil != null) {
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            EncabezadoSeccion("Perfil")
+                            PerfilScreen(
+                                sesion = sesionPerfil,
+                                ui = ui,
+                                onSincronizar = viewModel::sincronizar,
+                                onLimpiarCache = viewModel::limpiarCache,
+                                onCerrarSesion = authViewModel::cerrarSesion,
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
                     }
                 }
 
