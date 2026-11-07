@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -23,6 +24,7 @@ fun DetalleScreen(
     estado: UiState<Libro>,
     onReintentar: () -> Unit,
     onVolver: () -> Unit,
+    onAlternarFavorito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     when (estado) {
@@ -37,6 +39,7 @@ fun DetalleScreen(
         is UiState.Exito -> DetalleContenido(
             libro = estado.datos,
             onVolver = onVolver,
+            onAlternarFavorito = onAlternarFavorito,
             modifier = modifier
         )
     }
@@ -46,6 +49,7 @@ fun DetalleScreen(
 private fun DetalleContenido(
     libro: Libro,
     onVolver: () -> Unit,
+    onAlternarFavorito: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -71,6 +75,13 @@ private fun DetalleContenido(
                 text = "Primera publicación: $it",
                 style = MaterialTheme.typography.bodyMedium
             )
+        }
+
+        Button(
+            onClick = onAlternarFavorito,
+            modifier = Modifier.padding(top = 12.dp)
+        ) {
+            Text(if (libro.esFavorito) "Quitar de favoritos" else "Agregar a favoritos")
         }
 
         Spacer(modifier = Modifier.height(16.dp))

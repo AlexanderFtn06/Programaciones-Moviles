@@ -46,8 +46,9 @@ class LibroRepositoryImpl(
         Result.failure(e)
     }
 
-    override suspend fun alternarFavorito(id: String) = TODO("Se implementa en H10")
-
+    override suspend fun alternarFavorito(id: String) {
+        dao.alternarFavorito(id)
+    }
     override suspend fun cantidadGuardada(): Int = dao.contar()
 
     override suspend fun cantidadFavoritos(): Int = dao.contarFavoritos()

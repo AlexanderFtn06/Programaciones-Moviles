@@ -57,7 +57,8 @@ fun AppNav(container: AppContainer) {
                 DetalleScreen(
                     estado = estado,
                     onReintentar = viewModel::cargar,
-                    onVolver = { navController.popBackStack() }
+                    onVolver = { navController.popBackStack() },
+                    onAlternarFavorito = viewModel::alternarFavorito
                 )
             }
         }
