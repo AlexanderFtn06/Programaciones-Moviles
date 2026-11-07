@@ -140,13 +140,14 @@ fun AppNav(container: AppContainer) {
                     val sinConexion by viewModel.sinConexion.collectAsStateWithLifecycle()
 
                     Column(modifier = Modifier.fillMaxSize()) {
-                        EncabezadoSeccion("Libros")
+                        EncabezadoSeccion("BookVerse")
                         ListaScreen(
                             estado = estado,
                             onReintentar = viewModel::cargar,
                             onLibroClick = { id -> navController.navigate("detalle/$id") },
                             modifier = Modifier.weight(1f),
-                            sinConexion = sinConexion
+                            sinConexion = sinConexion,
+                            onAlternarFavorito = if (esAdmin) null else viewModel::alternarFavorito
                         )
                     }
                 }
