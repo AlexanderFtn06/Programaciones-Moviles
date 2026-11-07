@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.tecsup.books.domain.model.Libro
 import com.tecsup.books.ui.UiState
+import com.tecsup.books.ui.components.AvisoSinConexion
 import com.tecsup.books.ui.components.Cargando
 import com.tecsup.books.ui.components.ErrorView
 
@@ -24,7 +25,8 @@ fun ListaScreen(
     estado: UiState<List<Libro>>,
     onReintentar: () -> Unit,
     onLibroClick: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    sinConexion: Boolean = false
 ) {
     when (estado) {
         is UiState.Cargando -> Cargando(modifier)
@@ -35,11 +37,15 @@ fun ListaScreen(
             modifier = modifier
         )
 
-        is UiState.Exito -> {
+        is UiState.Exito -> Column(modifier = modifier.fillMaxSize()) {
+            if (sinConexion) {
+                AvisoSinConexion()
+            }
+
             if (estado.datos.isEmpty()) {
-                VistaVacia(modifier)
+                VistaVacia(Modifier.weight(1f))
             } else {
-                LazyColumn(modifier = modifier.fillMaxSize()) {
+                LazyColumn(modifier = Modifier.weight(1f)) {
                     items(estado.datos, key = { it.id }) { libro ->
                         LibroItem(
                             libro = libro,

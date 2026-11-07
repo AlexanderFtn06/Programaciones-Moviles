@@ -43,6 +43,7 @@ fun AppNav(container: AppContainer) {
                     factory = ListaViewModelFactory(container)
                 )
                 val estado by viewModel.estado.collectAsStateWithLifecycle()
+                val sinConexion by viewModel.sinConexion.collectAsStateWithLifecycle()
 
                 Column(modifier = Modifier.fillMaxSize()) {
                     TextButton(
@@ -56,6 +57,7 @@ fun AppNav(container: AppContainer) {
                         estado = estado,
                         onReintentar = viewModel::cargar,
                         onLibroClick = { id -> navController.navigate("detalle/$id") },
+                        sinConexion = sinConexion,
                         modifier = Modifier.weight(1f)
                     )
                 }

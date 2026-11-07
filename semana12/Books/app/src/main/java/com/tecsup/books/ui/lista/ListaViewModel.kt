@@ -18,6 +18,10 @@ class ListaViewModel(
     private val _estado = MutableStateFlow<UiState<List<Libro>>>(UiState.Cargando)
     val estado: StateFlow<UiState<List<Libro>>> = _estado.asStateFlow()
 
+    // true cuando el último refresco falló pero hay datos guardados para mostrar
+    private val _sinConexion = MutableStateFlow(false)
+    val sinConexion: StateFlow<Boolean> = _sinConexion.asStateFlow()
+
     // true cuando el último refresco ya terminó (con éxito o con error)
     private var refrescoTerminado = false
 
@@ -25,11 +29,8 @@ class ListaViewModel(
         viewModelScope.launch {
             repositorio.libros.collect { lista ->
                 when {
-                    // Hay datos guardados: se muestran
                     lista.isNotEmpty() -> _estado.value = UiState.Exito(lista)
 
-                    // Room está vacío después del refresco y no hubo error: estado Vacío
-                    // Si hubo error, no se sobrescribe: el usuario debe ver el mensaje con Reintentar
                     refrescoTerminado && _estado.value !is UiState.Error ->
                         _estado.value = UiState.Exito(lista)
                 }
@@ -47,14 +48,21 @@ class ListaViewModel(
             repositorio.refrescar()
                 .onSuccess {
                     refrescoTerminado = true
+                    _sinConexion.value = false
                     _estado.value = UiState.Exito(repositorio.libros.first())
                 }
                 .onFailure {
                     refrescoTerminado = true
                     if (repositorio.cantidadGuardada() == 0) {
+                        // Sin datos guardados: error con Reintentar (PA-09)
+                        _sinConexion.value = false
                         _estado.value = UiState.Error(
                             "No se pudo cargar la lista. Revisa tu conexión e inténtalo de nuevo."
                         )
+                    } else {
+                        // Con datos guardados: se muestran con el aviso (PA-08)
+                        _sinConexion.value = true
+                        _estado.value = UiState.Exito(repositorio.libros.first())
                     }
                 }
         }
