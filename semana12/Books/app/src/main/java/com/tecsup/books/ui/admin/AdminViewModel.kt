@@ -43,6 +43,7 @@ class AdminViewModel(
 
     fun cargarDatos(sesion: Sesion) {
         if (sesion.rol == Rol.ADMIN && sesion.rolConfirmado) {
+            _ui.update { it.copy(totalUsuarios = null) }
             viewModelScope.launch {
                 authRepository.contarUsuarios()
                     .onSuccess { total ->
@@ -52,6 +53,8 @@ class AdminViewModel(
                         _ui.update { it.copy(totalUsuarios = null) }
                     }
             }
+        } else {
+            _ui.update { it.copy(totalUsuarios = null) }
         }
     }
 

@@ -56,8 +56,8 @@ class PerfilViewModel(
                     .onSuccess { total ->
                         _ui.update { it.copy(totalUsuarios = total, cargandoUsuarios = false) }
                     }
-                    .onFailure { error ->
-                        _ui.update { it.copy(cargandoUsuarios = false, mensaje = error.localizedMessage) }
+                    .onFailure {
+                        _ui.update { it.copy(totalUsuarios = null, cargandoUsuarios = false) }
                     }
             }
         } else if (!sesion.rolConfirmado) {

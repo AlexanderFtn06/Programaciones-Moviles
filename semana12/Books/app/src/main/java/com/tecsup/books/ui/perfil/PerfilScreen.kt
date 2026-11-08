@@ -119,6 +119,14 @@ fun PerfilScreen(
 
 @Composable
 private fun TarjetaUsuario(sesion: Sesion) {
+    val nombreCompleto = buildString {
+        append(sesion.nombre)
+        if (!sesion.apellido.isNullOrBlank()) {
+            append(" ")
+            append(sesion.apellido)
+        }
+    }
+
     Card(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -140,7 +148,7 @@ private fun TarjetaUsuario(sesion: Sesion) {
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(
-                    text = sesion.nombre,
+                    text = nombreCompleto,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -149,6 +157,13 @@ private fun TarjetaUsuario(sesion: Sesion) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                sesion.edad?.let { edad ->
+                    Text(
+                        text = "$edad años",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
                 Text(
                     text = if (sesion.rol == Rol.ADMIN) "Administrador" else "Usuario",
                     style = MaterialTheme.typography.labelLarge,

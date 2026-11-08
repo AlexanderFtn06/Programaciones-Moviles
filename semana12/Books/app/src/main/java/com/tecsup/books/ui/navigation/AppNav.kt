@@ -50,6 +50,9 @@ import com.tecsup.books.ui.login.LoginScreen
 import com.tecsup.books.ui.perfil.PerfilScreen
 import com.tecsup.books.ui.perfil.PerfilViewModel
 import com.tecsup.books.ui.perfil.PerfilViewModelFactory
+import com.tecsup.books.ui.registro.RegistroScreen
+import com.tecsup.books.ui.registro.RegistroViewModel
+import com.tecsup.books.ui.registro.RegistroViewModelFactory
 
 private data class Destino(
     val ruta: String,
@@ -128,6 +131,31 @@ fun AppNav(container: AppContainer) {
                         onCorreoChange = authViewModel::cambiarCorreo,
                         onClaveChange = authViewModel::cambiarClave,
                         onIngresar = authViewModel::iniciarSesion,
+                        onIrARegistro = { navController.navigate("registro") },
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                composable("registro") {
+                    val viewModel: RegistroViewModel = viewModel(
+                        factory = RegistroViewModelFactory(container)
+                    )
+                    val ui by viewModel.ui.collectAsStateWithLifecycle()
+
+                    RegistroScreen(
+                        ui = ui,
+                        onNombreChange = viewModel::cambiarNombre,
+                        onApellidoChange = viewModel::cambiarApellido,
+                        onEdadChange = viewModel::cambiarEdad,
+                        onCorreoChange = viewModel::cambiarCorreo,
+                        onClaveChange = viewModel::cambiarClave,
+                        onConfirmarClaveChange = viewModel::cambiarConfirmarClave,
+                        onRegistrarse = {
+                            viewModel.registrar { sesionNueva ->
+                                authViewModel.actualizarSesion(sesionNueva)
+                            }
+                        },
+                        onVolverALogin = { navController.popBackStack() },
                         modifier = Modifier.fillMaxSize()
                     )
                 }

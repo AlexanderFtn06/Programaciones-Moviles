@@ -8,7 +8,14 @@ service cloud.firestore {
         exists(/databases/$(database)/documents/usuarios/$(request.auth.uid)) &&
         get(/databases/$(database)/documents/usuarios/$(request.auth.uid)).data.rol == 'admin';
 
-      allow write: if false;
+      allow create: if request.auth != null &&
+        request.auth.uid == uid &&
+        request.resource.data.rol == 'usuario' &&
+        request.resource.data.keys().hasOnly(['rol', 'nombre', 'apellido', 'edad', 'correo']);
+
+      allow update: if false;
+
+      allow delete: if false;
     }
   }
 }

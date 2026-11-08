@@ -74,6 +74,11 @@ class AuthViewModel(
         }
     }
 
+    fun actualizarSesion(nuevaSesion: Sesion) {
+        _ui.update { LoginUiState() }
+        _sesion.value = nuevaSesion
+    }
+
     fun cerrarSesion() {
         viewModelScope.launch {
             authRepository.cerrarSesion()

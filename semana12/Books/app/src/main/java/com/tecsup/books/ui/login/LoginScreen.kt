@@ -34,6 +34,7 @@ fun LoginScreen(
     onCorreoChange: (String) -> Unit,
     onClaveChange: (String) -> Unit,
     onIngresar: () -> Unit,
+    onIrARegistro: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -88,7 +89,6 @@ fun LoginScreen(
             modifier = Modifier.fillMaxWidth()
         )
 
-        // Sin función por ahora: se conecta más adelante
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.End
@@ -137,7 +137,7 @@ fun LoginScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            TextButton(onClick = { }) {
+            TextButton(onClick = onIrARegistro, enabled = !ui.cargando) {
                 Text("Regístrate", fontWeight = FontWeight.Bold)
             }
         }
