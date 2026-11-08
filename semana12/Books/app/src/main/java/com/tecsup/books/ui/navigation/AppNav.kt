@@ -176,6 +176,10 @@ fun AppNav(container: AppContainer) {
                         )
                         val ui by viewModel.ui.collectAsStateWithLifecycle()
 
+                        LaunchedEffect(sesionAdmin) {
+                            viewModel.cargarDatos(sesionAdmin)
+                        }
+
                         Column(modifier = Modifier.fillMaxSize()) {
                             EncabezadoSeccion("Admin")
                             AdminScreen(

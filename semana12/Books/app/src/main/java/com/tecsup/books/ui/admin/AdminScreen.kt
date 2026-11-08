@@ -6,7 +6,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -23,21 +26,31 @@ fun AdminScreen(
     modifier: Modifier = Modifier
 ) {
     Column(
-        modifier = modifier.fillMaxSize().padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = "Panel Admin",
             style = MaterialTheme.typography.headlineSmall
         )
-        Text(
-            text = "Libros guardados: ${ui.totalGuardados}",
-            style = MaterialTheme.typography.bodyLarge
-        )
-        Text(
-            text = "Favoritos: ${ui.totalFavoritos}",
-            style = MaterialTheme.typography.bodyLarge
-        )
+
+        Card(modifier = Modifier.fillMaxWidth()) {
+            GraficaBarras(
+                totalGuardados = ui.totalGuardados,
+                totalFavoritos = ui.totalFavoritos,
+                totalUsuarios = ui.totalUsuarios
+            )
+        }
+
+        Card(modifier = Modifier.fillMaxWidth()) {
+            GraficaDona(
+                totalGuardados = ui.totalGuardados,
+                totalFavoritos = ui.totalFavoritos
+            )
+        }
 
         Button(
             onClick = onSincronizar,
@@ -62,7 +75,8 @@ fun AdminScreen(
         ui.mensaje?.let {
             Text(
                 text = it,
-                style = MaterialTheme.typography.bodyMedium
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.error
             )
         }
     }

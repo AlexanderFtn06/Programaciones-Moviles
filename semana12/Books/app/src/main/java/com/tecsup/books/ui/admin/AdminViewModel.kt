@@ -2,6 +2,7 @@ package com.tecsup.books.ui.admin
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.tecsup.books.data.auth.AuthRepository
 import com.tecsup.books.data.repository.LibroRepository
 import com.tecsup.books.domain.model.Rol
 import com.tecsup.books.domain.model.Sesion
@@ -16,13 +17,15 @@ import kotlinx.coroutines.launch
 data class AdminUiState(
     val totalGuardados: Int = 0,
     val totalFavoritos: Int = 0,
+    val totalUsuarios: Int? = null,
     val sincronizando: Boolean = false,
     val mensaje: String? = null
 )
 
 class AdminViewModel(
     private val repositorio: LibroRepository,
-    private val notificador: Notificador
+    private val notificador: Notificador,
+    private val authRepository: AuthRepository
 ) : ViewModel() {
 
     private val _ui = MutableStateFlow(AdminUiState())
@@ -34,6 +37,20 @@ class AdminViewModel(
                 libros.size to favoritos.size
             }.collect { (guardados, favoritos) ->
                 _ui.update { it.copy(totalGuardados = guardados, totalFavoritos = favoritos) }
+            }
+        }
+    }
+
+    fun cargarDatos(sesion: Sesion) {
+        if (sesion.rol == Rol.ADMIN && sesion.rolConfirmado) {
+            viewModelScope.launch {
+                authRepository.contarUsuarios()
+                    .onSuccess { total ->
+                        _ui.update { it.copy(totalUsuarios = total) }
+                    }
+                    .onFailure {
+                        _ui.update { it.copy(totalUsuarios = null) }
+                    }
             }
         }
     }
