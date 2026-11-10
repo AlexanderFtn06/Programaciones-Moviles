@@ -12,7 +12,8 @@ interface ApiService {
     suspend fun listar(
         @Query("subject") subject: String,
         @Query("language") language: String,
-        @Query("limit") limit: Int
+        @Query("limit") limit: Int,
+        @Query("fields") fields: String = "key,title,author_name,cover_i,first_publish_year,subject"
     ): BusquedaDto
 
     @GET("works/{id}.json")

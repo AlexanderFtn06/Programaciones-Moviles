@@ -29,13 +29,16 @@ class LibroRepositoryImpl(
             .docs
             .map { it.aModelo().aEntity() }
 
-        // Conservamos los favoritos y las descripciones ya guardadas, porque upsert reemplaza la fila completa
+
+
+        // Conservamos favoritos, descripciones y temas ya guardados si la API no los trae
         val previos = dao.listaActual().associateBy { it.id }
         val fusionados = remotos.map { nuevo ->
             val previo = previos[nuevo.id]
             nuevo.copy(
                 esFavorito = previo?.esFavorito ?: false,
-                descripcion = previo?.descripcion
+                descripcion = previo?.descripcion,
+                temas = if (nuevo.temas.isNotBlank()) nuevo.temas else (previo?.temas ?: "")
             )
         }
         dao.guardarTodos(fusionados)
@@ -49,6 +52,7 @@ class LibroRepositoryImpl(
     override suspend fun alternarFavorito(id: String) {
         dao.alternarFavorito(id)
     }
+
     override suspend fun cantidadGuardada(): Int = dao.contar()
 
     override suspend fun cantidadFavoritos(): Int = dao.contarFavoritos()
