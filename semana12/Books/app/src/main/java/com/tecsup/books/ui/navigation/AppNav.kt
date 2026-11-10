@@ -166,11 +166,21 @@ fun AppNav(container: AppContainer) {
                     )
                     val estado by viewModel.estado.collectAsStateWithLifecycle()
                     val sinConexion by viewModel.sinConexion.collectAsStateWithLifecycle()
+                    val busqueda by viewModel.busqueda.collectAsStateWithLifecycle()
+                    val categoriaSeleccionada by viewModel.categoriaSeleccionada.collectAsStateWithLifecycle()
+                    val categorias by viewModel.categorias.collectAsStateWithLifecycle()
+                    val hayLibrosEnCatalogo by viewModel.hayLibrosEnCatalogo.collectAsStateWithLifecycle()
 
                     Column(modifier = Modifier.fillMaxSize()) {
                         EncabezadoSeccion("BookVerse")
                         ListaScreen(
                             estado = estado,
+                            busqueda = busqueda,
+                            categoriaSeleccionada = categoriaSeleccionada,
+                            categorias = categorias,
+                            hayLibrosEnCatalogo = hayLibrosEnCatalogo,
+                            onBusquedaChange = viewModel::cambiarBusqueda,
+                            onCategoriaSelect = viewModel::seleccionarCategoria,
                             onReintentar = viewModel::cargar,
                             onLibroClick = { id -> navController.navigate("detalle/$id") },
                             modifier = Modifier.weight(1f),

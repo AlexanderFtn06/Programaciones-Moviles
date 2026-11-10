@@ -12,10 +12,19 @@ fun FavoritosScreen(
     onLibroClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val hayLibros = (estado as? UiState.Exito)?.datos?.isNotEmpty() ?: false
+
     ListaScreen(
         estado = estado,
+        busqueda = "",
+        categoriaSeleccionada = null,
+        categorias = emptyList(),
+        hayLibrosEnCatalogo = hayLibros,
+        onBusquedaChange = {},
+        onCategoriaSelect = {},
         onReintentar = {},
         onLibroClick = onLibroClick,
-        modifier = modifier
+        modifier = modifier,
+        mostrarBuscador = false
     )
 }
