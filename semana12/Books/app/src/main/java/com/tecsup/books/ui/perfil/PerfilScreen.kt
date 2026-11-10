@@ -8,11 +8,19 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.AdminPanelSettings
+import androidx.compose.material.icons.filled.Book
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -25,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.tecsup.books.domain.model.Rol
@@ -36,11 +45,15 @@ fun PerfilScreen(
     ui: PerfilUiState,
     onModoOscuroChange: (Boolean) -> Unit,
     onCerrarSesion: () -> Unit,
+    onIrACatalogo: () -> Unit,
+    onIrAFavoritos: () -> Unit,
+    onIrAAdmin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
         modifier = modifier
             .fillMaxWidth()
+            .verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
@@ -54,29 +67,121 @@ fun PerfilScreen(
             )
         }
 
+        // Tarjetas Estadísticas Clicables con Íconos Diferenciados y Flecha
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            TarjetaEstadistica(
+            TarjetaEstadisticaClicable(
                 titulo = "Libros",
                 valor = ui.totalGuardados.toString(),
+                icono = Icons.Filled.Book,
+                onClick = onIrACatalogo,
                 modifier = Modifier.weight(1f)
             )
-            TarjetaEstadistica(
+
+            TarjetaEstadisticaClicable(
                 titulo = "Favoritos",
                 valor = ui.totalFavoritos.toString(),
+                icono = Icons.Filled.Favorite,
+                onClick = if (sesion.rol == Rol.ADMIN) onIrAAdmin else onIrAFavoritos,
                 modifier = Modifier.weight(1f)
             )
+
             if (sesion.rol == Rol.ADMIN && sesion.rolConfirmado) {
-                TarjetaEstadistica(
+                TarjetaEstadisticaClicable(
                     titulo = "Usuarios",
                     valor = ui.totalUsuarios?.toString() ?: "...",
+                    icono = Icons.Filled.AdminPanelSettings,
+                    onClick = onIrAAdmin,
                     modifier = Modifier.weight(1f)
                 )
             }
         }
 
+        // Bloques exclusivos para el rol ADMINISTRADOR
+        if (sesion.rol == Rol.ADMIN) {
+            // Bloque "Accesos rápidos"
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    Text(
+                        text = "Accesos rápidos",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        OutlinedButton(
+                            onClick = onIrACatalogo,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Home,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Catálogo")
+                        }
+
+                        OutlinedButton(
+                            onClick = onIrAAdmin,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.AdminPanelSettings,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Panel Admin")
+                        }
+                    }
+                }
+            }
+
+            // Bloque "Resumen de Actividad"
+            Card(modifier = Modifier.fillMaxWidth()) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = "Resumen de Actividad",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+
+                    Text(
+                        text = "• Libros guardados en catálogo: ${ui.totalGuardados}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    Text(
+                        text = "• Libros en favoritos: ${ui.totalFavoritos}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
+                    if (sesion.rolConfirmado) {
+                        Text(
+                            text = "• Usuarios registrados en sistema: ${ui.totalUsuarios ?: 0}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+        }
+
+        // Bloque de Ajustes (Modo Oscuro)
         Card(modifier = Modifier.fillMaxWidth()) {
             Row(
                 modifier = Modifier
@@ -114,6 +219,8 @@ fun PerfilScreen(
         ) {
             Text("Cerrar sesión")
         }
+
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -175,25 +282,60 @@ private fun TarjetaUsuario(sesion: Sesion) {
 }
 
 @Composable
-private fun TarjetaEstadistica(titulo: String, valor: String, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+private fun TarjetaEstadisticaClicable(
+    titulo: String,
+    valor: String,
+    icono: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        onClick = onClick,
+        modifier = modifier
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(
-                text = valor,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text(
-                text = titulo,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Center
+            ) {
+                Icon(
+                    imageVector = icono,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.primary
+                )
+                Spacer(modifier = Modifier.width(4.dp))
+                Text(
+                    text = valor,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+            }
+
+            Spacer(modifier = Modifier.height(2.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = titulo,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.width(2.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(12.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
