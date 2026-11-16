@@ -4,17 +4,15 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -65,14 +63,17 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     }
 
-    Scaffold(topBar = {
-        TopAppBar(
-        title = { Text("CampusGPS", fontWeight = FontWeight.Bold) },
-        colors = TopAppBarDefaults.topAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary
-        )
-    )}) { padding ->
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("CampusGPS", fontWeight = FontWeight.Bold) },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
         Column(
             modifier = Modifier.padding(padding).fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -91,22 +92,27 @@ fun PantallaMapa(vm: MapaViewModel) {
             ) { Text("Obtener mi ubicación") }
 
             when (val e = estado) {
-                UbicacionUi.Inicial -> {}
+                UbicacionUi.Inicial -> Text(
+                    "Pulsa el botón para empezar",
+                    modifier = Modifier.padding(8.dp)
+                )
                 UbicacionUi.Buscando -> CircularProgressIndicator(
                     modifier = Modifier.padding(8.dp)
                 )
-                is UbicacionUi.Lista -> {
-                    Text("Latitud: ${e.posicion.latitud}", modifier = Modifier.padding(top = 8.dp))
-                    Text("Longitud: ${e.posicion.longitud}", modifier = Modifier.padding(bottom = 12.dp))
-                }
+                is UbicacionUi.Lista -> {}
                 is UbicacionUi.Error -> Text(
                     e.mensaje,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(12.dp)
                 )
             }
-            // Espacio reservado para la lista de lugares (se reemplaza en el Paso 6)
-            Spacer(Modifier.height(220.dp))
+
+            ListaLugares(
+                lugares = lugares,
+                seleccionado = seleccionado,
+                onClick = { vm.seleccionar(it) },
+                modifier = Modifier.height(220.dp).fillMaxWidth()
+            )
         }
     }
 }
