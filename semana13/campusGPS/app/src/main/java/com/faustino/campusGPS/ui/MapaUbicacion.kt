@@ -2,10 +2,12 @@ package com.faustino.campusGPS.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import com.faustino.campusGPS.model.LugarConDistancia
 import com.faustino.campusGPS.model.UbicacionUi
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -43,6 +45,20 @@ fun MapaUbicacion(
             Marker(state = miMarcador, title = "Estás aquí")
             LaunchedEffect(miMarcador) { miMarcador.showInfoWindow() }
         }
-        // TODO 3 (Paso 4): un Marker por cada lugar
+
+        lugares.forEach { item ->
+            key(item.lugar.id) {
+                Marker(
+                    state = rememberUpdatedMarkerState(
+                        position = LatLng(item.lugar.latitud, item.lugar.longitud)
+                    ),
+                    title = item.lugar.nombre,
+                    snippet = item.lugar.categoria,
+                    icon = BitmapDescriptorFactory.defaultMarker(
+                        BitmapDescriptorFactory.HUE_AZURE
+                    )
+                )
+            }
+        }
     }
 }
