@@ -1,6 +1,6 @@
-package com.tecsup.campusGPS.data
+package com.faustino.campusGPS.data
 
-import com.tecsup.campusGPS.model.Posicion
+import com.faustino.campusGPS.model.Posicion
 
 interface UbicacionRepository {
     suspend fun obtenerPosicion(): Result<Posicion>

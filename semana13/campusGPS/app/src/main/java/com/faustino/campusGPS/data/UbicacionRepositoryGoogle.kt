@@ -1,10 +1,10 @@
-package com.tecsup.campusGPS.data
+package com.faustino.campusGPS.data
 
 import android.annotation.SuppressLint
 import android.content.Context
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.tecsup.campusGPS.model.Posicion
+import com.faustino.campusGPS.model.Posicion
 import kotlinx.coroutines.tasks.await
 
 class UbicacionRepositoryGoogle(context: Context) : UbicacionRepository {

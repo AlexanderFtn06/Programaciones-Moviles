@@ -6,8 +6,8 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.tecsup.campusGPS.model.LugarConDistancia
-import com.tecsup.campusGPS.model.UbicacionUi
+import com.faustino.campusGPS.model.LugarConDistancia
+import com.faustino.campusGPS.model.UbicacionUi
 
 @Composable
 fun MapaUbicacion(

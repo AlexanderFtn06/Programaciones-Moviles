@@ -1,9 +1,9 @@
-package com.tecsup.campusGPS.viewmodel
+package com.faustino.campusGPS.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.tecsup.campusGPS.data.LugaresRepository
-import com.tecsup.campusGPS.data.UbicacionRepository
+import com.faustino.campusGPS.data.LugaresRepository
+import com.faustino.campusGPS.data.UbicacionRepository
 
 class CampusViewModelFactory(
     private val ubicacionRepo: UbicacionRepository,

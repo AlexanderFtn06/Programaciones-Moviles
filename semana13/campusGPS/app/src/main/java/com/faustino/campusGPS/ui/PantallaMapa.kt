@@ -1,4 +1,4 @@
-package com.tecsup.campusGPS.ui
+package com.faustino.campusGPS.ui
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,8 +19,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.tecsup.campusGPS.model.UbicacionUi
-import com.tecsup.campusGPS.viewmodel.MapaViewModel
+import com.faustino.campusGPS.model.UbicacionUi
+import com.faustino.campusGPS.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,6 +1,6 @@
-package com.tecsup.campusGPS.data
+package com.faustino.campusGPS.data
 
-import com.tecsup.campusGPS.model.Lugar
+import com.faustino.campusGPS.model.Lugar
 
 interface LugaresRepository {
     fun obtenerLugares(): List<Lugar>

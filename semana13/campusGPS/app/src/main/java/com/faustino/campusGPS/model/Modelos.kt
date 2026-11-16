@@ -1,5 +1,4 @@
-package com.tecsup.campusGPS.model
-
+package com.faustino.campusGPS.model
 data class Posicion(val latitud: Double, val longitud: Double)
 
 data class Lugar(
