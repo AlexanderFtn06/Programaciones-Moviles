@@ -1,11 +1,14 @@
 package com.faustino.campusGPS.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.faustino.campusGPS.data.LugaresRepository
 import com.faustino.campusGPS.data.UbicacionRepository
 import com.faustino.campusGPS.model.LugarConDistancia
+import com.faustino.campusGPS.model.Posicion
 import com.faustino.campusGPS.model.UbicacionUi
+import com.faustino.campusGPS.util.distanciaMetros
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +36,8 @@ class MapaViewModel(
             ubicacionRepo.obtenerPosicion()
                 .onSuccess {
                     _estado.value = UbicacionUi.Lista(it)
-                    // TODO Paso 5: actualizarDistancias(it)
+                    actualizarDistancias(it)
+
                 }
                 .onFailure { _estado.value = UbicacionUi.Error(mensajeDe(it)) }
         }
@@ -45,6 +49,14 @@ class MapaViewModel(
 
     // TODO Paso 6: fun seleccionar(id: Int?)
     // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+
+    private fun actualizarDistancias(pos: Posicion) {
+        _lugares.value = lugaresRepo.obtenerLugares()
+            .map { LugarConDistancia(it, distanciaMetros(pos, it)) }
+            .sortedBy { it.metros }
+        Log.d("CampusGPS", _lugares.value.joinToString { "${it.lugar.nombre}: ${it.metros}" })
+    }
+
 
     private fun mensajeDe(e: Throwable): String = when (e) {
         is SecurityException -> "Falta el permiso de ubicación"
