@@ -62,11 +62,15 @@ fun ListaLugares(
                     Box(Modifier.size(12.dp).background(colorPunto, CircleShape))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(item.lugar.nombre, fontWeight = FontWeight.Bold)
                         Text(
                             item.lugar.nombre,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium
+                        )
+                        Text(
+                            item.lugar.categoria,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                     Text(

@@ -25,6 +25,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,21 +50,32 @@ fun PantallaMapa(vm: MapaViewModel) {
     val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
 
-    val lanzador = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { resultado ->
-        if (resultado.values.any { it }) vm.buscar() else vm.permisoDenegado()
-    }
-
-    fun alPulsar() {
+    fun tienePermisos(): Boolean {
         val fine = ContextCompat.checkSelfPermission(
             contexto, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
         val coarse = ContextCompat.checkSelfPermission(
             contexto, Manifest.permission.ACCESS_COARSE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+        return fine || coarse
+    }
 
-        if (fine || coarse) {
+    var permisoConcedido by remember { mutableStateOf(tienePermisos()) }
+
+    val lanzador = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { resultado ->
+        if (resultado.values.any { it }) {
+            permisoConcedido = true
+            vm.buscar()
+        } else {
+            vm.permisoDenegado()
+        }
+    }
+
+    fun alPulsar() {
+        if (tienePermisos()) {
+            permisoConcedido = true
             vm.buscar()
         } else {
             lanzador.launch(
@@ -103,6 +117,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     lugares = lugares,
                     seleccionado = seleccionado,
                     masCercanoId = cercano?.id,
+                    permisoConcedido = permisoConcedido,
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 )
             }

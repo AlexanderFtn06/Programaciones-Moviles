@@ -3,6 +3,7 @@ package com.faustino.campusGPS.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.faustino.campusGPS.model.LugarConDistancia
 import com.faustino.campusGPS.model.UbicacionUi
@@ -11,6 +12,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
@@ -21,6 +24,7 @@ fun MapaUbicacion(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     masCercanoId: Int?,
+    permisoConcedido: Boolean,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -47,7 +51,19 @@ fun MapaUbicacion(
         }
     }
 
-    GoogleMap(modifier = modifier, cameraPositionState = camara) {
+    val properties = remember(permisoConcedido) {
+        MapProperties(isMyLocationEnabled = permisoConcedido)
+    }
+    val uiSettings = remember(permisoConcedido) {
+        MapUiSettings(myLocationButtonEnabled = permisoConcedido)
+    }
+
+    GoogleMap(
+        modifier = modifier,
+        cameraPositionState = camara,
+        properties = properties,
+        uiSettings = uiSettings
+    ) {
         if (estado is UbicacionUi.Lista) {
             val miMarcador = rememberUpdatedMarkerState(
                 position = LatLng(estado.posicion.latitud, estado.posicion.longitud)
