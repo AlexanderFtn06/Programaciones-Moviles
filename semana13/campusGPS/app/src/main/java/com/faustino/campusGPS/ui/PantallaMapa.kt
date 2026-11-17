@@ -7,15 +7,19 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -45,7 +49,9 @@ import com.faustino.campusGPS.viewmodel.MapaViewModel
 @Composable
 fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
-    val lugares by vm.lugares.collectAsState()
+    val categorias by vm.categorias.collectAsState()
+    val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
+    val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
@@ -114,7 +120,7 @@ fun PantallaMapa(vm: MapaViewModel) {
             } else {
                 MapaUbicacion(
                     estado = estado,
-                    lugares = lugares,
+                    lugares = lugaresFiltrados,
                     seleccionado = seleccionado,
                     masCercanoId = cercano?.id,
                     permisoConcedido = permisoConcedido,
@@ -152,7 +158,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 ) { Text("Ir al más cercano") }
 
                 cercano?.let { c ->
-                    val metros = lugares.firstOrNull { it.lugar.id == c.id }?.metros
+                    val metros = lugaresFiltrados.firstOrNull { it.lugar.id == c.id }?.metros
                     Text(
                         text = buildAnnotatedString {
                             withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -165,8 +171,28 @@ fun PantallaMapa(vm: MapaViewModel) {
                     )
                 }
 
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    item {
+                        FilterChip(
+                            selected = categoriaSeleccionada == null,
+                            onClick = { vm.seleccionarCategoria(null) },
+                            label = { Text("Todos") }
+                        )
+                    }
+                    items(categorias) { cat ->
+                        FilterChip(
+                            selected = categoriaSeleccionada == cat,
+                            onClick = { vm.seleccionarCategoria(cat) },
+                            label = { Text(cat) }
+                        )
+                    }
+                }
+
                 ListaLugares(
-                    lugares = lugares,
+                    lugares = lugaresFiltrados,
                     seleccionado = seleccionado,
                     onClick = { vm.seleccionar(it) },
                     cercanoId = cercano?.id,
