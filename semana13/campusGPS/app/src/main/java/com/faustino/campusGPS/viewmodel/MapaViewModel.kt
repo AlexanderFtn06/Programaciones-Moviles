@@ -6,6 +6,10 @@ import androidx.lifecycle.viewModelScope
 import com.faustino.campusGPS.data.LugaresRepository
 import com.faustino.campusGPS.data.UbicacionRepository
 import com.faustino.campusGPS.model.LugarConDistancia
+import com.faustino.campusGPS.model.Lugar
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import com.faustino.campusGPS.model.Posicion
 import com.faustino.campusGPS.model.UbicacionUi
 import com.faustino.campusGPS.util.distanciaMetros
@@ -50,7 +54,9 @@ class MapaViewModel(
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
     }
-    // TODO Paso 7: val masCercano: StateFlow<Lugar?>
+    val masCercano: StateFlow<Lugar?> = lugares
+        .map { lista -> lista.firstOrNull { it.metros != null }?.lugar }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private fun actualizarDistancias(pos: Posicion) {
         _lugares.value = lugaresRepo.obtenerLugares()

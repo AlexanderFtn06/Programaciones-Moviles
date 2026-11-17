@@ -35,7 +35,8 @@ fun ListaLugares(
     lugares: List<LugarConDistancia>,
     seleccionado: Int?,
     onClick: (Int) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cercanoId: Int? = null
 ) {
     LazyColumn(
         modifier = modifier,
@@ -57,7 +58,8 @@ fun ListaLugares(
                     modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(Modifier.size(12.dp).background(Color(0xFF1E88E5), CircleShape))
+                    val colorPunto = if (item.lugar.id == cercanoId) Color(0xFF43A047) else Color(0xFF1E88E5)
+                    Box(Modifier.size(12.dp).background(colorPunto, CircleShape))
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
                         Text(item.lugar.nombre, fontWeight = FontWeight.Bold)

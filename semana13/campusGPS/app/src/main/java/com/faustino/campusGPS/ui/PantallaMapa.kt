@@ -5,6 +5,11 @@ import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
+import com.faustino.campusGPS.util.formatearDistancia
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -35,6 +40,7 @@ fun PantallaMapa(vm: MapaViewModel) {
     val estado by vm.estado.collectAsState()
     val lugares by vm.lugares.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
+    val cercano by vm.masCercano.collectAsState()
     val contexto = LocalContext.current
 
     val lanzador = rememberLauncherForActivityResult(
@@ -82,6 +88,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                 estado = estado,
                 lugares = lugares,
                 seleccionado = seleccionado,
+                masCercanoId = cercano?.id,
                 modifier = Modifier.weight(1f).fillMaxWidth()
             )
 
@@ -107,10 +114,28 @@ fun PantallaMapa(vm: MapaViewModel) {
                 )
             }
 
+            OutlinedButton(
+                onClick = { cercano?.let { vm.seleccionar(it.id) } },
+                enabled = cercano != null
+            ) { Text("Ir al más cercano") }
+
+            cercano?.let { c ->
+                val metros = lugares.firstOrNull { it.lugar.id == c.id }?.metros
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Más cercano: ") }
+                        append(c.nombre)
+                        if (metros != null) append(" (${formatearDistancia(metros)})")
+                    },
+                    modifier = Modifier.padding(vertical = 4.dp)
+                )
+            }
+
             ListaLugares(
                 lugares = lugares,
                 seleccionado = seleccionado,
                 onClick = { vm.seleccionar(it) },
+                cercanoId = cercano?.id,
                 modifier = Modifier.height(220.dp).fillMaxWidth()
             )
         }
