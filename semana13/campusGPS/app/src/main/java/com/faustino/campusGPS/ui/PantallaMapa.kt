@@ -1,15 +1,14 @@
 package com.faustino.campusGPS.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
-import com.faustino.campusGPS.util.formatearDistancia
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -28,10 +28,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.faustino.campusGPS.model.UbicacionUi
+import com.faustino.campusGPS.util.formatearDistancia
 import com.faustino.campusGPS.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -69,6 +73,13 @@ fun PantallaMapa(vm: MapaViewModel) {
         }
     }
 
+    fun abrirAjustes() {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts("package", contexto.packageName, null)
+        }
+        contexto.startActivity(intent)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -84,13 +95,17 @@ fun PantallaMapa(vm: MapaViewModel) {
             modifier = Modifier.padding(padding).fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MapaUbicacion(
-                estado = estado,
-                lugares = lugares,
-                seleccionado = seleccionado,
-                masCercanoId = cercano?.id,
-                modifier = Modifier.weight(1f).fillMaxWidth()
-            )
+            if (estado is UbicacionUi.Error) {
+                Spacer(Modifier.height(24.dp))
+            } else {
+                MapaUbicacion(
+                    estado = estado,
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    masCercanoId = cercano?.id,
+                    modifier = Modifier.weight(1f).fillMaxWidth()
+                )
+            }
 
             Button(
                 onClick = { alPulsar() },
@@ -107,37 +122,42 @@ fun PantallaMapa(vm: MapaViewModel) {
                     modifier = Modifier.padding(8.dp)
                 )
                 is UbicacionUi.Lista -> {}
-                is UbicacionUi.Error -> Text(
-                    e.mensaje,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(12.dp)
+                is UbicacionUi.Error -> MensajeError(
+                    error = e,
+                    onAbrirAjustes = { abrirAjustes() },
+                    onReintentar = { alPulsar() },
+                    modifier = Modifier.padding(top = 16.dp)
                 )
             }
 
-            OutlinedButton(
-                onClick = { cercano?.let { vm.seleccionar(it.id) } },
-                enabled = cercano != null
-            ) { Text("Ir al más cercano") }
+            if (estado !is UbicacionUi.Error) {
+                OutlinedButton(
+                    onClick = { cercano?.let { vm.seleccionar(it.id) } },
+                    enabled = cercano != null
+                ) { Text("Ir al más cercano") }
 
-            cercano?.let { c ->
-                val metros = lugares.firstOrNull { it.lugar.id == c.id }?.metros
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append("Más cercano: ") }
-                        append(c.nombre)
-                        if (metros != null) append(" (${formatearDistancia(metros)})")
-                    },
-                    modifier = Modifier.padding(vertical = 4.dp)
+                cercano?.let { c ->
+                    val metros = lugares.firstOrNull { it.lugar.id == c.id }?.metros
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("Más cercano: ")
+                            }
+                            append(c.nombre)
+                            if (metros != null) append(" (${formatearDistancia(metros)})")
+                        },
+                        modifier = Modifier.padding(vertical = 4.dp)
+                    )
+                }
+
+                ListaLugares(
+                    lugares = lugares,
+                    seleccionado = seleccionado,
+                    onClick = { vm.seleccionar(it) },
+                    cercanoId = cercano?.id,
+                    modifier = Modifier.height(220.dp).fillMaxWidth()
                 )
             }
-
-            ListaLugares(
-                lugares = lugares,
-                seleccionado = seleccionado,
-                onClick = { vm.seleccionar(it) },
-                cercanoId = cercano?.id,
-                modifier = Modifier.height(220.dp).fillMaxWidth()
-            )
         }
     }
 }
