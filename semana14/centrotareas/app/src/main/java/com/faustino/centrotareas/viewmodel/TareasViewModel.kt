@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -92,10 +94,15 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
             try {
-                val perfil = repo.cargarPerfil()
-                val pedidos = repo.cargarPedidos(_simularError.value)
+                val (perfil, pedidos) = withTimeout(TIEMPO_MAXIMO_MS) {
+                    val p = repo.cargarPerfil()
+                    val ped = repo.cargarPedidos(_simularError.value)
+                    p to ped
+                }
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: Exception) {
                 if (e is CancellationException) throw e     // la cancelación se deja pasar
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
@@ -109,13 +116,17 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
             try {
-                val (perfil, pedidos) = coroutineScope {
-                    val perfilDeferred = async { repo.cargarPerfil() }
-                    val pedidosDeferred = async { repo.cargarPedidos(_simularError.value) }
-                    perfilDeferred.await() to pedidosDeferred.await()
+                val (perfil, pedidos) = withTimeout(TIEMPO_MAXIMO_MS) {
+                    coroutineScope {
+                        val perfilDeferred = async { repo.cargarPerfil() }
+                        val pedidosDeferred = async { repo.cargarPedidos(_simularError.value) }
+                        perfilDeferred.await() to pedidosDeferred.await()
+                    }
                 }
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
+            } catch (e: TimeoutCancellationException) {
+                _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
@@ -128,4 +139,8 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     fun cambiarSimularError(valor: Boolean) {
         _simularError.value = valor
+    }
+
+    companion object {
+        const val TIEMPO_MAXIMO_MS = 4000L
     }}

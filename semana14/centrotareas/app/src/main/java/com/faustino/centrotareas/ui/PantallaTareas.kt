@@ -236,6 +236,10 @@ fun PantallaTareas(vm: TareasViewModel) {
                         "«Una por una» tarda ≈ 5000 ms",
                         style = MaterialTheme.typography.bodySmall
                     )
+                    Text(
+                        "Tiempo máximo: ${TareasViewModel.TIEMPO_MAXIMO_MS / 1000} s",
+                        style = MaterialTheme.typography.bodySmall
+                    )
                 }
             }
         }
