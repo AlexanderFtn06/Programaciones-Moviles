@@ -8,12 +8,16 @@ import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
@@ -38,6 +42,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
@@ -119,6 +124,24 @@ fun PantallaMapa(vm: MapaViewModel) {
         ) {
             if (estado is UbicacionUi.Error) {
                 Spacer(Modifier.height(24.dp))
+
+                Button(
+                    onClick = { alPulsar() },
+                    enabled = estado !is UbicacionUi.Buscando,
+                    modifier = Modifier.padding(top = 12.dp).widthIn(min = 220.dp)
+                ) {
+                    Text("Obtener mi ubicación")
+                }
+
+                when (val e = estado) {
+                    is UbicacionUi.Error -> MensajeError(
+                        error = e,
+                        onAbrirAjustes = { abrirAjustes() },
+                        onReintentar = { alPulsar() },
+                        modifier = Modifier.padding(top = 16.dp)
+                    )
+                    else -> {}
+                }
             } else {
                 MapaUbicacion(
                     estado = estado,
@@ -127,95 +150,108 @@ fun PantallaMapa(vm: MapaViewModel) {
                     masCercanoId = cercano?.id,
                     permisoConcedido = permisoConcedido,
                     radioMetros = radioMetros,
-                    modifier = Modifier.weight(1f).fillMaxWidth()
+                    modifier = Modifier.weight(1f).fillMaxWidth().heightIn(min = 160.dp)
                 )
-            }
 
-            Button(
-                onClick = { alPulsar() },
-                enabled = estado !is UbicacionUi.Buscando,
-                modifier = Modifier.padding(top = 12.dp)
-            ) { Text("Obtener mi ubicación") }
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Button(
+                        onClick = { alPulsar() },
+                        enabled = estado !is UbicacionUi.Buscando,
+                        modifier = Modifier.padding(top = 8.dp).widthIn(min = 220.dp)
+                    ) {
+                        Text("Obtener mi ubicación")
+                    }
 
-            when (val e = estado) {
-                UbicacionUi.Inicial -> Text(
-                    "Pulsa el botón para empezar",
-                    modifier = Modifier.padding(8.dp)
-                )
-                UbicacionUi.Buscando -> CircularProgressIndicator(
-                    modifier = Modifier.padding(8.dp)
-                )
-                is UbicacionUi.Lista -> {}
-                is UbicacionUi.Error -> MensajeError(
-                    error = e,
-                    onAbrirAjustes = { abrirAjustes() },
-                    onReintentar = { alPulsar() },
-                    modifier = Modifier.padding(top = 16.dp)
-                )
-            }
+                    when (estado) {
+                        UbicacionUi.Inicial -> {}
+                        UbicacionUi.Buscando -> {}
+                        is UbicacionUi.Lista -> {}
+                        else -> {}
+                    }
 
-            if (estado !is UbicacionUi.Error) {
-                OutlinedButton(
-                    onClick = { cercano?.let { vm.seleccionar(it.id) } },
-                    enabled = cercano != null
-                ) { Text("Ir al más cercano") }
+                    OutlinedButton(
+                        onClick = { cercano?.let { vm.seleccionar(it.id) } },
+                        enabled = cercano != null,
+                        modifier = Modifier.padding(top = 4.dp)
+                    ) { Text("Ir al más cercano") }
 
-                cercano?.let { c ->
-                    val metros = lugaresFiltrados.firstOrNull { it.lugar.id == c.id }?.metros
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                append("Más cercano: ")
-                            }
-                            append(c.nombre)
-                            if (metros != null) append(" (${formatearDistancia(metros)})")
-                        },
-                        modifier = Modifier.padding(vertical = 4.dp)
+                    Box(
+                        modifier = Modifier
+                            .height(24.dp)
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        if (cercano != null) {
+                            val c = cercano!!
+                            val metros = lugaresFiltrados.firstOrNull { it.lugar.id == c.id }?.metros
+                            Text(
+                                text = buildAnnotatedString {
+                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                        append("Más cercano: ")
+                                    }
+                                    append(c.nombre)
+                                    if (metros != null) append(" (${formatearDistancia(metros)})")
+                                },
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(vertical = 2.dp)
+                            )
+                        }
+                    }
+
+                    val radios = listOf(100, 200, 500)
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 2.dp),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        items(radios) { r ->
+                            FilterChip(
+                                selected = radioMetros == r,
+                                onClick = { vm.cambiarRadio(r) },
+                                label = { Text("$r m") },
+                                modifier = Modifier.padding(horizontal = 4.dp)
+                            )
+                        }
+                    }
+
+                    LazyRow(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp, vertical = 4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        item {
+                            FilterChip(
+                                selected = categoriaSeleccionada == null,
+                                onClick = { vm.seleccionarCategoria(null) },
+                                label = { Text("Todos") }
+                            )
+                        }
+                        items(categorias) { cat ->
+                            FilterChip(
+                                selected = categoriaSeleccionada == cat,
+                                onClick = { vm.seleccionarCategoria(cat) },
+                                label = { Text(cat) }
+                            )
+                        }
+                    }
+
+                    ListaLugares(
+                        lugares = lugaresFiltrados,
+                        seleccionado = seleccionado,
+                        onClick = { vm.seleccionar(it) },
+                        cercanoId = cercano?.id,
+                        idsEnRadio = idsEnRadio,
+                        modifier = Modifier.height(184.dp).fillMaxWidth()
                     )
                 }
-
-                val radios = listOf(100, 200, 500)
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(radios) { r ->
-                        FilterChip(
-                            selected = radioMetros == r,
-                            onClick = { vm.cambiarRadio(r) },
-                            label = { Text("$r m") }
-                        )
-                    }
-                }
-
-                LazyRow(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    item {
-                        FilterChip(
-                            selected = categoriaSeleccionada == null,
-                            onClick = { vm.seleccionarCategoria(null) },
-                            label = { Text("Todos") }
-                        )
-                    }
-                    items(categorias) { cat ->
-                        FilterChip(
-                            selected = categoriaSeleccionada == cat,
-                            onClick = { vm.seleccionarCategoria(cat) },
-                            label = { Text(cat) }
-                        )
-                    }
-                }
-
-                ListaLugares(
-                    lugares = lugaresFiltrados,
-                    seleccionado = seleccionado,
-                    onClick = { vm.seleccionar(it) },
-                    cercanoId = cercano?.id,
-                    idsEnRadio = idsEnRadio,
-                    modifier = Modifier.height(220.dp).fillMaxWidth()
-                )
             }
         }
     }
