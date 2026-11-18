@@ -7,6 +7,8 @@ import com.faustino.centrotareas.model.PrimosUi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
@@ -32,6 +34,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     private val _corriendo = MutableStateFlow(false)
     val corriendo: StateFlow<Boolean> = _corriendo.asStateFlow()
+
+    val historial: StateFlow<List<String>> = repo.historial().stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5_000),
+        initialValue = emptyList()
+    )
 
     fun tareaLarga() {
         if (_corriendo.value) return          // doble inicio: no hace nada
@@ -76,6 +84,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 }
                 val ms = System.currentTimeMillis() - inicio
                 _primos.value = PrimosUi.Listo(cantidad, ms)
+                repo.guardarResultado("Primos hasta $hasta: $cantidad (${ms} ms)")
             } catch (e: CancellationException) {
                 _primos.value = PrimosUi.Cancelado
                 throw e                  // se vuelve a lanzar la cancelación
@@ -105,6 +114,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 }
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+                repo.guardarResultado("Una por una: ${pedidos.size} pedidos (${ms} ms)")
             } catch (e: TimeoutCancellationException) {
                 _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: Exception) {
@@ -131,6 +141,7 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
                 }
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
+                repo.guardarResultado("A la vez: ${pedidos.size} pedidos (${ms} ms)")
             } catch (e: TimeoutCancellationException) {
                 _carga.value = CargaUi.Error("Tardó demasiado")
             } catch (e: Exception) {

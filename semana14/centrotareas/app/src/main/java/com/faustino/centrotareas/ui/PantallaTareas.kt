@@ -58,6 +58,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val primos by vm.primos.collectAsState()
     val primosProgreso by vm.primosProgreso.collectAsState()
     val carga by vm.carga.collectAsState()
+    val historial by vm.historial.collectAsState()
     val simularError by vm.simularError.collectAsState()
     var texto by rememberSaveable { mutableStateOf("500000") }
     var hastaConsultado by rememberSaveable { mutableIntStateOf(0) }
@@ -240,6 +241,23 @@ fun PantallaTareas(vm: TareasViewModel) {
                         "Tiempo máximo: ${TareasViewModel.TIEMPO_MAXIMO_MS / 1000} s",
                         style = MaterialTheme.typography.bodySmall
                     )
+                }
+            }
+
+            // ---- Tarjeta 4: Historial (últimos 5)
+            Tarjeta("Historial (últimos 5)") {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (historial.isEmpty()) {
+                        Text("Todavía no hay resultados")
+                    } else {
+                        historial.forEach { item ->
+                            Text(item)
+                        }
+                    }
                 }
             }
         }
