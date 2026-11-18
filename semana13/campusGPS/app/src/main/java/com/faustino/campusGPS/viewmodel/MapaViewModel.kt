@@ -37,6 +37,15 @@ class MapaViewModel(
     )
     val lugares: StateFlow<List<LugarConDistancia>> = _lugares.asStateFlow()
 
+    private val _radioMetros = MutableStateFlow(200)
+    val radioMetros: StateFlow<Int> = _radioMetros.asStateFlow()
+
+    val idsEnRadio: StateFlow<Set<Int>> = combine(_lugares, radioMetros) { lista, radio ->
+        lista.filter { it.metros != null && it.metros <= radio }
+            .map { it.lugar.id }
+            .toSet()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptySet())
+
     val categorias: StateFlow<List<String>> = MutableStateFlow(
         lugaresRepo.obtenerLugares().map { it.categoria }.distinct().sorted()
     ).asStateFlow()
@@ -80,6 +89,10 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+    }
+
+    fun cambiarRadio(metros: Int) {
+        _radioMetros.value = metros
     }
 
     fun seleccionarCategoria(categoria: String?) {

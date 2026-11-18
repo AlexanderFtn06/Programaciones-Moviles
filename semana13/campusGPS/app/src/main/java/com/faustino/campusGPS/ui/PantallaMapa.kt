@@ -54,6 +54,8 @@ fun PantallaMapa(vm: MapaViewModel) {
     val lugaresFiltrados by vm.lugaresFiltrados.collectAsState()
     val seleccionado by vm.seleccionado.collectAsState()
     val cercano by vm.masCercano.collectAsState()
+    val radioMetros by vm.radioMetros.collectAsState()
+    val idsEnRadio by vm.idsEnRadio.collectAsState()
     val contexto = LocalContext.current
 
     fun tienePermisos(): Boolean {
@@ -124,6 +126,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     seleccionado = seleccionado,
                     masCercanoId = cercano?.id,
                     permisoConcedido = permisoConcedido,
+                    radioMetros = radioMetros,
                     modifier = Modifier.weight(1f).fillMaxWidth()
                 )
             }
@@ -171,6 +174,20 @@ fun PantallaMapa(vm: MapaViewModel) {
                     )
                 }
 
+                val radios = listOf(100, 200, 500)
+                LazyRow(
+                    modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(radios) { r ->
+                        FilterChip(
+                            selected = radioMetros == r,
+                            onClick = { vm.cambiarRadio(r) },
+                            label = { Text("$r m") }
+                        )
+                    }
+                }
+
                 LazyRow(
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -196,6 +213,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     seleccionado = seleccionado,
                     onClick = { vm.seleccionar(it) },
                     cercanoId = cercano?.id,
+                    idsEnRadio = idsEnRadio,
                     modifier = Modifier.height(220.dp).fillMaxWidth()
                 )
             }

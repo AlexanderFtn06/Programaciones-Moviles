@@ -1,5 +1,6 @@
 package com.faustino.campusGPS.ui
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
@@ -25,6 +27,7 @@ fun MapaUbicacion(
     seleccionado: Int?,
     masCercanoId: Int?,
     permisoConcedido: Boolean,
+    radioMetros: Int,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -67,6 +70,13 @@ fun MapaUbicacion(
         if (estado is UbicacionUi.Lista) {
             val miMarcador = rememberUpdatedMarkerState(
                 position = LatLng(estado.posicion.latitud, estado.posicion.longitud)
+            )
+            Circle(
+                center = LatLng(estado.posicion.latitud, estado.posicion.longitud),
+                radius = radioMetros.toDouble(),
+                strokeColor = MaterialTheme.colorScheme.primary,
+                strokeWidth = 2f,
+                fillColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
             Marker(state = miMarcador, title = "Estás aquí")
             LaunchedEffect(miMarcador) { miMarcador.showInfoWindow() }
