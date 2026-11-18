@@ -15,6 +15,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+
 
 class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
@@ -85,6 +88,31 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
     // ----- Dos cargas (pasos 6 y 7)
     private val _carga = MutableStateFlow<CargaUi>(CargaUi.Inicial)
     val carga: StateFlow<CargaUi> = _carga.asStateFlow()
-    // TODO Paso 6: fun cargarUnaPorUna() y fun cargarALaVez()
+    fun cargarUnaPorUna() {
+        if (_carga.value is CargaUi.Cargando) return
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val perfil = repo.cargarPerfil()              // primero uno...
+            val pedidos = repo.cargarPedidos(false)       // ...y después el otro
+            val ms = System.currentTimeMillis() - inicio
+            _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+        }
+    }
+
+    fun cargarALaVez() {
+        if (_carga.value is CargaUi.Cargando) return
+        viewModelScope.launch {
+            _carga.value = CargaUi.Cargando
+            val inicio = System.currentTimeMillis()
+            val (perfil, pedidos) = coroutineScope {
+                val perfilDeferred = async { repo.cargarPerfil() }
+                val pedidosDeferred = async { repo.cargarPedidos(false) }
+                perfilDeferred.await() to pedidosDeferred.await()   // espera ambas
+            }
+            val ms = System.currentTimeMillis() - inicio
+            _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
+        }
+    }
     // TODO Paso 7: simularError y manejo de errores
 }

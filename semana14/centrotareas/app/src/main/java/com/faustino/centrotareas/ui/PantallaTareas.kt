@@ -39,6 +39,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
+import androidx.compose.material3.CircularProgressIndicator
+import com.faustino.centrotareas.model.CargaUi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
@@ -53,6 +55,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     val corriendo by vm.corriendo.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
     val primos by vm.primos.collectAsState()
+    val carga by vm.carga.collectAsState()
     var texto by rememberSaveable { mutableStateOf("500000") }
     var hastaConsultado by rememberSaveable { mutableIntStateOf(0) }
     val focusManager = LocalFocusManager.current
@@ -159,7 +162,41 @@ fun PantallaTareas(vm: TareasViewModel) {
 
             // ---- Tarjeta 3: Dos cargas (pasos 6 y 7)
             Tarjeta("Dos cargas") {
-                // TODO Pasos 6 y 7
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedButton(
+                            onClick = { vm.cargarUnaPorUna() },
+                            enabled = carga !is CargaUi.Cargando
+                        ) { Text("Una por una") }
+                        Button(
+                            onClick = { vm.cargarALaVez() },
+                            enabled = carga !is CargaUi.Cargando
+                        ) { Text("A la vez") }
+                    }
+                    when (val c = carga) {
+                        CargaUi.Inicial -> {}
+                        CargaUi.Cargando -> CircularProgressIndicator()
+                        is CargaUi.Exito -> RecuadroVerde {
+                            Text(
+                                "Modo: ${c.modo}",
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text("Perfil: ${c.perfil}", color = Color(0xFF1B5E20))
+                            Text("Pedidos: ${c.pedidos}", color = Color(0xFF1B5E20))
+                            Text("Tiempo: ${c.milisegundos} ms", color = Color(0xFF1B5E20))
+                        }
+                        is CargaUi.Error -> {}   // TODO Paso 7
+                    }
+                    Text(
+                        "«Una por una» tarda ≈ 5000 ms",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
             }
         }
     }
