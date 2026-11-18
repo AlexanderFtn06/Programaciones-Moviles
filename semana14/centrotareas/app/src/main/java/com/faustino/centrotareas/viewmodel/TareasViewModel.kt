@@ -93,10 +93,15 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val perfil = repo.cargarPerfil()              // primero uno...
-            val pedidos = repo.cargarPedidos(false)       // ...y después el otro
-            val ms = System.currentTimeMillis() - inicio
-            _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+            try {
+                val perfil = repo.cargarPerfil()
+                val pedidos = repo.cargarPedidos(_simularError.value)
+                val ms = System.currentTimeMillis() - inicio
+                _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e     // la cancelación se deja pasar
+                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
+            }
         }
     }
 
@@ -105,14 +110,24 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         viewModelScope.launch {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
-            val (perfil, pedidos) = coroutineScope {
-                val perfilDeferred = async { repo.cargarPerfil() }
-                val pedidosDeferred = async { repo.cargarPedidos(false) }
-                perfilDeferred.await() to pedidosDeferred.await()   // espera ambas
+            try {
+                val (perfil, pedidos) = coroutineScope {
+                    val perfilDeferred = async { repo.cargarPerfil() }
+                    val pedidosDeferred = async { repo.cargarPedidos(_simularError.value) }
+                    perfilDeferred.await() to pedidosDeferred.await()
+                }
+                val ms = System.currentTimeMillis() - inicio
+                _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
+            } catch (e: Exception) {
+                if (e is CancellationException) throw e
+                _carga.value = CargaUi.Error("No se pudo cargar: ${e.message}")
             }
-            val ms = System.currentTimeMillis() - inicio
-            _carga.value = CargaUi.Exito("A la vez", perfil, pedidos.size, ms)
         }
     }
-    // TODO Paso 7: simularError y manejo de errores
-}
+
+    private val _simularError = MutableStateFlow(false)
+    val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
+
+    fun cambiarSimularError(valor: Boolean) {
+        _simularError.value = valor
+    }}

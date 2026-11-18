@@ -39,6 +39,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
+import androidx.compose.material3.Switch
 import androidx.compose.material3.CircularProgressIndicator
 import com.faustino.centrotareas.model.CargaUi
 import androidx.compose.ui.Modifier
@@ -56,6 +57,7 @@ fun PantallaTareas(vm: TareasViewModel) {
     var toques by rememberSaveable { mutableIntStateOf(0) }
     val primos by vm.primos.collectAsState()
     val carga by vm.carga.collectAsState()
+    val simularError by vm.simularError.collectAsState()
     var texto by rememberSaveable { mutableStateOf("500000") }
     var hastaConsultado by rememberSaveable { mutableIntStateOf(0) }
     val focusManager = LocalFocusManager.current
@@ -167,6 +169,17 @@ fun PantallaTareas(vm: TareasViewModel) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.Start)
+                    ) {
+                        Switch(
+                            checked = simularError,
+                            onCheckedChange = { vm.cambiarSimularError(it) }
+                        )
+                        Text("Simular error")
+                    }
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         OutlinedButton(
                             onClick = { vm.cargarUnaPorUna() },
@@ -190,7 +203,26 @@ fun PantallaTareas(vm: TareasViewModel) {
                             Text("Pedidos: ${c.pedidos}", color = Color(0xFF1B5E20))
                             Text("Tiempo: ${c.milisegundos} ms", color = Color(0xFF1B5E20))
                         }
-                        is CargaUi.Error -> {}   // TODO Paso 7
+                        is CargaUi.Error -> {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .background(
+                                        MaterialTheme.colorScheme.errorContainer,
+                                        RoundedCornerShape(12.dp)
+                                    )
+                                    .padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    c.mensaje,
+                                    color = MaterialTheme.colorScheme.onErrorContainer
+                                )
+                            }
+                            OutlinedButton(onClick = { vm.cargarALaVez() }) {
+                                Text("Reintentar")
+                            }
+                        }
                     }
                     Text(
                         "«Una por una» tarda ≈ 5000 ms",
