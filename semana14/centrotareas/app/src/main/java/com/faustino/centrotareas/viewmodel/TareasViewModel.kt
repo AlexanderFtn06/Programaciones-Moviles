@@ -12,6 +12,8 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.delay
+import java.io.IOException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -94,10 +96,12 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
             try {
-                val (perfil, pedidos) = withTimeout(TIEMPO_MAXIMO_MS) {
-                    val p = repo.cargarPerfil()
-                    val ped = repo.cargarPedidos(_simularError.value)
-                    p to ped
+                val (perfil, pedidos) = conReintentos {
+                    withTimeout(TIEMPO_MAXIMO_MS) {
+                        val p = repo.cargarPerfil()
+                        val ped = repo.cargarPedidos(_simularError.value)
+                        p to ped
+                    }
                 }
                 val ms = System.currentTimeMillis() - inicio
                 _carga.value = CargaUi.Exito("Una por una", perfil, pedidos.size, ms)
@@ -116,11 +120,13 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
             _carga.value = CargaUi.Cargando
             val inicio = System.currentTimeMillis()
             try {
-                val (perfil, pedidos) = withTimeout(TIEMPO_MAXIMO_MS) {
-                    coroutineScope {
-                        val perfilDeferred = async { repo.cargarPerfil() }
-                        val pedidosDeferred = async { repo.cargarPedidos(_simularError.value) }
-                        perfilDeferred.await() to pedidosDeferred.await()
+                val (perfil, pedidos) = conReintentos {
+                    withTimeout(TIEMPO_MAXIMO_MS) {
+                        coroutineScope {
+                            val perfilDeferred = async { repo.cargarPerfil() }
+                            val pedidosDeferred = async { repo.cargarPedidos(_simularError.value) }
+                            perfilDeferred.await() to pedidosDeferred.await()
+                        }
                     }
                 }
                 val ms = System.currentTimeMillis() - inicio
@@ -134,6 +140,20 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
         }
     }
 
+    private suspend fun <T> conReintentos(bloque: suspend () -> T): T {
+        var espera = ESPERA_INICIAL_MS
+        for (intento in 1..MAX_REINTENTOS) {
+            try {
+                return bloque()
+            } catch (e: IOException) {
+                Log.d("REINTENTO", "Intento $intento falló: ${e.message}. Espero $espera ms")
+                delay(espera)
+                espera *= 2
+            }
+        }
+        return bloque()
+    }
+
     private val _simularError = MutableStateFlow(false)
     val simularError: StateFlow<Boolean> = _simularError.asStateFlow()
 
@@ -143,4 +163,6 @@ class TareasViewModel(private val repo: TareasRepository) : ViewModel() {
 
     companion object {
         const val TIEMPO_MAXIMO_MS = 4000L
+        const val MAX_REINTENTOS = 3
+        const val ESPERA_INICIAL_MS = 500L
     }}
