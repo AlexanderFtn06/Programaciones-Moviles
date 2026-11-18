@@ -12,6 +12,8 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Button
 import androidx.compose.runtime.getValue
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -35,6 +37,7 @@ import com.faustino.centrotareas.viewmodel.TareasViewModel
 fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
     val progreso by vm.progreso.collectAsState()
+    val corriendo by vm.corriendo.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -64,7 +67,16 @@ fun PantallaTareas(vm: TareasViewModel) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                    Button(onClick = { vm.tareaLarga() }) { Text("Iniciar") }
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = { vm.tareaLarga() },
+                            enabled = !corriendo
+                        ) { Text("Iniciar") }
+                        OutlinedButton(
+                            onClick = { vm.cancelar() },
+                            enabled = corriendo
+                        ) { Text("Cancelar") }
+                    }
                     LinearProgressIndicator(
                         progress = { progreso },
                         modifier = Modifier.fillMaxWidth()
