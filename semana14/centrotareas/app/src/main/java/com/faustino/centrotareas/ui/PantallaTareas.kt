@@ -21,6 +21,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -54,9 +56,15 @@ fun PantallaTareas(vm: TareasViewModel) {
         ) {
             // ---- Tarjeta 1: Tarea con progreso (pasos 1 a 4)
             Tarjeta("Tarea con progreso") {
-                Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                Button(onClick = { vm.tareaLargaMala() }) { Text("Tarea larga (MAL)") }
-                Text(mensaje)
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Button(onClick = { toques++ }) { Text("Tócame: $toques") }
+                    Button(onClick = { vm.tareaLarga() }) { Text("Tarea larga") }
+                    Text(mensaje)
+                }
             }
 
             // ---- Tarjeta 2: Contar números primos (paso 5)
