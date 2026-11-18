@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -33,6 +34,7 @@ import com.faustino.centrotareas.viewmodel.TareasViewModel
 @Composable
 fun PantallaTareas(vm: TareasViewModel) {
     val mensaje by vm.mensaje.collectAsState()
+    val progreso by vm.progreso.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
 
     Scaffold(
@@ -62,7 +64,12 @@ fun PantallaTareas(vm: TareasViewModel) {
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(onClick = { toques++ }) { Text("Tócame: $toques") }
-                    Button(onClick = { vm.tareaLarga() }) { Text("Tarea larga") }
+                    Button(onClick = { vm.tareaLarga() }) { Text("Iniciar") }
+                    LinearProgressIndicator(
+                        progress = { progreso },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Text("${(progreso * 100).toInt()} %")
                     Text(mensaje)
                 }
             }
