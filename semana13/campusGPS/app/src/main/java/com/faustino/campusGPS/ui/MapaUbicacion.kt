@@ -6,12 +6,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import com.faustino.campusGPS.R
 import com.faustino.campusGPS.model.LugarConDistancia
 import com.faustino.campusGPS.model.UbicacionUi
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.Circle
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
@@ -28,6 +31,7 @@ fun MapaUbicacion(
     masCercanoId: Int?,
     permisoConcedido: Boolean,
     radioMetros: Int,
+    modoOscuro: Boolean,
     modifier: Modifier = Modifier
 ) {
     val camara = rememberCameraPositionState {
@@ -54,8 +58,13 @@ fun MapaUbicacion(
         }
     }
 
-    val properties = remember(permisoConcedido) {
-        MapProperties(isMyLocationEnabled = permisoConcedido)
+    val context = LocalContext.current
+
+    val properties = remember(permisoConcedido, modoOscuro) {
+        MapProperties(
+            isMyLocationEnabled = permisoConcedido,
+            mapStyleOptions = if (modoOscuro) MapStyleOptions.loadRawResourceStyle(context, R.raw.mapa_oscuro) else null
+        )
     }
     val uiSettings = remember(permisoConcedido) {
         MapUiSettings(myLocationButtonEnabled = permisoConcedido)

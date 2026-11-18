@@ -10,6 +10,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -27,9 +28,13 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Color
+import com.faustino.campusGPS.ui.theme.Purple40
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -52,7 +57,11 @@ import com.faustino.campusGPS.viewmodel.MapaViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PantallaMapa(vm: MapaViewModel) {
+fun PantallaMapa(
+    vm: MapaViewModel,
+    modoOscuro: Boolean,
+    onModoOscuroChange: (Boolean) -> Unit
+) {
     val estado by vm.estado.collectAsState()
     val categorias by vm.categorias.collectAsState()
     val categoriaSeleccionada by vm.categoriaSeleccionada.collectAsState()
@@ -110,10 +119,33 @@ fun PantallaMapa(vm: MapaViewModel) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("CampusGPS", fontWeight = FontWeight.Bold) },
+                title = { Text("CampusGPS", fontWeight = FontWeight.Bold, color = Color.White) },
+                actions = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        Text(
+                            "Oscuro",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Switch(
+                            checked = modoOscuro,
+                            onCheckedChange = onModoOscuroChange,
+                            colors = SwitchDefaults.colors(
+                                checkedThumbColor = Color.White,
+                                uncheckedThumbColor = Color.White,
+                                checkedTrackColor = Color.White.copy(alpha = 0.5f),
+                                uncheckedTrackColor = Color.White.copy(alpha = 0.25f)
+                            )
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
+                    containerColor = Purple40,
+                    titleContentColor = Color.White
                 )
             )
         }
@@ -150,6 +182,7 @@ fun PantallaMapa(vm: MapaViewModel) {
                     masCercanoId = cercano?.id,
                     permisoConcedido = permisoConcedido,
                     radioMetros = radioMetros,
+                    modoOscuro = modoOscuro,
                     modifier = Modifier.weight(1f).fillMaxWidth().heightIn(min = 160.dp)
                 )
 
@@ -189,18 +222,32 @@ fun PantallaMapa(vm: MapaViewModel) {
                         if (cercano != null) {
                             val c = cercano!!
                             val metros = lugaresFiltrados.firstOrNull { it.lugar.id == c.id }?.metros
-                            Text(
-                                text = buildAnnotatedString {
-                                    withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                                        append("Más cercano: ")
-                                    }
-                                    append(c.nombre)
-                                    if (metros != null) append(" (${formatearDistancia(metros)})")
-                                },
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(vertical = 2.dp)
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.Center
+                            ) {
+                                Text(
+                                    text = buildAnnotatedString {
+                                        withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
+                                            append("Más cercano: ")
+                                        }
+                                        append(c.nombre)
+                                    },
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    modifier = Modifier.weight(1f, fill = false)
+                                )
+                                if (metros != null) {
+                                    Text(
+                                        text = " (${formatearDistancia(metros)})",
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        maxLines = 1,
+                                        softWrap = false
+                                    )
+                                }
+                            }
                         }
                     }
 
