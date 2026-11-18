@@ -25,9 +25,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.input.KeyboardType
+import com.faustino.centrotareas.model.PrimosUi
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.faustino.centrotareas.viewmodel.TareasViewModel
@@ -39,6 +52,10 @@ fun PantallaTareas(vm: TareasViewModel) {
     val progreso by vm.progreso.collectAsState()
     val corriendo by vm.corriendo.collectAsState()
     var toques by rememberSaveable { mutableIntStateOf(0) }
+    val primos by vm.primos.collectAsState()
+    var texto by rememberSaveable { mutableStateOf("500000") }
+    var hastaConsultado by rememberSaveable { mutableIntStateOf(0) }
+    val focusManager = LocalFocusManager.current
 
     Scaffold(
         topBar = {
@@ -55,6 +72,7 @@ fun PantallaTareas(vm: TareasViewModel) {
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
+                .imePadding()
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -88,7 +106,55 @@ fun PantallaTareas(vm: TareasViewModel) {
 
             // ---- Tarjeta 2: Contar números primos (paso 5)
             Tarjeta("Contar números primos") {
-                // TODO Paso 5
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedTextField(
+                        value = texto,
+                        onValueChange = { texto = it.filter { c -> c.isDigit() } },
+                        label = { Text("Hasta el número") },
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        keyboardActions = KeyboardActions(
+                            onDone = { focusManager.clearFocus() }
+                        ),
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Button(
+                            onClick = {
+                                val n = texto.toIntOrNull()
+                                if (n != null && n >= 2) {   // ignora texto no numérico o < 2
+                                    hastaConsultado = n
+                                    vm.contar(n)
+                                }
+                            },
+                            enabled = primos !is PrimosUi.Calculando
+                        ) { Text("Contar") }
+                        OutlinedButton(
+                            onClick = { vm.cancelarPrimos() },
+                            enabled = primos is PrimosUi.Calculando
+                        ) { Text("Cancelar") }
+                    }
+                    when (val p = primos) {
+                        PrimosUi.Inicial -> {}
+                        PrimosUi.Calculando -> Text("Calculando...")
+                        is PrimosUi.Listo -> RecuadroVerde {
+                            Text(
+                                "Primos hasta $hastaConsultado: ${p.cantidad}",
+                                fontWeight = FontWeight.Bold,
+                                color = Color(0xFF1B5E20)
+                            )
+                            Text("Tiempo: ${p.milisegundos} ms", color = Color(0xFF1B5E20))
+                        }
+                        PrimosUi.Cancelado -> Text("Cancelado")
+                    }
+                }
             }
 
             // ---- Tarjeta 3: Dos cargas (pasos 6 y 7)
@@ -115,4 +181,16 @@ private fun Tarjeta(titulo: String, contenido: @Composable () -> Unit) {
             contenido()
         }
     }
+}
+
+@Composable
+private fun RecuadroVerde(contenido: @Composable ColumnScope.() -> Unit) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(Color(0xFFE3F1E0), RoundedCornerShape(12.dp))
+            .padding(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        content = contenido
+    )
 }
