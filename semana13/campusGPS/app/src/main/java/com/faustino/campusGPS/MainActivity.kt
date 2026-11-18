@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.faustino.campusGPS.ui.theme.CampusGPSTheme
 import com.faustino.campusGPS.data.LugaresRepositoryLocal
+import com.faustino.campusGPS.data.PreferenciasRepositoryDataStore
 import com.faustino.campusGPS.data.UbicacionRepositoryGoogle
 import com.faustino.campusGPS.ui.PantallaMapa
 import com.faustino.campusGPS.viewmodel.CampusViewModelFactory
@@ -21,7 +22,8 @@ class MainActivity : ComponentActivity() {
 
         val factory = CampusViewModelFactory(
             UbicacionRepositoryGoogle(applicationContext),
-            LugaresRepositoryLocal()
+            LugaresRepositoryLocal(),
+            PreferenciasRepositoryDataStore(applicationContext)
         )
 
         setContent {

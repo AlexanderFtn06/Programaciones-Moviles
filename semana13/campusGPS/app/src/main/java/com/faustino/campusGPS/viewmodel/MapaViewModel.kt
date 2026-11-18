@@ -3,11 +3,13 @@ package com.faustino.campusGPS.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.faustino.campusGPS.data.LugaresRepository
+import com.faustino.campusGPS.data.PreferenciasRepository
 import com.faustino.campusGPS.data.UbicacionRepository
 import com.faustino.campusGPS.model.LugarConDistancia
 import com.faustino.campusGPS.model.Lugar
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import com.faustino.campusGPS.data.UbicacionNoDisponibleException
@@ -26,7 +28,8 @@ private const val MENSAJE_SIN_PERMISO = "Sin permiso de ubicación no puedo most
 
 class MapaViewModel(
     private val ubicacionRepo: UbicacionRepository,
-    private val lugaresRepo: LugaresRepository
+    private val lugaresRepo: LugaresRepository,
+    private val preferenciasRepo: PreferenciasRepository
 ) : ViewModel() {
 
     private val _estado = MutableStateFlow<UbicacionUi>(UbicacionUi.Inicial)
@@ -64,6 +67,18 @@ class MapaViewModel(
     private val _seleccionado = MutableStateFlow<Int?>(null)
     val seleccionado: StateFlow<Int?> = _seleccionado.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            val idGuardado = preferenciasRepo.ultimoLugarId.first()
+            if (idGuardado != null && _seleccionado.value == null) {
+                val existe = _lugares.value.any { it.lugar.id == idGuardado }
+                if (existe) {
+                    _seleccionado.value = idGuardado
+                }
+            }
+        }
+    }
+
     fun buscar() {
         if (!ubicacionRepo.playServicesDisponible()) {
             _estado.value = UbicacionUi.Error(
@@ -89,6 +104,11 @@ class MapaViewModel(
 
     fun seleccionar(id: Int?) {
         _seleccionado.value = id
+        if (id != null) {
+            viewModelScope.launch {
+                preferenciasRepo.guardarUltimoLugar(id)
+            }
+        }
     }
 
     fun cambiarRadio(metros: Int) {
