@@ -11,14 +11,18 @@ object RetrofitClient {
     private val json = Json { ignoreUnknownKeys = true }
 
     private val cliente = OkHttpClient.Builder()
-        // TODO 1: addInterceptor(HttpLoggingInterceptor().apply { level = ... BODY })
+        .addInterceptor(
+            HttpLoggingInterceptor().apply {
+                level = HttpLoggingInterceptor.Level.BODY
+            }
+        )
         .build()
 
     val api: PostApi by lazy {
         Retrofit.Builder()
             .baseUrl("https://jsonplaceholder.typicode.com/")
             .client(cliente)
-            // TODO 2: addConverterFactory(json.asConverterFactory(...))
+            .addConverterFactory(json.asConverterFactory("application/json".toMediaType()))
             .build()
             .create(PostApi::class.java)
     }
