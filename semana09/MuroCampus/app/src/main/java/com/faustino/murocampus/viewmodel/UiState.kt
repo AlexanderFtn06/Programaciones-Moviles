@@ -1,6 +1,5 @@
 package com.faustino.murocampus.viewmodel
 
-import android.net.http.HttpException
 import java.io.IOException
 import kotlinx.serialization.SerializationException
 import retrofit2.HttpException
