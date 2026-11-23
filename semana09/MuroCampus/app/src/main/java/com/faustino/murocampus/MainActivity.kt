@@ -3,8 +3,6 @@ package com.faustino.murocampus
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -13,7 +11,14 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.faustino.murocampus.data.PostRepositoryRemote
+import com.faustino.murocampus.data.remote.RetrofitClient
+import com.faustino.murocampus.ui.PantallaLista
 import com.faustino.murocampus.ui.theme.MuroCampusTheme
+import androidx.compose.ui.text.font.FontWeight
+import com.faustino.murocampus.viewmodel.PostsViewModel
+import com.faustino.murocampus.viewmodel.PostsViewModelFactory
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -21,10 +26,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MuroCampusTheme {
+                val vm: PostsViewModel = viewModel(
+                    factory = PostsViewModelFactory {
+                        PostsViewModel(PostRepositoryRemote(RetrofitClient.api))
+                    }
+                )
                 Scaffold(
                     topBar = {
                         TopAppBar(
-                            title = { Text("MuroCampus") },
+                            title = { Text("MuroCampus", fontWeight = FontWeight.Bold) },
                             colors = TopAppBarDefaults.topAppBarColors(
                                 containerColor = MaterialTheme.colorScheme.primary,
                                 titleContentColor = MaterialTheme.colorScheme.onPrimary
@@ -32,7 +42,7 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { padding ->
-                    Box(Modifier.fillMaxSize().padding(padding))
+                    PantallaLista(vm, Modifier.padding(padding))
                 }
             }
         }
