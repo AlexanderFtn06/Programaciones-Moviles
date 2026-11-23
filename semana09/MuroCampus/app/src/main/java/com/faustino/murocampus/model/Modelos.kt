@@ -2,7 +2,6 @@ package com.faustino.murocampus.model
 
 import kotlinx.serialization.Serializable
 
-// [E] Ejemplo resuelto
 @Serializable
 data class Usuario(
     val id: Int,
@@ -10,12 +9,27 @@ data class Usuario(
     val email: String
 )
 
-// [G] Paso 2: completa Post
 @Serializable
 data class Post(
-    val id: Int
-    // TODO: agrega userId, title y body (mismos nombres y tipos que el JSON)
+    val userId: Int,
+    val id: Int,
+    val title: String,
+    val body: String
 )
 
-// TODO: Comentario(postId, id, name, email, body)
-// TODO: NuevoPost(userId, title, body)  (sin id)
+@Serializable
+data class Comentario(
+    val postId: Int,
+    val id: Int,
+    val name: String,
+    val email: String,
+    val body: String
+)
+
+// Lo que enviamos: no lleva id (lo asigna el servidor)
+@Serializable
+data class NuevoPost(
+    val userId: Int,
+    val title: String,
+    val body: String
+)
