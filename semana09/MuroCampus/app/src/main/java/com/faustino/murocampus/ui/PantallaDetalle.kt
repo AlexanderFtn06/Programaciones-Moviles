@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -18,6 +19,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,12 +46,23 @@ fun PantallaDetalle(
 ) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
     val estadoBorrado by vm.borrado.collectAsStateWithLifecycle()
+    val estadoEdicion by vm.edicion.collectAsStateWithLifecycle()
+
     var mostrarDialogo by rememberSaveable { mutableStateOf(false) }
+    var mostrarDialogoEditar by rememberSaveable { mutableStateOf(false) }
+    var textoTitulo by rememberSaveable { mutableStateOf("") }
 
     LaunchedEffect(estadoBorrado) {
         if (estadoBorrado is UiState.Exito) {
             vm.reiniciarBorrado()
             onVolver()
+        }
+    }
+
+    LaunchedEffect(estadoEdicion) {
+        if (estadoEdicion is UiState.Exito) {
+            mostrarDialogoEditar = false
+            vm.reiniciarEdicion()
         }
     }
 
@@ -76,6 +89,57 @@ fun PantallaDetalle(
                 OutlinedButton(
                     onClick = { mostrarDialogo = false },
                     enabled = estadoBorrado != UiState.Cargando
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    if (mostrarDialogoEditar) {
+        AlertDialog(
+            onDismissRequest = {
+                if (estadoEdicion != UiState.Cargando) {
+                    mostrarDialogoEditar = false
+                    vm.reiniciarEdicion()
+                }
+            },
+            title = { Text("Editar título") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = textoTitulo,
+                        onValueChange = { textoTitulo = it },
+                        label = { Text("Título") },
+                        singleLine = true,
+                        enabled = estadoEdicion != UiState.Cargando,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    if (estadoEdicion is UiState.Error) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(
+                            text = (estadoEdicion as UiState.Error).mensaje,
+                            color = MaterialTheme.colorScheme.error,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = { vm.editarTitulo(id, textoTitulo.trim()) },
+                    enabled = textoTitulo.trim().isNotBlank() && estadoEdicion != UiState.Cargando
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = {
+                        mostrarDialogoEditar = false
+                        vm.reiniciarEdicion()
+                    },
+                    enabled = estadoEdicion != UiState.Cargando
                 ) {
                     Text("Cancelar")
                 }
@@ -121,16 +185,32 @@ fun PantallaDetalle(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Spacer(Modifier.height(12.dp))
-                            Button(
-                                onClick = { mostrarDialogo = true },
-                                enabled = estadoBorrado != UiState.Cargando,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError
-                                ),
-                                modifier = Modifier.fillMaxWidth()
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                Text("Eliminar")
+                                OutlinedButton(
+                                    onClick = {
+                                        textoTitulo = detalle.post.title
+                                        vm.reiniciarEdicion()
+                                        mostrarDialogoEditar = true
+                                    },
+                                    enabled = estadoBorrado != UiState.Cargando && estadoEdicion != UiState.Cargando,
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Editar")
+                                }
+                                Button(
+                                    onClick = { mostrarDialogo = true },
+                                    enabled = estadoBorrado != UiState.Cargando && estadoEdicion != UiState.Cargando,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = MaterialTheme.colorScheme.error,
+                                        contentColor = MaterialTheme.colorScheme.onError
+                                    ),
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("Eliminar")
+                                }
                             }
                         }
                     }

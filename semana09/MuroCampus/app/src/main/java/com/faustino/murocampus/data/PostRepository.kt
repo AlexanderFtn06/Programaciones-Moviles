@@ -2,6 +2,7 @@ package com.faustino.murocampus.data
 
 import com.faustino.murocampus.data.remote.PostApi
 import com.faustino.murocampus.model.Comentario
+import com.faustino.murocampus.model.EditarTituloPost
 import com.faustino.murocampus.model.NuevoPost
 import com.faustino.murocampus.model.Post
 import kotlin.coroutines.cancellation.CancellationException
@@ -13,6 +14,7 @@ interface PostRepository {
     suspend fun porUsuario(userId: Int): Result<List<Post>>
     suspend fun crear(nuevo: NuevoPost): Result<Post>
     suspend fun borrar(id: Int): Result<Unit>
+    suspend fun editarTitulo(id: Int, titulo: String): Result<Post>
 }
 
 class PostRepositoryRemote(private val api: PostApi) : PostRepository {
@@ -55,4 +57,7 @@ class PostRepositoryRemote(private val api: PostApi) : PostRepository {
         } catch (e: Exception) {
             Result.failure(e)
         }
+
+    override suspend fun editarTitulo(id: Int, titulo: String): Result<Post> =
+        llamar { api.editarTitulo(id, EditarTituloPost(title = titulo)) }
 }

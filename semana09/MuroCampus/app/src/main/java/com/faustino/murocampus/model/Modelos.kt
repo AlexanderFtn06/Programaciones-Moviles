@@ -33,3 +33,8 @@ data class NuevoPost(
     val title: String,
     val body: String
 )
+
+@Serializable
+data class EditarTituloPost(
+    val title: String
+)

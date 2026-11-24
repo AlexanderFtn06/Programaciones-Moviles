@@ -1,12 +1,14 @@
 package com.faustino.murocampus.data.remote
 
 import com.faustino.murocampus.model.Comentario
+import com.faustino.murocampus.model.EditarTituloPost
 import com.faustino.murocampus.model.NuevoPost
 import com.faustino.murocampus.model.Post
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
@@ -30,4 +32,10 @@ interface PostApi {
 
     @DELETE("posts/{id}")
     suspend fun borrar(@Path("id") id: Int): Response<Unit>
+
+    @PATCH("posts/{id}")
+    suspend fun editarTitulo(
+        @Path("id") id: Int,
+        @Body body: EditarTituloPost
+    ): Post
 }
