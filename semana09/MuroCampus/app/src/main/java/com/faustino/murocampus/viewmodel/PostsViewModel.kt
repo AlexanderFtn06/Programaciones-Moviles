@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import com.faustino.murocampus.model.NuevoPost
 
 data class DetalleUi(
     val post: Post,
@@ -29,6 +30,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     // null significa "Todos"
     private val _usuarioFiltro = MutableStateFlow<Int?>(null)
     val usuarioFiltro: StateFlow<Int?> = _usuarioFiltro.asStateFlow()
+
+    // null = todavía no se envió nada
+    private val _creacion = MutableStateFlow<UiState<Post>?>(null)
+    val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
 
     private var jobLista: Job? = null
 
@@ -75,5 +80,18 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
                 )
             }
         }
+    }
+
+    fun publicar(titulo: String, texto: String) {
+        viewModelScope.launch {
+            _creacion.value = UiState.Cargando
+            repo.crear(NuevoPost(userId = 1, title = titulo, body = texto))
+                .onSuccess { _creacion.value = UiState.Exito(it) }
+                .onFailure { _creacion.value = UiState.Error(mensajeDe(it)) }
+        }
+    }
+
+    fun reiniciarCreacion() {
+        _creacion.value = null
     }
 }
