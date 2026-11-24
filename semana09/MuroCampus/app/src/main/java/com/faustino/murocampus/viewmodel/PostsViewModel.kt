@@ -4,15 +4,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.faustino.murocampus.data.PostRepository
 import com.faustino.murocampus.model.Comentario
+import com.faustino.murocampus.model.NuevoPost
 import com.faustino.murocampus.model.Post
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import com.faustino.murocampus.model.NuevoPost
 
 data class DetalleUi(
     val post: Post,
@@ -21,8 +24,31 @@ data class DetalleUi(
 
 class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
-    private val _lista = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
-    val lista: StateFlow<UiState<List<Post>>> = _lista.asStateFlow()
+    private val _listaRaw = MutableStateFlow<UiState<List<Post>>>(UiState.Cargando)
+
+    private val _busqueda = MutableStateFlow("")
+    val busqueda: StateFlow<String> = _busqueda.asStateFlow()
+
+    val lista: StateFlow<UiState<List<Post>>> = combine(_listaRaw, _busqueda) { estado, query ->
+        if (estado is UiState.Exito) {
+            val q = query.trim()
+            if (q.isEmpty()) {
+                estado
+            } else {
+                UiState.Exito(
+                    estado.datos.filter { post ->
+                        post.title.contains(q, ignoreCase = true)
+                    }
+                )
+            }
+        } else {
+            estado
+        }
+    }.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = UiState.Cargando
+    )
 
     private val _detalle = MutableStateFlow<UiState<DetalleUi>>(UiState.Cargando)
     val detalle: StateFlow<UiState<DetalleUi>> = _detalle.asStateFlow()
@@ -44,13 +70,17 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     fun cargar() {
         jobLista?.cancel()
         jobLista = viewModelScope.launch {
-            _lista.value = UiState.Cargando
+            _listaRaw.value = UiState.Cargando
             val userId = _usuarioFiltro.value
             val resultado = if (userId == null) repo.listar() else repo.porUsuario(userId)
             resultado
-                .onSuccess { _lista.value = UiState.Exito(it) }
-                .onFailure { _lista.value = UiState.Error(mensajeDe(it)) }
+                .onSuccess { _listaRaw.value = UiState.Exito(it) }
+                .onFailure { _listaRaw.value = UiState.Error(mensajeDe(it)) }
         }
+    }
+
+    fun buscar(texto: String) {
+        _busqueda.value = texto
     }
 
     fun filtrar(userId: Int?) {
