@@ -31,8 +31,9 @@ fun PantallaLista(
     val filtro by vm.usuarioFiltro.collectAsStateWithLifecycle()
 
     Column(modifier) {
-        FilaFiltros(seleccionado = filtro, onSeleccion = { vm.filtrar(it) })
-
+        if (estado !is UiState.Error) {
+            FilaFiltros(seleccionado = filtro, onSeleccion = { vm.filtrar(it) })
+        }
         when (val e = estado) {
             UiState.Cargando -> Cargando(Modifier.weight(1f))
 
