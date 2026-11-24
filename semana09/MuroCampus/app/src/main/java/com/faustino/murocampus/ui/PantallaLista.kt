@@ -13,7 +13,7 @@ import com.faustino.murocampus.viewmodel.PostsViewModel
 import com.faustino.murocampus.viewmodel.UiState
 
 @Composable
-fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
+fun PantallaLista( vm: PostsViewModel, onPostClick: (Int) -> Unit, modifier: Modifier = Modifier) {
     val estado by vm.lista.collectAsStateWithLifecycle()
 
     when (val e = estado) {
@@ -36,7 +36,7 @@ fun PantallaLista(vm: PostsViewModel, modifier: Modifier = Modifier) {
                     titulo = post.title,
                     cuerpo = post.body,
                     maxLines = 2,
-                    onClick = { /* Paso 7: abrir el detalle */ }
+                    onClick = { onPostClick(post.id) }
                 )
             }
         }

@@ -19,11 +19,22 @@ import com.faustino.murocampus.ui.theme.MuroCampusTheme
 import androidx.compose.ui.text.font.FontWeight
 import com.faustino.murocampus.viewmodel.PostsViewModel
 import com.faustino.murocampus.viewmodel.PostsViewModelFactory
+import androidx.activity.compose.BackHandler
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import com.faustino.murocampus.ui.PantallaDetalle
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+        )
         setContent {
             MuroCampusTheme {
                 val vm: PostsViewModel = viewModel(
@@ -31,6 +42,8 @@ class MainActivity : ComponentActivity() {
                         PostsViewModel(PostRepositoryRemote(RetrofitClient.api))
                     }
                 )
+                var idSeleccionado by rememberSaveable { mutableStateOf<Int?>(null) }
+                BackHandler(enabled = idSeleccionado != null) { idSeleccionado = null }
                 Scaffold(
                     topBar = {
                         TopAppBar(
@@ -42,7 +55,16 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                 ) { padding ->
-                    PantallaLista(vm, Modifier.padding(padding))
+                    val id = idSeleccionado
+                    if (id == null) {
+                        PantallaLista(
+                            vm = vm,
+                            onPostClick = { vm.abrir(it); idSeleccionado = it },
+                            modifier = Modifier.padding(padding)
+                        )
+                    } else {
+                        PantallaDetalle(vm, id, Modifier.padding(padding))
+                    }
                 }
             }
         }
