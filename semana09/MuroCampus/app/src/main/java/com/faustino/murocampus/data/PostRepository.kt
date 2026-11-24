@@ -12,6 +12,7 @@ interface PostRepository {
     suspend fun comentarios(id: Int): Result<List<Comentario>>
     suspend fun porUsuario(userId: Int): Result<List<Post>>
     suspend fun crear(nuevo: NuevoPost): Result<Post>
+    suspend fun borrar(id: Int): Result<Unit>
 }
 
 class PostRepositoryRemote(private val api: PostApi) : PostRepository {
@@ -40,4 +41,18 @@ class PostRepositoryRemote(private val api: PostApi) : PostRepository {
 
     override suspend fun crear(nuevo: NuevoPost): Result<Post> =
         llamar { api.crear(nuevo) }
+
+    override suspend fun borrar(id: Int): Result<Unit> =
+        try {
+            val resp = api.borrar(id)
+            if (resp.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(retrofit2.HttpException(resp))
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
 }

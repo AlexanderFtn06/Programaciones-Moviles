@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class DetalleUi(
@@ -29,18 +30,16 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     private val _busqueda = MutableStateFlow("")
     val busqueda: StateFlow<String> = _busqueda.asStateFlow()
 
-    val lista: StateFlow<UiState<List<Post>>> = combine(_listaRaw, _busqueda) { estado, query ->
+    private val _borrados = MutableStateFlow<Set<Int>>(emptySet())
+
+    val lista: StateFlow<UiState<List<Post>>> = combine(_listaRaw, _busqueda, _borrados) { estado, query, borrados ->
         if (estado is UiState.Exito) {
             val q = query.trim()
-            if (q.isEmpty()) {
-                estado
-            } else {
-                UiState.Exito(
-                    estado.datos.filter { post ->
-                        post.title.contains(q, ignoreCase = true)
-                    }
-                )
-            }
+            UiState.Exito(
+                estado.datos.filter { post ->
+                    post.id !in borrados && (q.isEmpty() || post.title.contains(q, ignoreCase = true))
+                }
+            )
         } else {
             estado
         }
@@ -60,6 +59,10 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     // null = todavía no se envió nada
     private val _creacion = MutableStateFlow<UiState<Post>?>(null)
     val creacion: StateFlow<UiState<Post>?> = _creacion.asStateFlow()
+
+    // null = todavía no se intentó borrar
+    private val _borrado = MutableStateFlow<UiState<Unit>?>(null)
+    val borrado: StateFlow<UiState<Unit>?> = _borrado.asStateFlow()
 
     private var jobLista: Job? = null
 
@@ -89,6 +92,7 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
     }
 
     fun abrir(id: Int) {
+        reiniciarBorrado()
         viewModelScope.launch {
             _detalle.value = UiState.Cargando
 
@@ -123,5 +127,23 @@ class PostsViewModel(private val repo: PostRepository) : ViewModel() {
 
     fun reiniciarCreacion() {
         _creacion.value = null
+    }
+
+    fun borrar(id: Int) {
+        viewModelScope.launch {
+            _borrado.value = UiState.Cargando
+            repo.borrar(id)
+                .onSuccess {
+                    _borrados.update { it + id }
+                    _borrado.value = UiState.Exito(Unit)
+                }
+                .onFailure {
+                    _borrado.value = UiState.Error(mensajeDe(it))
+                }
+        }
+    }
+
+    fun reiniciarBorrado() {
+        _borrado.value = null
     }
 }

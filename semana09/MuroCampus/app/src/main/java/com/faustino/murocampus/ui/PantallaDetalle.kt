@@ -11,15 +11,24 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -27,8 +36,52 @@ import com.faustino.murocampus.viewmodel.PostsViewModel
 import com.faustino.murocampus.viewmodel.UiState
 
 @Composable
-fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) {
+fun PantallaDetalle(
+    vm: PostsViewModel,
+    id: Int,
+    modifier: Modifier = Modifier,
+    onVolver: () -> Unit = {}
+) {
     val estado by vm.detalle.collectAsStateWithLifecycle()
+    val estadoBorrado by vm.borrado.collectAsStateWithLifecycle()
+    var mostrarDialogo by rememberSaveable { mutableStateOf(false) }
+
+    LaunchedEffect(estadoBorrado) {
+        if (estadoBorrado is UiState.Exito) {
+            vm.reiniciarBorrado()
+            onVolver()
+        }
+    }
+
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = {
+                if (estadoBorrado != UiState.Cargando) mostrarDialogo = false
+            },
+            title = { Text("Eliminar publicación") },
+            text = { Text("¿Estás seguro de que deseas eliminar esta publicación?") },
+            confirmButton = {
+                Button(
+                    onClick = { vm.borrar(id) },
+                    enabled = estadoBorrado != UiState.Cargando,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError
+                    )
+                ) {
+                    Text("Eliminar")
+                }
+            },
+            dismissButton = {
+                OutlinedButton(
+                    onClick = { mostrarDialogo = false },
+                    enabled = estadoBorrado != UiState.Cargando
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 
     when (val e = estado) {
         UiState.Cargando -> Cargando(modifier)
@@ -66,6 +119,36 @@ fun PantallaDetalle(vm: PostsViewModel, id: Int, modifier: Modifier = Modifier) 
                                 text = detalle.post.body.replace("\n", " "),
                                 style = MaterialTheme.typography.bodyMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(Modifier.height(12.dp))
+                            Button(
+                                onClick = { mostrarDialogo = true },
+                                enabled = estadoBorrado != UiState.Cargando,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError
+                                ),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text("Eliminar")
+                            }
+                        }
+                    }
+                }
+
+                if (estadoBorrado is UiState.Error) {
+                    item {
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(
+                                text = (estadoBorrado as UiState.Error).mensaje,
+                                color = MaterialTheme.colorScheme.onErrorContainer,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(12.dp)
                             )
                         }
                     }

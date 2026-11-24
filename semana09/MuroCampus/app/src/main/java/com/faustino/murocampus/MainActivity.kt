@@ -78,7 +78,12 @@ class MainActivity : ComponentActivity() {
                     val id = idSeleccionado
                     when {
                         creando -> PantallaCrear(vm, Modifier.padding(padding))
-                        id != null -> PantallaDetalle(vm, id, Modifier.padding(padding))
+                        id != null -> PantallaDetalle(
+                            vm = vm,
+                            id = id,
+                            modifier = Modifier.padding(padding),
+                            onVolver = { idSeleccionado = null }
+                        )
                         else -> PantallaLista(
                             vm = vm,
                             onPostClick = { vm.abrir(it); idSeleccionado = it },
