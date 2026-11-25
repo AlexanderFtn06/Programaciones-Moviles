@@ -49,6 +49,7 @@ import com.faustino.avisoscampus.viewmodel.AvisosViewModel
 @Composable
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
+    val avisos by vm.avisos.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
@@ -179,9 +180,7 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     }
                 }
             }
-            Tarjeta("Historial") {
-                Text("Sin avisos todavía")
-            }
+            HistorialAvisos(avisos)
         }
     }
 }
