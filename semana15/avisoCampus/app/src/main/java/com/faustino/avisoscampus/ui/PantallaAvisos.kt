@@ -113,7 +113,10 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ) { Text("Permitir notificaciones") }
             }
             Tarjeta("Avisos") {
-                Button(onClick = { /* TODO Paso 3 */ }) { Text("Mostrar aviso") }
+                Button(
+                    onClick = { vm.avisarAhora() },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) { Text("Mostrar aviso") }
             }
             Tarjeta("Recordatorio") {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
