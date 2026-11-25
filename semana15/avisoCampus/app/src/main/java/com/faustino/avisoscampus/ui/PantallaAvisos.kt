@@ -1,6 +1,8 @@
 package com.faustino.avisoscampus.ui
 
 import android.Manifest
+import android.content.Intent
+import android.content.IntentFilter
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -26,6 +28,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,9 +37,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import com.faustino.avisoscampus.model.PermisoUi
 import com.faustino.avisoscampus.notificacion.Notificador
+import com.faustino.avisoscampus.receiver.ModoAvionReceiver
 import com.faustino.avisoscampus.viewmodel.AvisosViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -141,9 +147,36 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 }
             }
             Tarjeta("Receptor de anuncios") {
+                val escuchando by vm.escuchandoAvion.collectAsState()
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Switch(checked = false, onCheckedChange = { /* TODO Paso 6 */ })
+                    Switch(
+                        checked = escuchando,
+                        onCheckedChange = { vm.cambiarEscucha(it) }
+                    )
                     Text("Escuchar el modo avión", modifier = Modifier.padding(start = 8.dp))
+                }
+                Text(
+                    text = "Activa o desactiva el modo avión del celular",
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                DisposableEffect(escuchando) {
+                    if (escuchando) {
+                        val receptor = ModoAvionReceiver { activo ->
+                            vm.alCambiarModoAvion(activo)
+                        }
+                        ContextCompat.registerReceiver(
+                            contexto,
+                            receptor,
+                            IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                            ContextCompat.RECEIVER_NOT_EXPORTED
+                        )
+                        onDispose { contexto.unregisterReceiver(receptor) }
+                    } else {
+                        onDispose { }
+                    }
                 }
             }
             Tarjeta("Historial") {
