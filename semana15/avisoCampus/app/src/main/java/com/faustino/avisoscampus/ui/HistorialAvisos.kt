@@ -50,6 +50,7 @@ fun HistorialAvisos(avisos: List<Aviso>) {
                                 Origen.BOTON -> Color(0xFF1976D2)
                                 Origen.RECORDATORIO -> Color(0xFFF9A825)
                                 Origen.MODO_AVION -> Color(0xFF7B1FA2)
+                                Origen.CARGADOR -> Color(0xFF2E7D32)
                             }
                             Box(
                                 modifier = Modifier

@@ -43,6 +43,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.faustino.avisoscampus.model.PermisoUi
 import com.faustino.avisoscampus.notificacion.Notificador
+import com.faustino.avisoscampus.receiver.CargadorReceiver
 import com.faustino.avisoscampus.receiver.ModoAvionReceiver
 import com.faustino.avisoscampus.viewmodel.AvisosViewModel
 
@@ -203,6 +204,33 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                             contexto,
                             receptor,
                             IntentFilter(Intent.ACTION_AIRPLANE_MODE_CHANGED),
+                            ContextCompat.RECEIVER_NOT_EXPORTED
+                        )
+                        onDispose { contexto.unregisterReceiver(receptor) }
+                    } else {
+                        onDispose { }
+                    }
+                }
+                val escuchandoCargador by vm.escuchandoCargador.collectAsState()
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Switch(
+                        checked = escuchandoCargador,
+                        onCheckedChange = { vm.cambiarEscuchaCargador(it) }
+                    )
+                    Text("Escuchar el cargador", modifier = Modifier.padding(start = 8.dp))
+                }
+                DisposableEffect(escuchandoCargador) {
+                    if (escuchandoCargador) {
+                        val receptor = CargadorReceiver { conectado ->
+                            vm.alCambiarCargador(conectado)
+                        }
+                        ContextCompat.registerReceiver(
+                            contexto,
+                            receptor,
+                            IntentFilter().apply {
+                                addAction(Intent.ACTION_POWER_CONNECTED)
+                                addAction(Intent.ACTION_POWER_DISCONNECTED)
+                            },
                             ContextCompat.RECEIVER_NOT_EXPORTED
                         )
                         onDispose { contexto.unregisterReceiver(receptor) }
