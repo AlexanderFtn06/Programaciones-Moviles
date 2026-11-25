@@ -18,6 +18,7 @@ import com.faustino.avisoscampus.model.Aviso
 
 object Notificador {
     const val CANAL = "avisos"
+    const val CANAL_URGENTES = "urgentes"
 
     fun crearCanal(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -26,8 +27,14 @@ object Notificador {
                 "Avisos",
                 NotificationManager.IMPORTANCE_DEFAULT
             )
+            val canalUrgente = NotificationChannel(
+                CANAL_URGENTES,
+                "Urgentes",
+                NotificationManager.IMPORTANCE_HIGH
+            )
             val manager = context.getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(canal)
+            manager.createNotificationChannel(canalUrgente)
         }
     }
 
@@ -51,7 +58,8 @@ object Notificador {
             PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notificacion = NotificationCompat.Builder(context, CANAL)
+        val idCanal = if (aviso.urgente) CANAL_URGENTES else CANAL
+        val notificacion = NotificationCompat.Builder(context, idCanal)
             .setSmallIcon(R.drawable.ic_notificacion)
             .setContentTitle(aviso.titulo)
             .setContentText(aviso.texto)
