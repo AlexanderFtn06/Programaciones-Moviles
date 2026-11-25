@@ -49,26 +49,32 @@ El ViewModel decide qué se avisa y lo anota en el Repository. Después emite un
 
 **Notificación en el panel**
 
-![Captura de pantalla 2026-11-25 a las 4.58.21 p. m..png](../../../../Captura%20de%20pantalla%202026-11-25%20a%20las%204.58.21%E2%80%AFp.%E2%80%AFm..png)
+<img width="171" height="383" alt="Captura de pantalla 2026-11-25 a las 5 02 41 p  m" src="https://github.com/user-attachments/assets/16ac752d-5c8c-4cf4-992c-423be2d1241e" />
+
 
 **Recordatorio con cuenta regresiva**
 
-![Captura de pantalla 2026-11-25 a las 4.59.40 p. m..png](../../../../../../../var/folders/nq/3v5cbqjs067gf7m6f4z15f100000gn/T/TemporaryItems/NSIRD_screencaptureui_pQm7aY/Captura%20de%20pantalla%202026-11-25%20a%20las%204.59.40%E2%80%AFp.%E2%80%AFm..png)
+<img width="173" height="381" alt="Captura de pantalla 2026-11-25 a las 5 03 55 p  m" src="https://github.com/user-attachments/assets/84706238-8d76-45c9-bfbd-8b1af8c46918" />
+
+<img width="170" height="367" alt="Captura de pantalla 2026-11-25 a las 5 04 23 p  m" src="https://github.com/user-attachments/assets/6349900f-fb34-4e58-b7d2-d34cba939553" />
+
+
 
 
 **Aviso del modo avión**
 
-![Captura de pantalla 2026-11-25 a las 5.00.02 p. m..png](../../../../../../../var/folders/nq/3v5cbqjs067gf7m6f4z15f100000gn/T/TemporaryItems/NSIRD_screencaptureui_eQZHUm/Captura%20de%20pantalla%202026-11-25%20a%20las%205.00.02%E2%80%AFp.%E2%80%AFm..png)
+<img width="176" height="354" alt="Captura de pantalla 2026-11-25 a las 5 04 33 p  m" src="https://github.com/user-attachments/assets/d052f349-41ff-4c7a-a60c-0b29ac3ff6dc" />
 
-![Captura de pantalla 2026-11-25 a las 5.00.17 p. m..png](../../../../../../../var/folders/nq/3v5cbqjs067gf7m6f4z15f100000gn/T/TemporaryItems/NSIRD_screencaptureui_c2MlrQ/Captura%20de%20pantalla%202026-11-25%20a%20las%205.00.17%E2%80%AFp.%E2%80%AFm..png)
+<img width="169" height="359" alt="Captura de pantalla 2026-11-25 a las 5 04 44 p  m" src="https://github.com/user-attachments/assets/2f9bd5d8-fc91-4ed3-90d4-ae3f34b012d7" />
 
 **Historial de avisos**
 
-![Captura de pantalla 2026-11-25 a las 5.00.27 p. m..png](../../../../../../../var/folders/nq/3v5cbqjs067gf7m6f4z15f100000gn/T/TemporaryItems/NSIRD_screencaptureui_PMqksG/Captura%20de%20pantalla%202026-11-25%20a%20las%205.00.27%E2%80%AFp.%E2%80%AFm..png)
+<img width="162" height="344" alt="Captura de pantalla 2026-11-25 a las 5 05 08 p  m" src="https://github.com/user-attachments/assets/8f28cc99-6db9-47d6-841e-9a37d83b77ca" />
+
 
 **Permiso denegado**
 
-![Captura de pantalla 2026-11-25 a las 5.00.50 p. m..png](../../../../../../../var/folders/nq/3v5cbqjs067gf7m6f4z15f100000gn/T/TemporaryItems/NSIRD_screencaptureui_22IfBR/Captura%20de%20pantalla%202026-11-25%20a%20las%205.00.50%E2%80%AFp.%E2%80%AFm..png)
+<img width="159" height="355" alt="Captura de pantalla 2026-11-25 a las 5 05 18 p  m" src="https://github.com/user-attachments/assets/a2a4c222-894b-4321-8258-33c59dd08336" />
 
 
 ## Para pensar
