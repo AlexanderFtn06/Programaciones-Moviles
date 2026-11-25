@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.Build
+import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -50,11 +51,14 @@ import com.faustino.avisoscampus.viewmodel.AvisosViewModel
 fun PantallaAvisos(vm: AvisosViewModel) {
     val contexto = LocalContext.current
     val avisos by vm.avisos.collectAsState()
+    val mensaje by vm.mensaje.collectAsState()
 
     LaunchedEffect(Unit) {
         vm.eventos.collect { aviso ->
             val mostrado = Notificador.mostrar(contexto, aviso)
-            // TODO Paso 8: si no se mostró, avisar al ViewModel
+            if (!mostrado) {
+                vm.noSePudoMostrar()
+            }
         }
     }
 
@@ -118,6 +122,33 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                     },
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 ) { Text("Permitir notificaciones") }
+            }
+            mensaje?.let { textoMensaje ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(
+                            MaterialTheme.colorScheme.errorContainer,
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(12.dp)
+                ) {
+                    Text(
+                        text = textoMensaje,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+                OutlinedButton(
+                    onClick = {
+                        contexto.startActivity(
+                            Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+                                .putExtra(Settings.EXTRA_APP_PACKAGE, contexto.packageName)
+                        )
+                    },
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                ) { Text("Abrir ajustes") }
             }
             Tarjeta("Avisos") {
                 Button(
