@@ -119,9 +119,25 @@ fun PantallaAvisos(vm: AvisosViewModel) {
                 ) { Text("Mostrar aviso") }
             }
             Tarjeta("Recordatorio") {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = { /* TODO Paso 5 */ }) { Text("Recordar en 10 s") }
-                    OutlinedButton(onClick = { /* TODO Paso 5 */ }) { Text("Cancelar") }
+                val faltan by vm.faltan.collectAsState()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    Button(
+                        onClick = { vm.recordarEn() },
+                        enabled = faltan == null
+                    ) { Text("Recordar en 10 s") }
+                    OutlinedButton(
+                        onClick = { vm.cancelarRecordatorio() },
+                        enabled = faltan != null
+                    ) { Text("Cancelar") }
+                }
+                if (faltan != null) {
+                    Text(
+                        text = "Faltan $faltan s",
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
                 }
             }
             Tarjeta("Receptor de anuncios") {
